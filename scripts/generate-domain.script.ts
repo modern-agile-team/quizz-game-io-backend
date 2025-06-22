@@ -200,12 +200,12 @@ export const DomainNameFactory = Factory.define<DomainName & DomainNameProps>(
 const generateMapper = async (rootDir: string, dir: string, domain: string) => {
   const PRESET = `
 import { DomainName } from '@module/dir-name/entities/domain-name.entity';
-import { DomainNameRaw } from '@module/dir-name/repositories/domain-name/domain-name.repository.port';
+import { DomainNameOrmEntity } from '@module/dir-name/repositories/domain-name/domain-name.orm-entity';
 
 import { BaseMapper } from '@common/base/base.mapper';
 
 export class DomainNameMapper extends BaseMapper {
-  static toEntity(raw: DomainNameRaw): DomainName {
+  static toEntity(raw: DomainNameOrmEntity): DomainName {
     return new DomainName({
       id: this.toEntityId(raw.id),
       createdAt: raw.createdAt,
@@ -214,7 +214,7 @@ export class DomainNameMapper extends BaseMapper {
     });
   }
 
-  static toPersistence(entity: DomainName): DomainNameRaw {
+  static toPersistence(entity: DomainName): DomainNameOrmEntity {
     return {
       id: this.toPrimaryKey(entity.id),
       createdAt: entity.createdAt,
@@ -277,7 +277,7 @@ import { Entity, PrimaryKey, Property } from '@mikro-orm/postgresql';
 @Entity({ tableName: 'domain_name' })
 export class DomainNameOrmEntity {
   @PrimaryKey({ type: 'bigint' })
-  id: string;
+  id: bigint;
 
   @Property({ type: 'datetime', name: 'created_at', defaultRaw: 'now()' })
   createdAt: Date;
@@ -303,7 +303,6 @@ import { DomainNameOrmEntity } from '@module/dir-name/repositories/domain-name/d
 import {
   DomainNameFilter,
   DomainNameOrder,
-  DomainNameRaw,
   DomainNameRepositoryPort,
 } from '@module/dir-name/repositories/domain-name/domain-name.repository.port';
 
@@ -315,7 +314,7 @@ import {
 
 @Injectable()
 export class DomainNameRepository
-  extends BaseRepository<DomainName, DomainNameRaw>
+  extends BaseRepository<DomainName, DomainNameOrmEntity>
   implements DomainNameRepositoryPort
 {
   constructor(protected readonly em: EntityManager) {
