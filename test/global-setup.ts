@@ -1,9 +1,11 @@
+/* eslint-disable */
+import { mikroOrmFactory } from '../test/mikro-orm.factory';
 import { PostgreSqlContainer } from '@testcontainers/postgresql';
+// eslint-disable-next-line prettier/prettier
 import dotenv from 'dotenv';
-import { mikroOrmFactory } from 'test/mikro-orm.factory';
 
 module.exports = async function () {
-  dotenv.config({ path: 'apps/service-courseware/.env.test' });
+  dotenv.config({ path: '../.env.test' });
 
   const container = await new PostgreSqlContainer('postgres:16.1').start();
 

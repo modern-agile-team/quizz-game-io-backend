@@ -1,6 +1,7 @@
+// eslint-disable-next-line no-restricted-imports
+import mikroOrmConfig from '../mikro-orm.config';
 import { MikroORM } from '@mikro-orm/core';
 import { MetadataStorage } from '@mikro-orm/postgresql';
-import mikroOrmConfig from 'mikro-orm.config';
 
 export const mikroOrmFactory = async () => {
   const ormConfig = mikroOrmConfig;

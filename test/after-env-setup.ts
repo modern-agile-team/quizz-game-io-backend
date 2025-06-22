@@ -1,5 +1,6 @@
+/* eslint-disable */
+import { mikroOrmFactory } from '../test/mikro-orm.factory';
 import { faker } from '@faker-js/faker';
-import { mikroOrmFactory } from 'test/mikro-orm.factory';
 
 jest.mock('nestjs-request-context', () => ({
   RequestContext: {

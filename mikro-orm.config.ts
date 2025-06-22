@@ -1,6 +1,7 @@
-import { Options } from '@mikro-orm/core';
+/* eslint-disable */
+import { Entity, Options, PrimaryKey } from '@mikro-orm/core';
 import { Migrator } from '@mikro-orm/migrations';
-import { Entity, PostgreSqlDriver, PrimaryKey } from '@mikro-orm/postgresql';
+import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import dotenv from 'dotenv';
 
 @Entity({ tableName: 'temp' })
