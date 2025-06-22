@@ -41,8 +41,6 @@ export abstract class BaseRepository<
   Raw extends { id: bigint },
 > implements Omit<RepositoryPort<Entity>, 'findAllCursorPaginated'>
 {
-  protected abstract TABLE_NAME: string;
-
   constructor(
     protected readonly em: EntityManager,
     protected readonly entityName: EntityName<any>,
