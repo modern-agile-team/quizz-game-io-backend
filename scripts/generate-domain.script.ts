@@ -1,0 +1,456 @@
+import { exec } from 'child_process';
+import { Command } from 'commander';
+import { writeFileSync } from 'fs';
+import path from 'path';
+import camelCase from 'to-camel-case';
+import pascalCase from 'to-pascal-case';
+import snakeCase from 'to-snake-case';
+
+const program = new Command();
+
+const runCommand = (command: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error executing command: ${command}`);
+        console.error(stderr);
+        reject(error);
+        return;
+      }
+      console.log(stdout);
+      resolve();
+    });
+  });
+};
+
+const createdFiles: string[] = [];
+
+const generateDirs = async (rootDir: string, domain: string) => {
+  const dirs = [
+    rootDir,
+    path.join(rootDir, 'use-cases'),
+    path.join(rootDir, 'assemblers'),
+    path.join(rootDir, 'dto'),
+    path.join(rootDir, 'entities'),
+    path.join(rootDir, 'entities', '__spec__'),
+    path.join(rootDir, 'mappers'),
+    path.join(rootDir, 'repositories'),
+    path.join(rootDir, 'repositories', domain),
+    path.join(rootDir, 'repositories', domain, '__spec__'),
+  ];
+
+  for await (const dirPath of dirs) {
+    try {
+      await runCommand(`mkdir ${dirPath}`);
+      console.log(`generate dir ${dirPath}`);
+    } catch (error) {
+      console.log(`already exist dir ${dirPath}`);
+    }
+  }
+};
+
+const generateFile = (
+  path: string,
+  preset: string,
+  dir: string,
+  domain: string,
+) => {
+  const reconfigureFile = (preset: string, dir: string, domain: string) => {
+    const REGEXP_MAP = [
+      ['dir-name', dir],
+      ['domain-name', domain],
+      ['DomainName', pascalCase(domain)],
+      ['domainName', camelCase(domain)],
+      ['DOMAIN_NAME', snakeCase(domain).toUpperCase()],
+      ['domain_name', snakeCase(domain)],
+    ];
+
+    return REGEXP_MAP.reduce((acc, [key, value]) => {
+      const regexp = new RegExp(key, 'gm');
+      return acc.replace(regexp, value);
+    }, preset);
+  };
+
+  try {
+    writeFileSync(path, reconfigureFile(preset, dir, domain));
+    createdFiles.push(path);
+    console.log(`generate file ${path}`);
+  } catch (error) {
+    console.log(`already exist file ${path}`);
+  }
+};
+
+const generateModule = async (dir: string) => {
+  await runCommand(`nest g module ${dir} modules`).catch(() => {});
+};
+
+const generateAssembler = async (
+  rootDir: string,
+  dir: string,
+  domain: string,
+) => {
+  const PRESET = `
+import { DomainNameDto } from '@module/dir-name/dto/domain-name.dto';
+import { DomainName } from '@module/dir-name/entities/domain-name.entity';
+
+export class DomainNameDtoAssembler {
+  static convertToDto(domainName: DomainName): DomainNameDto {
+    const dto = new DomainNameDto({
+      id: domainName.id,
+      createdAt: domainName.createdAt,
+      updatedAt: domainName.updatedAt,
+    });
+
+    return dto;
+  }
+}
+`;
+
+  generateFile(
+    `${rootDir}/assemblers/${domain}-dto.assembler.ts`,
+    PRESET,
+    dir,
+    domain,
+  );
+};
+
+const generateDto = async (rootDir: string, dir: string, domain: string) => {
+  const PRESET = `
+import { BaseResponseDto } from '@common/base/base.dto';
+
+export class DomainNameDto extends BaseResponseDto {}
+`;
+
+  generateFile(`${rootDir}/dto/${domain}.dto.ts`, PRESET, dir, domain);
+};
+
+const generateEntity = async (rootDir: string, dir: string, domain: string) => {
+  const ENTITY_PRESET = `
+import {
+  BaseEntity,
+  CreateEntityProps,
+  generateEntityId,
+} from '@common/base/base.entity';
+
+export interface DomainNameProps {}
+
+interface CreateDomainNameProps {}
+
+export class DomainName extends BaseEntity<DomainNameProps> {
+  constructor(props: CreateEntityProps<DomainNameProps>) {
+    super(props);
+  }
+
+  static create(props: CreateDomainNameProps) {
+    const id = generateEntityId();
+    const date = new Date();
+
+    return new DomainName({
+      id,
+      props: {},
+      createdAt: date,
+      updatedAt: date,
+    });
+  }
+
+  public validate(): void {}
+}
+`;
+
+  const FACTORY_PRESET = `
+import { faker } from '@faker-js/faker';
+import { Factory } from 'rosie';
+
+import {
+  DomainName,
+  DomainNameProps,
+} from '@module/dir-name/entities/domain-name.entity';
+
+import { generateEntityId } from '@common/base/base.entity';
+
+export const DomainNameFactory = Factory.define<DomainName & DomainNameProps>(
+  DomainName.name,
+)
+  .attrs({
+    id: () => generateEntityId(),
+    createdAt: () => new Date(),
+    updatedAt: () => new Date(),
+  })
+  .after(
+    ({ id, createdAt, updatedAt, ...props }) =>
+      new DomainName({ id, createdAt, updatedAt, props }),
+  );
+`;
+
+  generateFile(
+    `${rootDir}/entities/${domain}.entity.ts`,
+    ENTITY_PRESET,
+    dir,
+    domain,
+  );
+
+  generateFile(
+    `${rootDir}/entities/__spec__/${domain}.factory.ts`,
+    FACTORY_PRESET,
+    dir,
+    domain,
+  );
+};
+
+const generateMapper = async (rootDir: string, dir: string, domain: string) => {
+  const PRESET = `
+import { DomainName } from '@module/dir-name/entities/domain-name.entity';
+import { DomainNameRaw } from '@module/dir-name/repositories/domain-name/domain-name.repository.port';
+
+import { BaseMapper } from '@common/base/base.mapper';
+
+export class DomainNameMapper extends BaseMapper {
+  static toEntity(raw: DomainNameRaw): DomainName {
+    return new DomainName({
+      id: this.toEntityId(raw.id),
+      createdAt: raw.createdAt,
+      updatedAt: raw.updatedAt,
+      props: {},
+    });
+  }
+
+  static toPersistence(entity: DomainName): DomainNameRaw {
+    return {
+      id: this.toPrimaryKey(entity.id),
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    };
+  }
+}
+`;
+
+  generateFile(`${rootDir}/mappers/${domain}.mapper.ts`, PRESET, dir, domain);
+};
+
+const generateRepository = async (
+  rootDir: string,
+  dir: string,
+  domain: string,
+) => {
+  const MODULE_PRESET = `
+import { Module } from '@nestjs/common';
+
+import { DomainNameRepository } from '@module/dir-name/repositories/domain-name/domain-name.repository';
+import { DOMAIN_NAME_REPOSITORY } from '@module/dir-name/repositories/domain-name/domain-name.repository.port';
+
+@Module({
+  providers: [
+    {
+      provide: DOMAIN_NAME_REPOSITORY,
+      useClass: DomainNameRepository,
+    },
+  ],
+  exports: [DOMAIN_NAME_REPOSITORY],
+})
+export class DomainNameRepositoryModule {}
+`;
+
+  const PORT_PRESET = `
+import { DomainName } from '@module/dir-name/entities/domain-name.entity';
+
+import { RepositoryPort } from '@common/base/base.repository';
+
+export const DOMAIN_NAME_REPOSITORY = Symbol('DOMAIN_NAME_REPOSITORY');
+
+export interface DomainNameRaw {
+  id: bigint;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface DomainNameFilter {}
+
+export interface DomainNameOrder {}
+
+export interface DomainNameRepositoryPort
+  extends RepositoryPort<DomainName, DomainNameFilter, DomainNameOrder> {}
+`;
+
+  const ORM_ENTITY_PRESET = `
+import { Entity, PrimaryKey, Property } from '@mikro-orm/postgresql';
+
+@Entity({ tableName: 'domain_name' })
+export class DomainNameOrmEntity {
+  @PrimaryKey({ type: 'bigint' })
+  id: string;
+
+  @Property({ type: 'datetime', name: 'created_at', defaultRaw: 'now()' })
+  createdAt: Date;
+
+  @Property({
+    type: 'datetime',
+    name: 'updated_at',
+    defaultRaw: 'now()',
+  })
+  updatedAt: Date;
+}
+
+`;
+
+  const REPOSITORY_PRESET = `
+import { Injectable } from '@nestjs/common';
+
+import { EntityManager } from '@mikro-orm/postgresql';
+
+import { DomainName } from '@module/dir-name/entities/domain-name.entity';
+import { DomainNameMapper } from '@module/dir-name/mappers/domain-name.mapper';
+import { DomainNameOrmEntity } from '@module/dir-name/repositories/domain-name/domain-name.orm-entity';
+import {
+  DomainNameFilter,
+  DomainNameOrder,
+  DomainNameRaw,
+  DomainNameRepositoryPort,
+} from '@module/dir-name/repositories/domain-name/domain-name.repository.port';
+
+import {
+  BaseRepository,
+  ICursorPaginated,
+  ICursorPaginatedParams,
+} from '@common/base/base.repository';
+
+@Injectable()
+export class DomainNameRepository
+  extends BaseRepository<DomainName, DomainNameRaw>
+  implements DomainNameRepositoryPort
+{
+  constructor(protected readonly em: EntityManager) {
+    super(em, DomainNameOrmEntity, DomainNameMapper);
+  }
+
+  findAllCursorPaginated(
+    params: ICursorPaginatedParams<DomainNameFilter, DomainNameOrder>,
+  ): Promise<ICursorPaginated<DomainName>> {
+    throw new Error('Method not implemented.');
+  }
+}
+`;
+
+  const SPEC_PRESET = `
+import { Test, TestingModule } from '@nestjs/testing';
+
+import { EntityManager } from '@mikro-orm/postgresql';
+
+import { DomainNameFactory } from '@module/dir-name/entities/__spec__/domain-name.factory';
+import { DomainName } from '@module/dir-name/entities/domain-name.entity';
+import { DomainNameRepository } from '@module/dir-name/repositories/domain-name/domain-name.repository';
+import {
+  DOMAIN_NAME_REPOSITORY,
+  DomainNameRepositoryPort,
+} from '@module/dir-name/repositories/domain-name/domain-name.repository.port';
+
+import { generateEntityId } from '@common/base/base.entity';
+
+describe(DomainNameRepository, () => {
+  let repository: DomainNameRepositoryPort;
+
+  beforeAll(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        {
+          provide: EntityManager,
+          useValue: global.orm.em,
+        },
+        {
+          provide: DOMAIN_NAME_REPOSITORY,
+          useClass: DomainNameRepository,
+        },
+      ],
+    }).compile();
+
+    repository = module.get<DomainNameRepositoryPort>(DOMAIN_NAME_REPOSITORY);
+  });
+
+  describe(DomainNameRepository.prototype.findOneById, () => {
+    let domainNameId: string;
+
+    beforeEach(() => {
+      domainNameId = generateEntityId();
+    });
+
+    describe('식별자와 일치하는 리소스가 존재하는 경우', () => {
+      let domainName: DomainName;
+
+      beforeEach(async () => {
+        domainName = await repository.insert(
+          DomainNameFactory.build({ id: domainNameId }),
+        );
+      });
+
+      describe('리소스를 조회하면', () => {
+        it('리소스가 반환돼야한다.', async () => {
+          await expect(repository.findOneById(domainNameId)).resolves.toEqual(
+            domainName,
+          );
+        });
+      });
+    });
+  });
+});
+`;
+
+  generateFile(
+    `${rootDir}/repositories/${domain}/${domain}.repository.module.ts`,
+    MODULE_PRESET,
+    dir,
+    domain,
+  );
+  generateFile(
+    `${rootDir}/repositories/${domain}/${domain}.repository.port.ts`,
+    PORT_PRESET,
+    dir,
+    domain,
+  );
+  generateFile(
+    `${rootDir}/repositories/${domain}/${domain}.orm-entity.ts`,
+    ORM_ENTITY_PRESET,
+    dir,
+    domain,
+  );
+  generateFile(
+    `${rootDir}/repositories/${domain}/${domain}.repository.ts`,
+    REPOSITORY_PRESET,
+    dir,
+    domain,
+  );
+  generateFile(
+    `${rootDir}/repositories/${domain}/__spec__/${domain}.repository.spec.ts`,
+    SPEC_PRESET,
+    dir,
+    domain,
+  );
+};
+
+// CLI 명령어 정의
+program
+  .name('generate-domain')
+  .description('Generate a new general file for domain.')
+  .version('1.0.0')
+  .argument('<dir>', 'Name of the target dir name')
+  .argument('<domain>', 'Name of the target domain')
+  .action(async (dirName: string, domainName: string) => {
+    if (domainName === undefined || dirName === undefined) {
+      throw new Error('domainName, dirName is required');
+    }
+
+    const rootDir = path.resolve(process.cwd(), 'src', 'modules', dirName);
+
+    await generateDirs(rootDir, domainName);
+    await generateModule(dirName);
+    await generateAssembler(rootDir, dirName, domainName);
+    await generateDto(rootDir, dirName, domainName);
+    await generateEntity(rootDir, dirName, domainName);
+    await generateMapper(rootDir, dirName, domainName);
+    await generateRepository(rootDir, dirName, domainName);
+
+    if (createdFiles.length !== 0) {
+      await runCommand(`npx prettier --write ${createdFiles.join(' ')}`);
+    }
+  });
+
+// 프로그램 실행
+program.parse(process.argv);
