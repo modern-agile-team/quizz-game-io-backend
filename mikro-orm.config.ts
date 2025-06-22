@@ -1,16 +1,11 @@
 /* eslint-disable */
-import { Entity, Options, PrimaryKey } from '@mikro-orm/core';
+import { AccountOrmEntity } from './src/modules/account/repositories/account/account.orm-entity';
+import { Options } from '@mikro-orm/core';
 import { Migrator } from '@mikro-orm/migrations';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import dotenv from 'dotenv';
 
-@Entity({ tableName: 'temp' })
-export class TempEntity {
-  @PrimaryKey({ type: 'uuid' })
-  id: string;
-}
-
-const ENTITIES = [TempEntity];
+const ENTITIES = [AccountOrmEntity];
 
 const migrations = {
   tableName: 'mikro_orm_migrations', // migrations table name
@@ -32,6 +27,7 @@ const configs = {
     entities: ENTITIES,
     clientUrl: process.env.DATABASE_URL,
     schema: 'quizzes_game_io_backend',
+    debug: false,
     driver: PostgreSqlDriver,
     allowGlobalContext: true,
     extensions: [],

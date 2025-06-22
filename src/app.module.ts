@@ -5,6 +5,8 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import mikroOrmConfig from 'mikro-orm.config';
 import { RequestContextModule } from 'nestjs-request-context';
 
+import { AccountModule } from '@module/account/account.module';
+
 import { AppConfigModule } from '@common/app-config/app-config.module';
 
 import { LoggerModule } from '@shared/logger/logger.module';
@@ -16,6 +18,8 @@ import { LoggerModule } from '@shared/logger/logger.module';
     AppConfigModule,
     LoggerModule,
     MikroOrmModule.forRoot(mikroOrmConfig),
+
+    AccountModule,
   ],
   controllers: [],
   providers: [],

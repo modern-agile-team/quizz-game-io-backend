@@ -1,0 +1,14 @@
+import { Account } from '@module/account/entities/account.entity';
+
+import { RepositoryPort } from '@common/base/base.repository';
+
+export const ACCOUNT_REPOSITORY = Symbol('ACCOUNT_REPOSITORY');
+
+export interface AccountFilter {}
+
+export interface AccountOrder {}
+
+export interface AccountRepositoryPort
+  extends RepositoryPort<Account, AccountFilter, AccountOrder> {
+  findOneByUsername(username: string): Promise<Account | undefined>;
+}
