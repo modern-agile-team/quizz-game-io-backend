@@ -1,4 +1,4 @@
-import { AccountCreatedEvent } from '@module/account/events/account-created.event';
+import { AccountCreatedEvent } from '@module/account/events/account-created-event/account-created.event';
 
 import {
   AggregateRoot,

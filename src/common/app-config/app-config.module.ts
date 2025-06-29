@@ -20,6 +20,12 @@ import { AppConfigService } from '@common/app-config/app-config.service';
         [ENV_KEY.PORT]: Joi.number(),
         [ENV_KEY.NODE_ENV]: Joi.string().required(),
         [ENV_KEY.APP_STAGE]: Joi.string().required(),
+
+        [ENV_KEY.DATABASE_URL]: Joi.string().required(),
+
+        [ENV_KEY.JWT_SECRET_KEY]: Joi.string().required(),
+        [ENV_KEY.JWT_ISSUER]: Joi.string().required(),
+        [ENV_KEY.JWT_ACCESS_TOKEN_EXPIRES_IN]: Joi.string().required(),
       }),
     }),
   ],

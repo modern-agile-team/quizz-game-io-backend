@@ -68,3 +68,11 @@ export class PermissionDeniedError extends BaseError {
     super(message ?? 'User permission Denied', PermissionDeniedError.CODE);
   }
 }
+
+export class UnauthorizedError extends BaseError {
+  static CODE: string = 'COMMON.UNAUTHORIZED';
+
+  constructor(message?: string) {
+    super(message ?? 'Unauthorized can not access', UnauthorizedError.CODE);
+  }
+}
