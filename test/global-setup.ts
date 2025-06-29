@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { PostgreSqlContainer } from '@testcontainers/postgresql';
 import fs from 'fs';
 import path from 'path';
