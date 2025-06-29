@@ -1,6 +1,8 @@
 import { Inject } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
+import bcrypt from 'bcrypt';
+
 import {
   Account,
   AccountRole,
@@ -29,7 +31,7 @@ export class SignUpWithUsernameHandler
       role: AccountRole.user,
       signInType: SignInType.username,
       username: command.username,
-      password: command.password,
+      password: await bcrypt.hash(command.password, 10),
     });
 
     const account = await this.commandBus.execute<
