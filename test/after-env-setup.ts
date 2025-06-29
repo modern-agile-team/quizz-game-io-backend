@@ -5,7 +5,7 @@ jest.mock('nestjs-request-context', () => ({
     currentContext: {
       req: {
         user: {
-          id: faker.string.uuid(),
+          id: faker.string.numeric(),
         },
       },
     },
