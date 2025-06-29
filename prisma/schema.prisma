@@ -36,3 +36,17 @@ model Account {
 
   @@map("account")
 }
+
+model AccountEventStore {
+  id           BigInt   @id
+  actorId      BigInt?
+  aggregateId  BigInt
+  eventName    String
+  eventPayload Json
+  version      Int
+  storedAt     DateTime @default(now()) @db.Timestamp(3)
+
+  @@unique([aggregateId, version])
+
+  @@map("account_event_store")
+}
