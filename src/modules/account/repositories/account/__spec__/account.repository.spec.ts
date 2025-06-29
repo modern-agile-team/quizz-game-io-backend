@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { faker } from '@faker-js/faker';
-import { EntityManager } from '@mikro-orm/postgresql';
 
 import { AccountFactory } from '@module/account/entities/__spec__/account.factory';
 import { Account } from '@module/account/entities/account.entity';
@@ -13,6 +12,9 @@ import {
 
 import { generateEntityId } from '@common/base/base.entity';
 
+import { PRISMA_SERVICE } from '@shared/prisma/prisma.di-token';
+import { PrismaService } from '@shared/prisma/prisma.service';
+
 describe(AccountRepository, () => {
   let repository: AccountRepositoryPort;
 
@@ -20,8 +22,8 @@ describe(AccountRepository, () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         {
-          provide: EntityManager,
-          useValue: global.orm.em,
+          provide: PRISMA_SERVICE,
+          useClass: PrismaService,
         },
         {
           provide: ACCOUNT_REPOSITORY,

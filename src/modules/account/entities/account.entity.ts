@@ -18,15 +18,15 @@ export enum SignInType {
 export interface AccountProps {
   role: AccountRole;
   signInType: SignInType;
-  username: string;
-  password: string;
+  username?: string;
+  password?: string;
 }
 
 interface CreateAccountProps {
   role: AccountRole;
   signInType: SignInType;
-  username: string;
-  password: string;
+  username?: string;
+  password?: string;
 }
 
 export class Account extends AggregateRoot<AccountProps> {
@@ -72,7 +72,7 @@ export class Account extends AggregateRoot<AccountProps> {
     return this.props.signInType;
   }
 
-  get username(): string {
+  get username(): string | undefined {
     return this.props.username;
   }
 }

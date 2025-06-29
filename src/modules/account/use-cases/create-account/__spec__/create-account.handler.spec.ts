@@ -1,10 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { EntityManager } from '@mikro-orm/postgresql';
-
 import { AccountFactory } from '@module/account/entities/__spec__/account.factory';
 import { AccountUsernameAlreadyOccupiedError } from '@module/account/errors/account-username-already-occupied.error';
-import { AccountRepository } from '@module/account/repositories/account/account.repository';
+import { AccountRepositoryModule } from '@module/account/repositories/account/account.repository.module';
 import {
   ACCOUNT_REPOSITORY,
   AccountRepositoryPort,
@@ -21,17 +19,8 @@ describe(CreateAccountHandler.name, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CreateAccountHandler,
-        {
-          provide: ACCOUNT_REPOSITORY,
-          useClass: AccountRepository,
-        },
-        {
-          provide: EntityManager,
-          useValue: global.orm.em,
-        },
-      ],
+      imports: [AccountRepositoryModule],
+      providers: [CreateAccountHandler],
     }).compile();
 
     handler = module.get<CreateAccountHandler>(CreateAccountHandler);

@@ -8,8 +8,8 @@ import { DomainEvent } from '@common/base/base.domain-event';
 interface AccountCreatedEventPayload {
   role: AccountRole;
   signInType: SignInType;
-  username: string;
-  password: string;
+  username?: string;
+  password?: string;
 }
 
 export class AccountCreatedEvent extends DomainEvent<AccountCreatedEventPayload> {
