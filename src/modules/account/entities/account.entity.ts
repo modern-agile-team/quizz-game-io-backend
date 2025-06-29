@@ -75,4 +75,8 @@ export class Account extends AggregateRoot<AccountProps> {
   get username(): string | undefined {
     return this.props.username;
   }
+
+  get password(): string | undefined {
+    return this.props.password;
+  }
 }
