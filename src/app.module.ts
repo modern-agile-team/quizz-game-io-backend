@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 
-import { MikroOrmModule } from '@mikro-orm/nestjs';
-import mikroOrmConfig from 'mikro-orm.config';
 import { RequestContextModule } from 'nestjs-request-context';
 
 import { AppConfigModule } from '@common/app-config/app-config.module';
 
 import { LoggerModule } from '@shared/logger/logger.module';
+import { PrismaModule } from '@shared/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -15,7 +14,7 @@ import { LoggerModule } from '@shared/logger/logger.module';
     RequestContextModule,
     AppConfigModule,
     LoggerModule,
-    MikroOrmModule.forRoot(mikroOrmConfig),
+    PrismaModule,
   ],
   controllers: [],
   providers: [],
