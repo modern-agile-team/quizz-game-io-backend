@@ -60,7 +60,6 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.10.7",
     "@types/rosie": "^0.0.45",
-    "@types/rosie": "^0.0.45",
     "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
