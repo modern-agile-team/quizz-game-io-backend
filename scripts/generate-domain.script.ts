@@ -29,6 +29,8 @@ const generateDirs = async (rootDir: string, domain: string) => {
   const dirs = [
     rootDir,
     path.join(rootDir, 'use-cases'),
+    path.join(rootDir, 'errors'),
+    path.join(rootDir, 'events'),
     path.join(rootDir, 'assemblers'),
     path.join(rootDir, 'dto'),
     path.join(rootDir, 'entities'),
@@ -238,7 +240,10 @@ import { Module } from '@nestjs/common';
 import { DomainNameRepository } from '@module/dir-name/repositories/domain-name/domain-name.repository';
 import { DOMAIN_NAME_REPOSITORY } from '@module/dir-name/repositories/domain-name/domain-name.repository.port';
 
+import { PrismaModule } from '@shared/prisma/prisma.module';
+
 @Module({
+  imports: [PrismaModule],
   providers: [
     {
       provide: DOMAIN_NAME_REPOSITORY,
@@ -251,12 +256,15 @@ export class DomainNameRepositoryModule {}
 `;
 
   const PORT_PRESET = `
+// import { DomainName as DomainNameModel } from '@prisma/client';
+
 import { DomainName } from '@module/dir-name/entities/domain-name.entity';
 
 import { RepositoryPort } from '@common/base/base.repository';
 
 export const DOMAIN_NAME_REPOSITORY = Symbol('DOMAIN_NAME_REPOSITORY');
 
+// export interface DomainNameRaw extends DomainNameModel {}
 export interface DomainNameRaw {
   id: bigint;
   createdAt: Date;
@@ -271,35 +279,11 @@ export interface DomainNameRepositoryPort
   extends RepositoryPort<DomainName, DomainNameFilter, DomainNameOrder> {}
 `;
 
-  const ORM_ENTITY_PRESET = `
-import { Entity, PrimaryKey, Property } from '@mikro-orm/postgresql';
-
-@Entity({ tableName: 'domain_name' })
-export class DomainNameOrmEntity {
-  @PrimaryKey({ type: 'bigint' })
-  id: string;
-
-  @Property({ type: 'datetime', name: 'created_at', defaultRaw: 'now()' })
-  createdAt: Date;
-
-  @Property({
-    type: 'datetime',
-    name: 'updated_at',
-    defaultRaw: 'now()',
-  })
-  updatedAt: Date;
-}
-
-`;
-
   const REPOSITORY_PRESET = `
-import { Injectable } from '@nestjs/common';
-
-import { EntityManager } from '@mikro-orm/postgresql';
+import { Inject, Injectable } from '@nestjs/common';
 
 import { DomainName } from '@module/dir-name/entities/domain-name.entity';
 import { DomainNameMapper } from '@module/dir-name/mappers/domain-name.mapper';
-import { DomainNameOrmEntity } from '@module/dir-name/repositories/domain-name/domain-name.orm-entity';
 import {
   DomainNameFilter,
   DomainNameOrder,
@@ -313,17 +297,25 @@ import {
   ICursorPaginatedParams,
 } from '@common/base/base.repository';
 
+import { PRISMA_SERVICE } from '@shared/prisma/prisma.di-token';
+import { PrismaService } from '@shared/prisma/prisma.service';
+
 @Injectable()
 export class DomainNameRepository
   extends BaseRepository<DomainName, DomainNameRaw>
   implements DomainNameRepositoryPort
 {
-  constructor(protected readonly em: EntityManager) {
-    super(em, DomainNameOrmEntity, DomainNameMapper);
+  protected TABLE_NAME = 'domainName';
+
+  constructor(
+    @Inject(PRISMA_SERVICE) protected readonly prismaService: PrismaService,
+  ) {
+    super(prismaService, DomainNameMapper);
   }
 
   findAllCursorPaginated(
-    params: ICursorPaginatedParams<DomainNameFilter, DomainNameOrder>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    params: ICursorPaginatedParams<DomainNameOrder, DomainNameFilter>,
   ): Promise<ICursorPaginated<DomainName>> {
     throw new Error('Method not implemented.');
   }
@@ -332,8 +324,6 @@ export class DomainNameRepository
 
   const SPEC_PRESET = `
 import { Test, TestingModule } from '@nestjs/testing';
-
-import { EntityManager } from '@mikro-orm/postgresql';
 
 import { DomainNameFactory } from '@module/dir-name/entities/__spec__/domain-name.factory';
 import { DomainName } from '@module/dir-name/entities/domain-name.entity';
@@ -345,6 +335,9 @@ import {
 
 import { generateEntityId } from '@common/base/base.entity';
 
+import { PRISMA_SERVICE } from '@shared/prisma/prisma.di-token';
+import { PrismaService } from '@shared/prisma/prisma.service';
+
 describe(DomainNameRepository, () => {
   let repository: DomainNameRepositoryPort;
 
@@ -352,8 +345,8 @@ describe(DomainNameRepository, () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         {
-          provide: EntityManager,
-          useValue: global.orm.em,
+          provide: PRISMA_SERVICE,
+          useClass: PrismaService,
         },
         {
           provide: DOMAIN_NAME_REPOSITORY,
@@ -402,12 +395,6 @@ describe(DomainNameRepository, () => {
   generateFile(
     `${rootDir}/repositories/${domain}/${domain}.repository.port.ts`,
     PORT_PRESET,
-    dir,
-    domain,
-  );
-  generateFile(
-    `${rootDir}/repositories/${domain}/${domain}.orm-entity.ts`,
-    ORM_ENTITY_PRESET,
     dir,
     domain,
   );

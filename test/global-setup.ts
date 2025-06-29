@@ -1,19 +1,44 @@
 import { PostgreSqlContainer } from '@testcontainers/postgresql';
-import dotenv from 'dotenv';
-import { mikroOrmFactory } from 'test/mikro-orm.factory';
+import fs from 'fs';
+import path from 'path';
+import { Client } from 'pg';
 
 module.exports = async function () {
-  dotenv.config({ path: 'apps/service-courseware/.env.test' });
+  const postgresContainer = await new PostgreSqlContainer(
+    'postgres:16.1',
+  ).start();
 
-  const container = await new PostgreSqlContainer('postgres:16.1').start();
+  process.env.DATABASE_URL = `${postgresContainer.getConnectionUri()}?connection_limit=1`;
 
-  process.env.DATABASE_URL = container.getConnectionUri();
+  console.log(process.env.DATABASE_URL);
 
-  const orm = await mikroOrmFactory();
+  const postgresClient = new Client({
+    connectionString: process.env.DATABASE_URL,
+  });
 
-  await orm.schema.refreshDatabase();
+  await postgresClient.connect();
 
-  await orm.close(true);
+  // migrations 디렉토리 경로
+  const migrationsDir = path.join(__dirname, '../prisma/migrations');
+  const migrationFolders = fs.readdirSync(migrationsDir);
 
-  globalThis.__POSTGRES_CONTAINER__ = container;
+  for (const folder of migrationFolders) {
+    const migrationPath = path.join(migrationsDir, folder, 'migration.sql');
+
+    if (fs.existsSync(migrationPath)) {
+      let migrationSQL = fs.readFileSync(migrationPath, 'utf8');
+
+      // FOREIGN KEY 제약 조건 제거
+      migrationSQL = migrationSQL.replace(
+        /ALTER TABLE.*?ADD CONSTRAINT.*?FOREIGN KEY.*?;/gs,
+        '',
+      );
+
+      await postgresClient.query(migrationSQL);
+    }
+  }
+
+  await postgresClient.end();
+
+  globalThis.__POSTGRES_CONTAINER__ = postgresContainer;
 };

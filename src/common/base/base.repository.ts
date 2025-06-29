@@ -1,7 +1,7 @@
-import { EntityManager, EntityName } from '@mikro-orm/postgresql';
-
 import { EntityId, TBaseEntity } from '@common/base/base.entity';
 import { IBaseMapper } from '@common/base/base.mapper';
+
+import { PrismaService } from '@shared/prisma/prisma.service';
 
 export interface ICursorPaginated<T> {
   cursor?: string;
@@ -41,16 +41,19 @@ export abstract class BaseRepository<
   Raw extends { id: bigint },
 > implements Omit<RepositoryPort<Entity>, 'findAllCursorPaginated'>
 {
+  protected abstract TABLE_NAME: string;
+
   constructor(
-    protected readonly em: EntityManager,
-    protected readonly entityName: EntityName<any>,
+    protected readonly prismaService: PrismaService,
     protected readonly mapper: IBaseMapper<Entity, Raw>,
   ) {}
 
   async insert(entity: Entity): Promise<Entity> {
     const raw = this.mapper.toPersistence(entity);
 
-    await this.em.create(this.entityName, raw);
+    await this.prismaService[this.TABLE_NAME].create({
+      data: raw,
+    });
 
     return entity;
   }
@@ -60,8 +63,10 @@ export abstract class BaseRepository<
       return;
     }
 
-    const raw = await this.em.findOne(this.entityName, {
-      id: this.mapper.toPrimaryKey(id),
+    const raw = await this.prismaService[this.TABLE_NAME].findUnique({
+      where: {
+        id: this.mapper.toPrimaryKey(id),
+      },
     });
 
     if (raw === null) {
@@ -74,20 +79,21 @@ export abstract class BaseRepository<
   async update(entity: Entity): Promise<Entity> {
     const raw = this.mapper.toPersistence(entity);
 
-    await this.em.nativeUpdate(
-      this.entityName,
-      {
+    await this.prismaService[this.TABLE_NAME].update({
+      where: {
         id: raw.id,
       },
-      raw,
-    );
+      data: raw,
+    });
 
     return this.mapper.toEntity(raw);
   }
 
   async delete(entity: Entity): Promise<void> {
-    await this.em.nativeDelete(this.entityName, {
-      id: entity.id,
+    await this.prismaService[this.TABLE_NAME].delete({
+      where: {
+        id: this.mapper.toPrimaryKey(entity.id),
+      },
     });
   }
 }

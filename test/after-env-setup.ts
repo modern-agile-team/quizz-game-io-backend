@@ -1,5 +1,4 @@
 import { faker } from '@faker-js/faker';
-import { mikroOrmFactory } from 'test/mikro-orm.factory';
 
 jest.mock('nestjs-request-context', () => ({
   RequestContext: {
@@ -12,11 +11,3 @@ jest.mock('nestjs-request-context', () => ({
     },
   },
 }));
-
-beforeAll(async () => {
-  global.orm = await mikroOrmFactory();
-});
-
-afterAll(async () => {
-  await global.orm.close(true);
-});
