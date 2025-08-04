@@ -46,7 +46,6 @@ export class EventStore implements IEventStore {
 
     const version = result?.version || 0;
 
-    console.log(events);
     await repository.createMany({
       data: events.map((event, idx) => {
         return {
