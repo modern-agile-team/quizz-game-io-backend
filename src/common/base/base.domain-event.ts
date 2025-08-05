@@ -3,6 +3,9 @@ import { TSID } from 'tsid-ts';
 
 type Aggregate = 'Account';
 
+/**
+ * @todo ws 프로토콜에서도 actor를 감지할 수 있도록 처리
+ */
 export abstract class DomainEvent<Payload = Record<string, any>> {
   id: string;
   actorId: string;
@@ -15,7 +18,7 @@ export abstract class DomainEvent<Payload = Record<string, any>> {
 
   constructor(aggregateId: string, eventPayload: Payload) {
     this.id = TSID.create().number.toString();
-    this.actorId = RequestContext.currentContext.req.user?.id || undefined;
+    this.actorId = RequestContext?.currentContext?.req?.user?.id || undefined;
     this.aggregateId = aggregateId;
     this.eventName = this.constructor.name;
     this.eventPayload = eventPayload;
