@@ -11,6 +11,7 @@ export class AccountDtoAssembler {
 
     dto.role = account.role;
     dto.signInType = account.signInType;
+    dto.enteredAt = account.enteredAt;
 
     return dto;
   }

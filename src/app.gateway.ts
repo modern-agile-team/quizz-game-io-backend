@@ -1,0 +1,90 @@
+import { Logger } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
+import { JsonWebTokenError, JwtService } from '@nestjs/jwt';
+import { OnGatewayConnection, WebSocketGateway } from '@nestjs/websockets';
+
+import { Socket } from 'socket.io';
+
+import { AccountNotFoundError } from '@module/account/errors/account-not-found.error';
+import { EnterAccountCommand } from '@module/account/use-cases/enter-account/enter-account.command';
+
+import {
+  InternalServerError,
+  UnauthorizedError,
+} from '@common/base/base.error';
+
+import { WS_NAMESPACE } from '@core/socket/socket-event.emitter.interface';
+
+/**
+ * @todo 문서화
+ */
+@WebSocketGateway({ namespace: WS_NAMESPACE.ROOT, cors: true })
+export class AppGateway implements OnGatewayConnection {
+  private readonly logger = new Logger(AppGateway.name);
+
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly commandBus: CommandBus,
+  ) {}
+
+  async handleConnection(client: Socket) {
+    try {
+      const token = this.extractTokenFromClient(client);
+
+      if (token === undefined) {
+        throw new UnauthorizedError();
+      }
+
+      const payload = this.jwtService.verify(token);
+
+      client.data.user = { id: payload.sub, roles: payload.roles };
+
+      const command = new EnterAccountCommand({
+        accountId: payload.sub,
+      });
+
+      await this.commandBus.execute(command);
+    } catch (err) {
+      if (
+        err instanceof UnauthorizedError ||
+        err instanceof JsonWebTokenError
+      ) {
+        client.emit('exception', {
+          closeCode: 3000,
+          code: UnauthorizedError.CODE,
+          message: 'Unauthorized can not access',
+        });
+      }
+
+      if (err instanceof AccountNotFoundError) {
+        client.emit('exception', {
+          closeCode: 3000,
+          code: AccountNotFoundError.CODE,
+          message: 'Account not found',
+        });
+      }
+
+      client.emit('exception', {
+        closeCode: 3000,
+        code: InternalServerError.CODE,
+        message: 'Internal server error',
+      });
+
+      this.logger.log('handleConnection error', err);
+
+      client.disconnect(true);
+    }
+  }
+
+  private extractTokenFromClient(client: Socket): string | undefined {
+    const authHeader: string | undefined = client.handshake.auth.token;
+
+    if (authHeader === undefined) {
+      return;
+    }
+
+    const [type, token] = authHeader.split(' ');
+
+    return type === 'Bearer' ? token : undefined;
+  }
+}

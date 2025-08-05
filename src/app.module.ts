@@ -3,6 +3,8 @@ import { CqrsModule } from '@nestjs/cqrs';
 
 import { RequestContextModule } from 'nestjs-request-context';
 
+import { AppGateway } from 'src/app.gateway';
+
 import { AccountModule } from '@module/account/account.module';
 import { AuthModule } from '@module/auth/auth.module';
 
@@ -22,7 +24,6 @@ import { PrismaModule } from '@shared/prisma/prisma.module';
     AccountModule,
     AuthModule,
   ],
-  controllers: [],
-  providers: [],
+  providers: [AppGateway],
 })
 export class AppModule {}

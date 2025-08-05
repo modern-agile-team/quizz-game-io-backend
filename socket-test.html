@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Socket.IO Root Namespace Test</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  </head>
+  <body>
+    <h1>Socket.IO Root Namespace Test</h1>
+
+    <label>Token: <input type="text" id="token" value="INVALID_TOKEN" /></label>
+    <button id="connectBtn">Connect</button>
+    <button id="sendBtn">Send Test Message</button>
+
+    <pre
+      id="log"
+      style="background: #eee; padding: 10px; height: 300px; overflow: auto"
+    ></pre>
+
+    <script>
+      let socket;
+
+      function log(...args) {
+        const pre = document.getElementById('log');
+        pre.textContent += args.map((a) => JSON.stringify(a)).join(' ') + '\n';
+      }
+
+      document.getElementById('connectBtn').addEventListener('click', () => {
+        const token = document.getElementById('token').value;
+
+        socket = io('http://localhost:3000', {
+          auth: { token },
+          headers: { authorization: token },
+        });
+
+        socket.on('connect', () => log('[connect]', socket.id));
+        socket.on('disconnect', (reason) => log('[disconnect]', reason));
+        socket.on('exception', (err) => log('[exception]', err));
+        socket.on('connect_error', (err) =>
+          log('[connect_error]', err.message),
+        );
+
+        // ✅ AccountEntered 이벤트 수신
+        socket.on('account.entered', (payload) =>
+          log('[AccountEntered]', payload),
+        );
+      });
+
+      document.getElementById('sendBtn').addEventListener('click', () => {
+        if (!socket || !socket.connected) {
+          return log('Socket is not connected');
+        }
+        socket.emit('send_message', { text: 'hello from browser' });
+      });
+    </script>
+  </body>
+</html>
