@@ -19,4 +19,9 @@ export class AccountDto extends BaseResponseDto {
     example: SignInType.username,
   })
   signInType: SignInType;
+
+  @ApiProperty({
+    description: '진입 시점',
+  })
+  enteredAt?: Date;
 }

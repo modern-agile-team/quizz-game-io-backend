@@ -8,6 +8,10 @@ const DATABASE = {
   DATABASE_URL: 'DATABASE_URL',
 } as const;
 
+const REDIS = {
+  REDIS_URL: 'REDIS_URL',
+};
+
 const JWT = {
   JWT_SECRET_KEY: 'JWT_SECRET_KEY',
   JWT_ISSUER: 'JWT_ISSUER',
@@ -17,5 +21,6 @@ const JWT = {
 export const ENV_KEY = {
   ...APP,
   ...DATABASE,
+  ...REDIS,
   ...JWT,
 } as const;

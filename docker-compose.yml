@@ -15,6 +15,16 @@ services:
     ports:
       - 5432:5432
 
+  quizzes_game_io_backend_redis:
+    container_name: quizzes_game_io_backend_redis
+    image: redis:7.2
+    ports:
+      - 6379:6379
+    volumes:
+      - quizzes_game_io_backend_redis_data:/data
+
 volumes:
   quizzes_game_io_backend_data:
+    driver: local
+  quizzes_game_io_backend_redis_data:
     driver: local

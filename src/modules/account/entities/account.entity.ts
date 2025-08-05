@@ -1,4 +1,5 @@
 import { AccountCreatedEvent } from '@module/account/events/account-created-event/account-created.event';
+import { AccountEnteredEvent } from '@module/account/events/account-entered-event/account-entered.event';
 
 import {
   AggregateRoot,
@@ -20,6 +21,7 @@ export interface AccountProps {
   signInType: SignInType;
   username?: string;
   password?: string;
+  enteredAt?: Date;
 }
 
 interface CreateAccountProps {
@@ -78,5 +80,19 @@ export class Account extends AggregateRoot<AccountProps> {
 
   get password(): string | undefined {
     return this.props.password;
+  }
+
+  get enteredAt(): Date | undefined {
+    return this.props.enteredAt;
+  }
+
+  enter() {
+    const now = new Date();
+
+    this.props.enteredAt = now;
+
+    this.updatedAt = now;
+
+    this.apply(new AccountEnteredEvent(this.id, { enteredAt: now }));
   }
 }
