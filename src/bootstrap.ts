@@ -15,6 +15,8 @@ import { RequestValidationError } from '@common/base/base.error';
 
 import { LOGGER } from '@shared/logger/logger.module';
 
+import { RedisIoAdapter } from '@core/socket/redis-io.adapter';
+
 export const createApp = async () => {
   return await NestFactory.create(AppModule, { bufferLogs: true });
 };
@@ -72,4 +74,12 @@ export const setGlobalInterceptor = (app: INestApplication) => {
 
 export const setGlobalExceptionFilter = (app: INestApplication) => {
   app.useGlobalFilters(new BaseHttpExceptionFilter());
+};
+
+export const setWebSocket = async (app: INestApplication) => {
+  const redisIoAdapter = new RedisIoAdapter(app);
+
+  await redisIoAdapter.connectToRedis();
+
+  app.useWebSocketAdapter(redisIoAdapter);
 };

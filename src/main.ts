@@ -4,6 +4,7 @@ import {
   setGlobalInterceptor,
   setGlobalPipe,
   setLogger,
+  setWebSocket,
 } from 'src/bootstrap';
 import { SwaggerConfig } from 'src/swagger';
 
@@ -16,6 +17,7 @@ async function bootstrap() {
   setGlobalExceptionFilter(app);
   SwaggerConfig.setup(app);
   app.enableShutdownHooks();
+  await setWebSocket(app);
 
   const PORT = process.env.PORT || 3000;
 
