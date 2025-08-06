@@ -1,3 +1,4 @@
+import { AsyncApiDocConfig } from 'src/async-api-doc';
 import {
   createApp,
   setGlobalExceptionFilter,
@@ -18,6 +19,7 @@ async function bootstrap() {
   SwaggerConfig.setup(app);
   app.enableShutdownHooks();
   await setWebSocket(app);
+  await AsyncApiDocConfig.setup(app);
 
   const PORT = process.env.PORT || 3000;
 

@@ -1,12 +1,21 @@
-export abstract class BaseSocketEvent<Payload = Record<string, unknown>> {
+import { ApiProperty } from '@nestjs/swagger';
+
+export abstract class BaseSocketEvent<Body = Record<any, any>> {
+  @ApiProperty()
   abstract readonly eventName: string;
+
+  @ApiProperty()
   timestamp: Date;
-  payload: Payload;
+
+  @ApiProperty()
+  body: Body;
+
+  @ApiProperty()
   meta?: Record<string, unknown>;
 
-  constructor(eventPayload: Payload, meta?: unknown) {
+  constructor(eventBody: Body, meta?: unknown) {
     this.timestamp = new Date();
-    this.payload = eventPayload;
+    this.body = eventBody;
     this.meta = meta ? (meta as Record<string, unknown>) : {};
   }
 }
