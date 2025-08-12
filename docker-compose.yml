@@ -1,7 +1,15 @@
 version: '3.8'
+
+networks:
+  backend_net:
+    name: quizzes_game_io_backend_default
+    driver: bridge
+
 services:
   quizzes_game_io_backend_postgres:
     container_name: quizzes_game_io_backend_postgres
+    networks:
+      - backend_net
     image: postgres:16.1
     user: root
     volumes:
@@ -17,6 +25,8 @@ services:
 
   quizzes_game_io_backend_redis:
     container_name: quizzes_game_io_backend_redis
+    networks:
+      - backend_net
     image: redis:7.2
     ports:
       - 6379:6379
