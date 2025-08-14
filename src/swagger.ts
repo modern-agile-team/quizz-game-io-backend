@@ -1,5 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import { SwaggerUiOptions } from '@nestjs/swagger/dist/interfaces/swagger-ui-options.interface';
 
 export class SwaggerConfig {
   private static readonly VERSION = '0.1';
@@ -13,6 +14,12 @@ export class SwaggerConfig {
       .build();
 
     const document = SwaggerModule.createDocument(app, config);
+
+    const GLOBAL_PREFIX = process.env.SWAGGER_GLOBAL_PREFIX;
+
+    if (GLOBAL_PREFIX) {
+      document.servers = [{ url: `/${GLOBAL_PREFIX}` }];
+    }
 
     // Admin API 필터링 (경로가 `/admin/`으로 시작하는 API만 포함)
     const adminDocument = this.filterPaths(document, '^/admin/');
@@ -53,7 +60,7 @@ export class SwaggerConfig {
     return new DocumentBuilder().setVersion(this.VERSION).addBearerAuth();
   }
 
-  static get swaggerOptions() {
+  static get swaggerOptions(): SwaggerUiOptions {
     return {
       persistAuthorization: true,
       tagsSorter: 'alpha',
