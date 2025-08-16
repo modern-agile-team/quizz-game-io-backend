@@ -21,6 +21,10 @@ export const createApp = async () => {
   return await NestFactory.create(AppModule, { bufferLogs: true });
 };
 
+export const setCors = (app: INestApplication) => {
+  app.enableCors();
+};
+
 export const setGlobalPipe = (app: INestApplication) => {
   const options: Omit<ValidationPipeOptions, 'exceptionFactory'> = {
     transform: true,
