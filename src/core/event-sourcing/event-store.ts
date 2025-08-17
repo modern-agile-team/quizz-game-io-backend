@@ -70,5 +70,8 @@ export class EventStore implements IEventStore {
     if (aggregate === 'Account') {
       return this.prismaService.accountEventStore;
     }
+    if (aggregate === 'GameRoom') {
+      return this.prismaService.gameRoomEventStore;
+    }
   }
 }
