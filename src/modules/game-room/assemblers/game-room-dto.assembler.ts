@@ -9,6 +9,11 @@ export class GameRoomDtoAssembler {
       updatedAt: gameRoom.updatedAt,
     });
 
+    dto.hostId = gameRoom.props.hostId;
+    dto.status = gameRoom.props.status;
+    dto.title = gameRoom.props.title;
+    dto.maxPlayersCount = gameRoom.props.maxPlayersCount;
+
     return dto;
   }
 }

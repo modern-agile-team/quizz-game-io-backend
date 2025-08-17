@@ -15,6 +15,7 @@ export const GameRoomFactory = Factory.define<GameRoom & GameRoomProps>(
 )
   .attrs({
     id: () => generateEntityId(),
+    hostId: () => generateEntityId(),
     status: () => faker.helpers.enumValue(GameRoomStatus),
     visibility: () => faker.helpers.enumValue(GameRoomVisibility),
     title: () => faker.string.nanoid(),

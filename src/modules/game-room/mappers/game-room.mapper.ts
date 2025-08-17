@@ -14,6 +14,7 @@ export class GameRoomMapper extends BaseMapper {
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
       props: {
+        hostId: this.toEntityId(raw.accountId),
         status: GameRoomStatus[raw.status],
         visibility: GameRoomVisibility[raw.visibility],
         title: raw.title,
@@ -27,6 +28,7 @@ export class GameRoomMapper extends BaseMapper {
       id: this.toPrimaryKey(entity.id),
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      accountId: this.toPrimaryKey(entity.props.hostId),
       status: entity.props.status,
       visibility: entity.props.visibility,
       title: entity.props.title,

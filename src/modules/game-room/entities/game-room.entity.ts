@@ -21,6 +21,7 @@ export enum GameRoomVisibility {
 }
 
 export interface GameRoomProps {
+  hostId: string;
   status: GameRoomStatus;
   visibility: GameRoomVisibility;
   title: string;
@@ -28,6 +29,7 @@ export interface GameRoomProps {
 }
 
 interface CreateGameRoomProps {
+  hostId: string;
   status: GameRoomStatus;
   visibility: GameRoomVisibility;
   title: string;
@@ -46,6 +48,7 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
     const gameRoom = new GameRoom({
       id,
       props: {
+        hostId: props.hostId,
         status: props.status,
         visibility: props.visibility,
         title: props.title,
@@ -57,6 +60,7 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
 
     gameRoom.apply(
       new GameRoomCreatedEvent(gameRoom.id, {
+        hostId: props.hostId,
         status: props.status,
         visibility: props.visibility,
         title: props.title,
@@ -65,6 +69,22 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
     );
 
     return gameRoom;
+  }
+
+  get hostId(): string {
+    return this.props.hostId;
+  }
+
+  get status(): GameRoomStatus {
+    return this.props.status;
+  }
+
+  get title(): string {
+    return this.props.title;
+  }
+
+  get maxPlayersCount(): number {
+    return this.props.maxPlayersCount;
   }
 
   public validate(): void {}
