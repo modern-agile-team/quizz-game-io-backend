@@ -42,5 +42,17 @@ export class RoomMember extends BaseEntity<RoomMemberProps> {
     });
   }
 
+  get accountId(): string {
+    return this.props.accountId;
+  }
+
+  get gameRoomId(): string {
+    return this.props.gameRoomId;
+  }
+
+  get role(): RoomMemberRole {
+    return this.props.role;
+  }
+
   public validate(): void {}
 }

@@ -13,4 +13,9 @@ export interface RoomMemberFilter {}
 export interface RoomMemberOrder {}
 
 export interface RoomMemberRepositoryPort
-  extends RepositoryPort<RoomMember, RoomMemberFilter, RoomMemberOrder> {}
+  extends RepositoryPort<RoomMember, RoomMemberFilter, RoomMemberOrder> {
+  findByAccountIdInGameRoom(
+    accountId: string,
+    gameRoomId: string,
+  ): Promise<RoomMember | undefined>;
+}

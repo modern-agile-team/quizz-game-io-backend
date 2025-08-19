@@ -9,6 +9,10 @@ export class RoomMemberDtoAssembler {
       updatedAt: roomMember.updatedAt,
     });
 
+    dto.accountId = roomMember.accountId;
+    dto.gameRoomId = roomMember.gameRoomId;
+    dto.role = roomMember.role;
+
     return dto;
   }
 }

@@ -31,6 +31,30 @@ export class RoomMemberRepository
     super(prismaService, RoomMemberMapper);
   }
 
+  async findByAccountIdInGameRoom(
+    accountId: string,
+    gameRoomId: string,
+  ): Promise<RoomMember | undefined> {
+    if (isNaN(Number(accountId)) || isNaN(Number(gameRoomId))) {
+      return;
+    }
+
+    const raw = await this.prismaService.gameRoomMember.findUnique({
+      where: {
+        accountId_gameRoomId: {
+          accountId: this.mapper.toPrimaryKey(accountId),
+          gameRoomId: this.mapper.toPrimaryKey(gameRoomId),
+        },
+      },
+    });
+
+    if (raw === null) {
+      return;
+    }
+
+    return this.mapper.toEntity(raw);
+  }
+
   findAllCursorPaginated(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     params: ICursorPaginatedParams<RoomMemberOrder, RoomMemberFilter>,

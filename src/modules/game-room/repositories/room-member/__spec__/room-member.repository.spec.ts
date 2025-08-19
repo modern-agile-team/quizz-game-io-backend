@@ -58,4 +58,47 @@ describe(RoomMemberRepository, () => {
       });
     });
   });
+
+  describe(RoomMemberRepository.prototype.findByAccountIdInGameRoom, () => {
+    let accountId: string;
+    let gameRoomId: string;
+
+    beforeEach(() => {
+      accountId = generateEntityId();
+      gameRoomId = generateEntityId();
+    });
+
+    describe('식별자와 일치하는 멤버가 존재하는 경우', () => {
+      let roomMember: RoomMember;
+
+      beforeEach(async () => {
+        roomMember = await repository.insert(
+          RoomMemberFactory.build({
+            accountId,
+            gameRoomId: gameRoomId,
+          }),
+        );
+      });
+
+      it('게임방에 참여한 멤버를 조회할 수 있어야 한다.', async () => {
+        await expect(
+          repository.findByAccountIdInGameRoom(accountId, gameRoomId),
+        ).resolves.toEqual(
+          expect.objectContaining({
+            id: roomMember.id,
+            accountId,
+            gameRoomId: gameRoomId,
+          }),
+        );
+      });
+    });
+
+    describe('식별자와 일치하는 멤버가 존재하지 않는 경우', () => {
+      it('undefined를 반환해야 한다.', async () => {
+        await expect(
+          repository.findByAccountIdInGameRoom('999', '456'),
+        ).resolves.toBeUndefined();
+      });
+    });
+  });
 });

@@ -18,7 +18,8 @@ export class GameRoomMapper extends BaseMapper {
         status: GameRoomStatus[raw.status],
         visibility: GameRoomVisibility[raw.visibility],
         title: raw.title,
-        maxPlayersCount: raw.maxPlayersCount,
+        maxMembersCount: raw.maxMembersCount,
+        currentMembersCount: raw.currentMembersCount,
       },
     });
   }
@@ -32,7 +33,8 @@ export class GameRoomMapper extends BaseMapper {
       status: entity.props.status,
       visibility: entity.props.visibility,
       title: entity.props.title,
-      maxPlayersCount: entity.props.maxPlayersCount,
+      maxMembersCount: entity.props.maxMembersCount,
+      currentMembersCount: entity.props.currentMembersCount,
     };
   }
 }
