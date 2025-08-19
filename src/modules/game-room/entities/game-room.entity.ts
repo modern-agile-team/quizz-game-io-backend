@@ -96,6 +96,10 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
     return this.props.maxMembersCount;
   }
 
+  get currentMembersCount(): number {
+    return this.props.currentMembersCount;
+  }
+
   joinMember(accountId: string): RoomMember {
     if (this.props.currentMembersCount >= this.props.maxMembersCount) {
       throw new GameRoomMemberCapacityExceededError();

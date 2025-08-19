@@ -76,7 +76,7 @@ model GameRoom {
   status              GameRoomStatus
   visibility          GameRoomVisibility
   title               String
-  maxMembersCount     Int
+  maxMembersCount     Int                @default(0)
   currentMembersCount Int                @default(0)
 
   createdAt DateTime @default(now()) @db.Timestamp(3)
