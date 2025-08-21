@@ -10,7 +10,10 @@ import {
 import { JwtAuthGuard } from '@module/auth/jwt/jwt-auth.guard';
 import { GameRoomMemberDtoAssembler } from '@module/game-room/assemblers/game-room-member-dto.assembler';
 import { GameRoomMemberDto } from '@module/game-room/dto/game-room-member.dto';
-import { GameRoomMember } from '@module/game-room/entities/game-room-member.entity';
+import {
+  GameRoomMember,
+  GameRoomMemberRole,
+} from '@module/game-room/entities/game-room-member.entity';
 import { GameRoomMemberAlreadyExistsError } from '@module/game-room/errors/game-room-member-already-exists.error';
 import { GameRoomMemberCapacityExceededError } from '@module/game-room/errors/game-room-member-capacity-exceeded.error';
 import { GameRoomNotFoundError } from '@module/game-room/errors/game-room-not-found.error';
@@ -57,6 +60,7 @@ export class JoinGameRoomController {
       const command = new JoinGameRoomCommand({
         currentAccountId: currentUser.id,
         gameRoomId,
+        role: GameRoomMemberRole.player,
       });
 
       const gameRoomMember = await this.commandBus.execute<

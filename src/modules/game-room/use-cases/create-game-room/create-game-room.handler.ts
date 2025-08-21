@@ -1,7 +1,12 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
+import { GameRoomMemberRole } from '@module/game-room/entities/game-room-member.entity';
 import { GameRoom } from '@module/game-room/entities/game-room.entity';
+import {
+  GAME_ROOM_MEMBER_REPOSITORY,
+  GameRoomMemberRepositoryPort,
+} from '@module/game-room/repositories/game-room-member/game-room-member.repository.port';
 import {
   GAME_ROOM_REPOSITORY,
   GameRoomRepositoryPort,
@@ -24,6 +29,8 @@ export class CreateGameRoomHandler
   constructor(
     @Inject(GAME_ROOM_REPOSITORY)
     private readonly gameRoomRepository: GameRoomRepositoryPort,
+    @Inject(GAME_ROOM_MEMBER_REPOSITORY)
+    private readonly gameRoomMemberRepository: GameRoomMemberRepositoryPort,
     @Inject(EVENT_STORE)
     private readonly eventStore: IEventStore,
   ) {}
@@ -38,6 +45,13 @@ export class CreateGameRoomHandler
     });
 
     await this.gameRoomRepository.insert(gameRoom);
+
+    const host = gameRoom.join(
+      command.currentAccountId,
+      GameRoomMemberRole.host,
+    );
+
+    await this.gameRoomMemberRepository.insert(host);
 
     await this.eventStore.storeAggregateEvents(gameRoom);
 
