@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { TestingModule } from '@nestjs/testing/testing-module';
 
 import { GameRoomFactory } from '@module/game-room/entities/__spec__/game-room.factory';
-import { RoomMemberRole } from '@module/game-room/entities/room-member.entity';
+import { GameRoomMemberRole } from '@module/game-room/entities/game-room-member.entity';
 import { GameRoomMemberJoinedEvent } from '@module/game-room/events/game-room-member-joined/game-room-member-joined.event';
 import { GameRoomMemberJoinedHandler } from '@module/game-room/events/game-room-member-joined/game-room-member-joined.handler';
 import { GameRoomRepositoryModule } from '@module/game-room/repositories/game-room/game-room.repository.module';
@@ -53,7 +53,7 @@ describe(GameRoomMemberJoinedHandler, () => {
     event = new GameRoomMemberJoinedEvent(gameRoomId, {
       gameRoomId,
       accountId: generateEntityId(),
-      role: RoomMemberRole.player,
+      role: GameRoomMemberRole.player,
     });
 
     await gameRoomRepository.insert(

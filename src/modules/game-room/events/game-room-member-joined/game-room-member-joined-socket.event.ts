@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { RoomMemberRole } from '@module/game-room/entities/room-member.entity';
+import { GameRoomMemberRole } from '@module/game-room/entities/game-room-member.entity';
 
 import { BaseSocketEvent } from '@common/base/base-socket-event';
 
@@ -12,9 +12,9 @@ class GameRoomMemberJoinedSocketEventBody {
   gameRoomId: string;
 
   @ApiProperty({
-    enum: RoomMemberRole,
+    enum: GameRoomMemberRole,
   })
-  role: RoomMemberRole;
+  role: GameRoomMemberRole;
 
   @ApiProperty()
   currentMembersCount: number;

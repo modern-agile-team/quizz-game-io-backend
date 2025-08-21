@@ -14,7 +14,7 @@ import { Socket } from 'socket.io';
 import { WS_NAMESPACE } from '@core/socket/socket-event.emitter.interface';
 import { gameRoomKeyOf } from '@core/socket/socket-room.util';
 
-class RoomSubscribeDto {
+class GameRoomSubscribeDto {
   @ApiProperty()
   @IsString()
   roomId: string;
@@ -29,11 +29,11 @@ export class JoinGameRoomGateway {
     tags: [{ name: 'game_room' }],
     channel: 'game_room.subscribe',
     summary: '특정 게임룸 구독',
-    message: { payload: RoomSubscribeDto },
+    message: { payload: GameRoomSubscribeDto },
   })
   @SubscribeMessage('game_room.subscribe')
   async subscribe(
-    @MessageBody() dto: RoomSubscribeDto,
+    @MessageBody() dto: GameRoomSubscribeDto,
     @ConnectedSocket() client: Socket,
   ) {
     await client.join(gameRoomKeyOf(dto.roomId));

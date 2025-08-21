@@ -1,6 +1,6 @@
 import { GameRoomFactory } from '@module/game-room/entities/__spec__/game-room.factory';
+import { GameRoomMember } from '@module/game-room/entities/game-room-member.entity';
 import { GameRoom } from '@module/game-room/entities/game-room.entity';
-import { RoomMember } from '@module/game-room/entities/room-member.entity';
 import { GameRoomMemberCapacityExceededError } from '@module/game-room/errors/game-room-member-capacity-exceeded.error';
 
 import { generateEntityId } from '@common/base/base.entity';
@@ -23,7 +23,7 @@ describe(GameRoom, () => {
     describe('멤버로 추가하는 경우', () => {
       it('구성원을 반환해야한다.', () => {
         expect(gameRoom.joinMember(generateEntityId())).toBeInstanceOf(
-          RoomMember,
+          GameRoomMember,
         );
       });
     });

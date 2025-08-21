@@ -8,12 +8,12 @@ import {
 } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '@module/auth/jwt/jwt-auth.guard';
-import { RoomMemberDtoAssembler } from '@module/game-room/assemblers/room-member-dto.assembler';
-import { RoomMemberDto } from '@module/game-room/dto/room-member.dto';
-import { RoomMember } from '@module/game-room/entities/room-member.entity';
+import { GameRoomMemberDtoAssembler } from '@module/game-room/assemblers/game-room-member-dto.assembler';
+import { GameRoomMemberDto } from '@module/game-room/dto/game-room-member.dto';
+import { GameRoomMember } from '@module/game-room/entities/game-room-member.entity';
+import { GameRoomMemberAlreadyExistsError } from '@module/game-room/errors/game-room-member-already-exists.error';
 import { GameRoomMemberCapacityExceededError } from '@module/game-room/errors/game-room-member-capacity-exceeded.error';
 import { GameRoomNotFoundError } from '@module/game-room/errors/game-room-not-found.error';
-import { RoomMemberAlreadyExistsError } from '@module/game-room/errors/room-member-already-exists.error';
 import { JoinGameRoomCommand } from '@module/game-room/use-cases/join-game-room/join-game-room.command';
 
 import { BaseHttpException } from '@common/base/base-http-exception';
@@ -36,13 +36,13 @@ export class JoinGameRoomController {
   constructor(private readonly commandBus: CommandBus) {}
 
   @ApiOperation({ summary: '게임 방 입장' })
-  @ApiCreatedResponse({ type: RoomMemberDto })
+  @ApiCreatedResponse({ type: GameRoomMemberDto })
   @ApiErrorResponse({
     [HttpStatus.BAD_REQUEST]: [RequestValidationError],
     [HttpStatus.UNAUTHORIZED]: [UnauthorizedError],
     [HttpStatus.NOT_FOUND]: [GameRoomNotFoundError],
     [HttpStatus.CONFLICT]: [
-      RoomMemberAlreadyExistsError,
+      GameRoomMemberAlreadyExistsError,
       GameRoomMemberCapacityExceededError,
     ],
   })
@@ -52,25 +52,25 @@ export class JoinGameRoomController {
   async joinGameRoom(
     @Param('gameRoomId') gameRoomId: string,
     @CurrentUser() currentUser: ICurrentUser,
-  ): Promise<RoomMemberDto> {
+  ): Promise<GameRoomMemberDto> {
     try {
       const command = new JoinGameRoomCommand({
         currentAccountId: currentUser.id,
         gameRoomId,
       });
 
-      const roomMember = await this.commandBus.execute<
+      const gameRoomMember = await this.commandBus.execute<
         JoinGameRoomCommand,
-        RoomMember
+        GameRoomMember
       >(command);
 
-      return RoomMemberDtoAssembler.convertToDto(roomMember);
+      return GameRoomMemberDtoAssembler.convertToDto(gameRoomMember);
     } catch (error) {
       if (error instanceof GameRoomNotFoundError) {
         throw new BaseHttpException(HttpStatus.NOT_FOUND, error);
       }
 
-      if (error instanceof RoomMemberAlreadyExistsError) {
+      if (error instanceof GameRoomMemberAlreadyExistsError) {
         throw new BaseHttpException(HttpStatus.CONFLICT, error);
       }
 

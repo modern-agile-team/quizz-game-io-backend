@@ -1,11 +1,11 @@
-import { RoomMemberRole } from '@module/game-room/entities/room-member.entity';
+import { GameRoomMemberRole } from '@module/game-room/entities/game-room-member.entity';
 
 import { DomainEvent } from '@common/base/base.domain-event';
 
 interface GameRoomMemberJoinedEventPayload {
   gameRoomId: string;
   accountId: string;
-  role: RoomMemberRole;
+  role: GameRoomMemberRole;
 }
 
 export class GameRoomMemberJoinedEvent extends DomainEvent<GameRoomMemberJoinedEventPayload> {

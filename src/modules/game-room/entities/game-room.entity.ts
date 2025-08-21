@@ -1,7 +1,7 @@
 import {
-  RoomMember,
-  RoomMemberRole,
-} from '@module/game-room/entities/room-member.entity';
+  GameRoomMember,
+  GameRoomMemberRole,
+} from '@module/game-room/entities/game-room-member.entity';
 import { GameRoomMemberCapacityExceededError } from '@module/game-room/errors/game-room-member-capacity-exceeded.error';
 import { GameRoomCreatedEvent } from '@module/game-room/events/game-room-created/game-room-created.event';
 import { GameRoomMemberJoinedEvent } from '@module/game-room/events/game-room-member-joined/game-room-member-joined.event';
@@ -100,15 +100,15 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
     return this.props.currentMembersCount;
   }
 
-  joinMember(accountId: string): RoomMember {
+  joinMember(accountId: string): GameRoomMember {
     if (this.props.currentMembersCount >= this.props.maxMembersCount) {
       throw new GameRoomMemberCapacityExceededError();
     }
 
-    const member = RoomMember.create({
+    const member = GameRoomMember.create({
       accountId: accountId,
       gameRoomId: this.id,
-      role: RoomMemberRole.player,
+      role: GameRoomMemberRole.player,
     });
 
     this.apply(

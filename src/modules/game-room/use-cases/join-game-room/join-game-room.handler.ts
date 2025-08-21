@@ -1,17 +1,17 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { RoomMember } from '@module/game-room/entities/room-member.entity';
+import { GameRoomMember } from '@module/game-room/entities/game-room-member.entity';
+import { GameRoomMemberAlreadyExistsError } from '@module/game-room/errors/game-room-member-already-exists.error';
 import { GameRoomNotFoundError } from '@module/game-room/errors/game-room-not-found.error';
-import { RoomMemberAlreadyExistsError } from '@module/game-room/errors/room-member-already-exists.error';
+import {
+  GAME_ROOM_MEMBER_REPOSITORY,
+  GameRoomMemberRepositoryPort,
+} from '@module/game-room/repositories/game-room-member/game-room-member.repository.port';
 import {
   GAME_ROOM_REPOSITORY,
   GameRoomRepositoryPort,
 } from '@module/game-room/repositories/game-room/game-room.repository.port';
-import {
-  ROOM_MEMBER_REPOSITORY,
-  RoomMemberRepositoryPort,
-} from '@module/game-room/repositories/room-member/room-member.repository.port';
 import { JoinGameRoomCommand } from '@module/game-room/use-cases/join-game-room/join-game-room.command';
 
 import {
@@ -21,21 +21,21 @@ import {
 
 @CommandHandler(JoinGameRoomCommand)
 export class JoinGameRoomHandler
-  implements ICommandHandler<JoinGameRoomCommand, RoomMember>
+  implements ICommandHandler<JoinGameRoomCommand, GameRoomMember>
 {
   constructor(
     @Inject(GAME_ROOM_REPOSITORY)
     private readonly gameRoomRepository: GameRoomRepositoryPort,
-    @Inject(ROOM_MEMBER_REPOSITORY)
-    private readonly roomMemberRepository: RoomMemberRepositoryPort,
+    @Inject(GAME_ROOM_MEMBER_REPOSITORY)
+    private readonly gameRoomMemberRepository: GameRoomMemberRepositoryPort,
     @Inject(EVENT_STORE)
     private readonly eventStore: IEventStore,
   ) {}
 
-  async execute(command: JoinGameRoomCommand): Promise<RoomMember> {
+  async execute(command: JoinGameRoomCommand): Promise<GameRoomMember> {
     const [gameRoom, existingMember] = await Promise.all([
       this.gameRoomRepository.findOneById(command.gameRoomId),
-      this.roomMemberRepository.findByAccountIdInGameRoom(
+      this.gameRoomMemberRepository.findByAccountIdInGameRoom(
         command.currentAccountId,
         command.gameRoomId,
       ),
@@ -46,12 +46,12 @@ export class JoinGameRoomHandler
     }
 
     if (existingMember !== undefined) {
-      throw new RoomMemberAlreadyExistsError();
+      throw new GameRoomMemberAlreadyExistsError();
     }
 
     const member = gameRoom.joinMember(command.currentAccountId);
 
-    await this.roomMemberRepository.insert(member);
+    await this.gameRoomMemberRepository.insert(member);
 
     await this.eventStore.storeAggregateEvents(gameRoom);
 

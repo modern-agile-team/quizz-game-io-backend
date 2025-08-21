@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { RoomMemberRole } from '@module/game-room/entities/room-member.entity';
+import { GameRoomMemberRole } from '@module/game-room/entities/game-room-member.entity';
 
 import { BaseResponseDto } from '@common/base/base.dto';
 
-export class RoomMemberDto extends BaseResponseDto {
+export class GameRoomMemberDto extends BaseResponseDto {
   @ApiProperty()
   accountId: string;
 
@@ -12,7 +12,7 @@ export class RoomMemberDto extends BaseResponseDto {
   gameRoomId: string;
 
   @ApiProperty({
-    enum: RoomMemberRole,
+    enum: GameRoomMemberRole,
   })
-  role: RoomMemberRole;
+  role: GameRoomMemberRole;
 }

@@ -4,33 +4,33 @@ import {
   generateEntityId,
 } from '@common/base/base.entity';
 
-export enum RoomMemberRole {
+export enum GameRoomMemberRole {
   host = 'host',
   player = 'player',
 }
 
-export interface RoomMemberProps {
+export interface GameRoomMemberProps {
   accountId: string;
   gameRoomId: string;
-  role: RoomMemberRole;
+  role: GameRoomMemberRole;
 }
 
-interface CreateRoomMemberProps {
+interface CreateGameRoomMemberProps {
   accountId: string;
   gameRoomId: string;
-  role: RoomMemberRole;
+  role: GameRoomMemberRole;
 }
 
-export class RoomMember extends BaseEntity<RoomMemberProps> {
-  constructor(props: CreateEntityProps<RoomMemberProps>) {
+export class GameRoomMember extends BaseEntity<GameRoomMemberProps> {
+  constructor(props: CreateEntityProps<GameRoomMemberProps>) {
     super(props);
   }
 
-  static create(props: CreateRoomMemberProps) {
+  static create(props: CreateGameRoomMemberProps) {
     const id = generateEntityId();
     const date = new Date();
 
-    return new RoomMember({
+    return new GameRoomMember({
       id,
       props: {
         accountId: props.accountId,
@@ -50,7 +50,7 @@ export class RoomMember extends BaseEntity<RoomMemberProps> {
     return this.props.gameRoomId;
   }
 
-  get role(): RoomMemberRole {
+  get role(): GameRoomMemberRole {
     return this.props.role;
   }
 

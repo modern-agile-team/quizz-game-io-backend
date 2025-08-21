@@ -1,26 +1,26 @@
 import {
-  RoomMember,
-  RoomMemberRole,
-} from '@module/game-room/entities/room-member.entity';
-import { RoomMemberRaw } from '@module/game-room/repositories/room-member/room-member.repository.port';
+  GameRoomMember,
+  GameRoomMemberRole,
+} from '@module/game-room/entities/game-room-member.entity';
+import { GameRoomMemberRaw } from '@module/game-room/repositories/game-room-member/game-room-member.repository.port';
 
 import { BaseMapper } from '@common/base/base.mapper';
 
-export class RoomMemberMapper extends BaseMapper {
-  static toEntity(raw: RoomMemberRaw): RoomMember {
-    return new RoomMember({
+export class GameRoomMemberMapper extends BaseMapper {
+  static toEntity(raw: GameRoomMemberRaw): GameRoomMember {
+    return new GameRoomMember({
       id: this.toEntityId(raw.id),
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
       props: {
         accountId: this.toEntityId(raw.accountId),
         gameRoomId: this.toEntityId(raw.gameRoomId),
-        role: RoomMemberRole[raw.role],
+        role: GameRoomMemberRole[raw.role],
       },
     });
   }
 
-  static toPersistence(entity: RoomMember): RoomMemberRaw {
+  static toPersistence(entity: GameRoomMember): GameRoomMemberRaw {
     return {
       id: this.toPrimaryKey(entity.id),
       createdAt: entity.createdAt,
