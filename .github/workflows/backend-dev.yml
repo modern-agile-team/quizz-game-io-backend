@@ -46,21 +46,28 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run Prisma migrate before starting app
+      - name: Pull latest and resolve digest
+        id: resolve
+        run: |
+          set -e
+          IMAGE=ghcr.io/modern-agile-team/quizz-game-io-backend:latest
+          docker pull "$IMAGE"
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE")
+          echo "image=$DIGEST" >> "$GITHUB_OUTPUT"
+
+      - name: Run Prisma migrate using digest
         run: |
           docker run --rm \
             --network quizzes_game_io_backend_default \
             --env-file /home/github-runner/app/.env \
-            ghcr.io/modern-agile-team/quizz-game-io-backend:latest \
+            "${{ steps.resolve.outputs.image }}" \
             npx prisma migrate deploy
 
-      - name: Update app container only
+      - name: Update app container using same digest
         env:
-          IMAGE: ghcr.io/modern-agile-team/quizz-game-io-backend:latest
           NAME: quizzes_game_io_backend_app
           ENV_FILE: /home/github-runner/app/.env
         run: |
-          docker pull "$IMAGE"
           docker rm -f "$NAME" || true
           docker run -d \
             --name "$NAME" \
@@ -68,8 +75,4 @@ jobs:
             --env-file "$ENV_FILE" \
             --network quizzes_game_io_backend_default \
             -p 127.0.0.1:8080:8080 \
-            "$IMAGE"
-
-      - name: Prune dangling images (safe)
-        run: |
-          docker image prune -f
+            "${{ steps.resolve.outputs.image }}"
