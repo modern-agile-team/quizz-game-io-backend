@@ -13,6 +13,8 @@ import { SignInWithUsernameCommandFactory } from '@module/auth/use-cases/sign-in
 import { SignInWithUsernameCommand } from '@module/auth/use-cases/sign-in-with-username/sign-in-with-username.command';
 import { SignInWithUsernameHandler } from '@module/auth/use-cases/sign-in-with-username/sign-in-with-username.handler';
 
+import { EventStoreModule } from '@core/event-sourcing/event-store.module';
+
 describe(SignInWithUsernameHandler, () => {
   let handler: SignInWithUsernameHandler;
 
@@ -22,7 +24,7 @@ describe(SignInWithUsernameHandler, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [CqrsModule, AuthTokenModule],
+      imports: [CqrsModule, AuthTokenModule, EventStoreModule],
       providers: [SignInWithUsernameHandler],
     }).compile();
 

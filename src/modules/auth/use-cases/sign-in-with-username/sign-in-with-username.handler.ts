@@ -13,12 +13,19 @@ import {
 } from '@module/auth/services/auth-token/auth-token.service.interface';
 import { SignInWithUsernameCommand } from '@module/auth/use-cases/sign-in-with-username/sign-in-with-username.command';
 
+import {
+  EVENT_STORE,
+  IEventStore,
+} from '@core/event-sourcing/event-store.interface';
+
 @CommandHandler(SignInWithUsernameCommand)
 export class SignInWithUsernameHandler
   implements ICommandHandler<SignInWithUsernameCommand, AuthToken>
 {
   constructor(
     private readonly queryBus: QueryBus,
+    @Inject(EVENT_STORE)
+    private readonly eventStore: IEventStore,
     @Inject(AUTH_TOKEN_SERVICE)
     private readonly authService: IAuthTokenService,
   ) {}
@@ -47,7 +54,11 @@ export class SignInWithUsernameHandler
       throw new SignInInfoNotMatchedError();
     }
 
+    account.signIn();
+
     const authToken = this.authService.generateAuthToken(account);
+
+    await this.eventStore.storeAggregateEvents(account);
 
     return authToken;
   }
