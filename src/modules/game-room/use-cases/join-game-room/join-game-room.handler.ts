@@ -49,7 +49,7 @@ export class JoinGameRoomHandler
       throw new GameRoomMemberAlreadyExistsError();
     }
 
-    const member = gameRoom.joinMember(command.currentAccountId);
+    const member = gameRoom.join(command.currentAccountId, command.role);
 
     await this.gameRoomMemberRepository.insert(member);
 

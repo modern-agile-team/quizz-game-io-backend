@@ -1,5 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { GameRoomMemberRole } from '@module/game-room/entities/game-room-member.entity';
+import { GameRoomMemberRepositoryModule } from '@module/game-room/repositories/game-room-member/game-room-member.repository.module';
+import {
+  GAME_ROOM_MEMBER_REPOSITORY,
+  GameRoomMemberRepositoryPort,
+} from '@module/game-room/repositories/game-room-member/game-room-member.repository.port';
 import { GameRoomRepositoryModule } from '@module/game-room/repositories/game-room/game-room.repository.module';
 import {
   GAME_ROOM_REPOSITORY,
@@ -19,6 +25,7 @@ describe(CreateGameRoomHandler.name, () => {
   let handler: CreateGameRoomHandler;
 
   let gameRoomRepository: GameRoomRepositoryPort;
+  let gameRoomMemberRepository: GameRoomMemberRepositoryPort;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let eventStore: IEventStore;
 
@@ -26,7 +33,11 @@ describe(CreateGameRoomHandler.name, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [GameRoomRepositoryModule, EventStoreModule],
+      imports: [
+        GameRoomRepositoryModule,
+        GameRoomMemberRepositoryModule,
+        EventStoreModule,
+      ],
       providers: [CreateGameRoomHandler],
     }).compile();
 
@@ -34,6 +45,9 @@ describe(CreateGameRoomHandler.name, () => {
 
     gameRoomRepository =
       module.get<GameRoomRepositoryPort>(GAME_ROOM_REPOSITORY);
+    gameRoomMemberRepository = module.get<GameRoomMemberRepositoryPort>(
+      GAME_ROOM_MEMBER_REPOSITORY,
+    );
     eventStore = module.get<IEventStore>(EVENT_STORE);
   });
 
@@ -42,7 +56,7 @@ describe(CreateGameRoomHandler.name, () => {
   });
 
   describe('게임방을 생성하면.', () => {
-    it('게임방이 생성돼야한다.', async () => {
+    it('게임방이 생성되고 게임방에 호스트로 입장해야한다.', async () => {
       const gameRoom = await handler.execute(command);
 
       await expect(
@@ -51,6 +65,16 @@ describe(CreateGameRoomHandler.name, () => {
         expect.objectContaining({
           id: gameRoom.id,
           title: command.title,
+        }),
+      );
+      await expect(
+        gameRoomMemberRepository.findByAccountIdInGameRoom(
+          command.currentAccountId,
+          gameRoom.id,
+        ),
+      ).resolves.toEqual(
+        expect.objectContaining({
+          role: GameRoomMemberRole.host,
         }),
       );
     });
