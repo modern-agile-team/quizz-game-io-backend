@@ -2,19 +2,43 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <title>Socket.IO Root Namespace Test</title>
+    <title>Socket.IO Game Room Test</title>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   </head>
   <body>
-    <h1>Socket.IO Root Namespace Test</h1>
+    <h1>Socket.IO Game Room Test</h1>
 
-    <label>Token: <input type="text" id="token" value="INVALID_TOKEN" /></label>
-    <button id="connectBtn">Connect</button>
-    <button id="sendBtn">Send Test Message</button>
+    <div style="margin-bottom: 8px">
+      <label
+        >Token:
+        <input
+          type="text"
+          id="token"
+          value="INVALID_TOKEN"
+          style="width: 420px"
+        />
+      </label>
+      <button id="connectBtn">Connect</button>
+      <button id="disconnectBtn">Disconnect</button>
+    </div>
+
+    <div style="margin-bottom: 8px">
+      <label
+        >Room ID:
+        <input
+          type="text"
+          id="roomId"
+          placeholder="e.g. 12345"
+          style="width: 200px"
+        />
+      </label>
+      <button id="subscribeBtn">Subscribe (game_room.subscribe)</button>
+      <button id="unsubscribeBtn">Unsubscribe</button>
+    </div>
 
     <pre
       id="log"
-      style="background: #eee; padding: 10px; height: 300px; overflow: auto"
+      style="background: #eee; padding: 10px; height: 340px; overflow: auto"
     ></pre>
 
     <script>
@@ -22,15 +46,24 @@
 
       function log(...args) {
         const pre = document.getElementById('log');
-        pre.textContent += args.map((a) => JSON.stringify(a)).join(' ') + '\n';
+        pre.textContent +=
+          args
+            .map((a) => (typeof a === 'string' ? a : JSON.stringify(a)))
+            .join(' ') + '\n';
+        pre.scrollTop = pre.scrollHeight;
       }
 
+      function getRoomId() {
+        return document.getElementById('roomId').value?.trim();
+      }
+
+      // Connect
       document.getElementById('connectBtn').addEventListener('click', () => {
         const token = document.getElementById('token').value;
 
         socket = io('http://localhost:3000', {
-          auth: { token },
-          headers: { authorization: token },
+          auth: { token: `Bearer ${token}` }, // 서버에서 Bearer 파싱한다면 "Bearer xxx" 형태로 넣기
+          transports: ['websocket'], // 필요 시 제거 가능
         });
 
         socket.on('connect', () => log('[connect]', socket.id));
@@ -40,17 +73,29 @@
           log('[connect_error]', err.message),
         );
 
-        // ✅ AccountEntered 이벤트 수신
+        // ✅ 게임룸 입장 브로드캐스트 수신
+        // 서버 퍼블리시 이벤트명: game_room.member_joined
+        socket.on('game_room.member_joined', (payload) => {
+          log('[game_room.member_joined]', payload);
+        });
+
+        // 참고: 계정 입장 이벤트 수신 (있다면)
         socket.on('account.entered', (payload) =>
-          log('[AccountEntered]', payload),
+          log('[account.entered]', payload),
         );
       });
 
-      document.getElementById('sendBtn').addEventListener('click', () => {
-        if (!socket || !socket.connected) {
-          return log('Socket is not connected');
-        }
-        socket.emit('send_message', { text: 'hello from browser' });
+      // Subscribe (game_room.subscribe)
+      document.getElementById('subscribeBtn').addEventListener('click', () => {
+        if (!socket || !socket.connected) return log('Socket is not connected');
+
+        const roomId = getRoomId();
+        if (!roomId) return log('roomId is empty');
+
+        // 서버 게이트웨이 @SubscribeMessage('game_room.subscribe')와 일치
+        socket.emit('game_room.subscribe', { roomId }, (ack) => {
+          log('[subscribe ack]', ack);
+        });
       });
     </script>
   </body>
