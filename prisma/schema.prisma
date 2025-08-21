@@ -28,9 +28,10 @@ model Account {
   role       AccountRole
   signInType SignInType
 
-  username      String?   @unique @db.VarChar(20)
-  password      String?
-  lastEnteredAt DateTime? @db.Timestamp(3)
+  username       String?   @unique @db.VarChar(20)
+  password       String?
+  lastEnteredAt  DateTime? @db.Timestamp(3)
+  lastSignedInAt DateTime? @db.Timestamp(3)
 
   createdAt DateTime @default(now()) @db.Timestamp(3)
   updatedAt DateTime @updatedAt @db.Timestamp(3)

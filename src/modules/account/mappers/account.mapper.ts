@@ -19,6 +19,7 @@ export class AccountMapper extends BaseMapper {
         username: raw.username ?? undefined,
         password: raw.password ?? undefined,
         enteredAt: raw.lastEnteredAt ?? undefined,
+        lastSignedInAt: raw.lastSignedInAt ?? undefined,
       },
     });
   }
@@ -33,6 +34,7 @@ export class AccountMapper extends BaseMapper {
       username: entity.props.username ?? null,
       password: entity.props.password ?? null,
       lastEnteredAt: entity.props.enteredAt ?? null,
+      lastSignedInAt: entity.props.lastSignedInAt ?? null,
     };
   }
 }
