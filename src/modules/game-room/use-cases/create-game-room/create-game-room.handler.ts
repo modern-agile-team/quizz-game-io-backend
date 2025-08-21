@@ -34,7 +34,7 @@ export class CreateGameRoomHandler
       status: command.status,
       visibility: command.visibility,
       title: command.title,
-      maxPlayersCount: command.maxPlayersCount,
+      maxMembersCount: command.maxPlayersCount,
     });
 
     await this.gameRoomRepository.insert(gameRoom);

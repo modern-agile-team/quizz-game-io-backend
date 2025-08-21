@@ -9,6 +9,7 @@ import {
 } from '@module/game-room/repositories/game-room/game-room.repository.port';
 
 import { generateEntityId } from '@common/base/base.entity';
+import { RecordNotFoundError } from '@common/base/base.error';
 
 import { PRISMA_SERVICE } from '@shared/prisma/prisma.di-token';
 import { PrismaService } from '@shared/prisma/prisma.service';
@@ -55,6 +56,30 @@ describe(GameRoomRepository, () => {
             gameRoom,
           );
         });
+      });
+    });
+  });
+
+  describe(GameRoomRepository.prototype.incrementCurrentMembersCount, () => {
+    let gameRoom: GameRoom;
+
+    beforeEach(async () => {
+      gameRoom = await repository.insert(GameRoomFactory.build());
+    });
+
+    describe('현재 멤버 카운트를 증가시키면', () => {
+      it('현재 멤버 수가 1 증가해야한다.', async () => {
+        await expect(
+          repository.incrementCurrentMembersCount(gameRoom.id),
+        ).resolves.toBe(gameRoom.currentMembersCount + 1);
+      });
+    });
+
+    describe('게임방이 존재하지 않는 경우', () => {
+      it('레코드가 존재하지 않는다는 에러가 발생해야한다.', async () => {
+        await expect(
+          repository.incrementCurrentMembersCount(generateEntityId()),
+        ).rejects.toThrow(RecordNotFoundError);
       });
     });
   });

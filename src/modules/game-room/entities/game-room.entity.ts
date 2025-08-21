@@ -1,4 +1,10 @@
+import {
+  GameRoomMember,
+  GameRoomMemberRole,
+} from '@module/game-room/entities/game-room-member.entity';
+import { GameRoomMemberCapacityExceededError } from '@module/game-room/errors/game-room-member-capacity-exceeded.error';
 import { GameRoomCreatedEvent } from '@module/game-room/events/game-room-created/game-room-created.event';
+import { GameRoomMemberJoinedEvent } from '@module/game-room/events/game-room-member-joined/game-room-member-joined.event';
 
 import {
   AggregateRoot,
@@ -25,7 +31,8 @@ export interface GameRoomProps {
   status: GameRoomStatus;
   visibility: GameRoomVisibility;
   title: string;
-  maxPlayersCount: number;
+  maxMembersCount: number;
+  currentMembersCount: number;
 }
 
 interface CreateGameRoomProps {
@@ -33,7 +40,8 @@ interface CreateGameRoomProps {
   status: GameRoomStatus;
   visibility: GameRoomVisibility;
   title: string;
-  maxPlayersCount: number;
+  maxMembersCount: number;
+  currentMembersCount?: number;
 }
 
 export class GameRoom extends AggregateRoot<GameRoomProps> {
@@ -52,7 +60,8 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
         status: props.status,
         visibility: props.visibility,
         title: props.title,
-        maxPlayersCount: props.maxPlayersCount,
+        maxMembersCount: props.maxMembersCount,
+        currentMembersCount: props.currentMembersCount ?? 0,
       },
       createdAt: date,
       updatedAt: date,
@@ -64,7 +73,7 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
         status: props.status,
         visibility: props.visibility,
         title: props.title,
-        maxPlayers: props.maxPlayersCount,
+        maxPlayers: props.maxMembersCount,
       }),
     );
 
@@ -83,8 +92,34 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
     return this.props.title;
   }
 
-  get maxPlayersCount(): number {
-    return this.props.maxPlayersCount;
+  get maxMembersCount(): number {
+    return this.props.maxMembersCount;
+  }
+
+  get currentMembersCount(): number {
+    return this.props.currentMembersCount;
+  }
+
+  joinMember(accountId: string): GameRoomMember {
+    if (this.props.currentMembersCount >= this.props.maxMembersCount) {
+      throw new GameRoomMemberCapacityExceededError();
+    }
+
+    const member = GameRoomMember.create({
+      accountId: accountId,
+      gameRoomId: this.id,
+      role: GameRoomMemberRole.player,
+    });
+
+    this.apply(
+      new GameRoomMemberJoinedEvent(this.id, {
+        gameRoomId: this.id,
+        accountId: member.accountId,
+        role: member.role,
+      }),
+    );
+
+    return member;
   }
 
   public validate(): void {}

@@ -36,6 +36,7 @@ model Account {
   updatedAt DateTime @updatedAt @db.Timestamp(3)
 
   gameRooms GameRoom[]
+  members   GameRoomMember[]
 
   @@map("account")
 }
@@ -72,15 +73,18 @@ model GameRoom {
 
   accountId BigInt
 
-  status          GameRoomStatus
-  visibility      GameRoomVisibility
-  title           String
-  maxPlayersCount Int
+  status              GameRoomStatus
+  visibility          GameRoomVisibility
+  title               String
+  maxMembersCount     Int                @default(0)
+  currentMembersCount Int                @default(0)
 
   createdAt DateTime @default(now()) @db.Timestamp(3)
   updatedAt DateTime @updatedAt @db.Timestamp(3)
 
   account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  members GameRoomMember[]
 
   @@map("game_room")
 }
@@ -96,4 +100,27 @@ model GameRoomEventStore {
 
   @@unique([aggregateId, version])
   @@map("game_room_event_store")
+}
+
+enum GameRoomMemberRole {
+  host
+  player
+}
+
+model GameRoomMember {
+  id BigInt @id
+
+  accountId  BigInt
+  gameRoomId BigInt
+
+  role GameRoomMemberRole
+
+  createdAt DateTime @default(now()) @db.Timestamp(3)
+  updatedAt DateTime @updatedAt @db.Timestamp(3)
+
+  account  Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  gameRoom GameRoom @relation(fields: [gameRoomId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, gameRoomId])
+  @@map("game_room_member")
 }

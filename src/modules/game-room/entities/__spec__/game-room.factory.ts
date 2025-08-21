@@ -19,7 +19,8 @@ export const GameRoomFactory = Factory.define<GameRoom & GameRoomProps>(
     status: () => faker.helpers.enumValue(GameRoomStatus),
     visibility: () => faker.helpers.enumValue(GameRoomVisibility),
     title: () => faker.string.nanoid(),
-    maxPlayersCount: () => faker.number.int({ min: 2, max: 10 }),
+    maxMembersCount: () => faker.number.int({ min: 2, max: 10 }),
+    currentMembersCount: () => faker.number.int({ min: 0, max: 10 }),
     createdAt: () => new Date(),
     updatedAt: () => new Date(),
   })
