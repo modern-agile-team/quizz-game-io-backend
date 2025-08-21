@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { GameRoomRepositoryModule } from '@module/game-room/repositories/game-room/game-room.repository.module';
 import { RoomMemberRepositoryModule } from '@module/game-room/repositories/room-member/room-member.repository.module';
 import { JoinGameRoomController } from '@module/game-room/use-cases/join-game-room/join-game-room.controller';
+import { JoinGameRoomGateway } from '@module/game-room/use-cases/join-game-room/join-game-room.gateway';
 import { JoinGameRoomHandler } from '@module/game-room/use-cases/join-game-room/join-game-room.handler';
 
 import { EventStoreModule } from '@core/event-sourcing/event-store.module';
@@ -14,6 +15,6 @@ import { EventStoreModule } from '@core/event-sourcing/event-store.module';
     EventStoreModule,
   ],
   controllers: [JoinGameRoomController],
-  providers: [JoinGameRoomHandler],
+  providers: [JoinGameRoomHandler, JoinGameRoomGateway],
 })
 export class JoinGameRoomModule {}
