@@ -3,6 +3,11 @@ import { IBaseMapper } from '@common/base/base.mapper';
 
 import { PrismaService } from '@shared/prisma/prisma.service';
 
+export interface ISort<Field extends string = string> {
+  field: Field;
+  direction: 'desc' | 'asc';
+}
+
 export interface ICursorPaginated<T> {
   cursor?: string;
   data: T[];
@@ -95,5 +100,23 @@ export abstract class BaseRepository<
         id: this.mapper.toPrimaryKey(entity.id),
       },
     });
+  }
+
+  protected toOrderBy(sort?: ISort[]): Record<string, any> | undefined {
+    if (sort === undefined || sort.length === 0) {
+      return;
+    }
+
+    return sort.reduce((acc, cur) => {
+      const { field, direction } = cur;
+
+      if (field === 'createdAt') {
+        acc['id'] = direction;
+      } else {
+        acc[field] = direction;
+      }
+
+      return acc;
+    }, {});
   }
 }

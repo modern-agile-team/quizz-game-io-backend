@@ -24,6 +24,7 @@ export default {
   setupFilesAfterEnv: [
     '<rootDir>/test/after-env-setup.ts',
     'jest-extended/all',
+    'jest-sorted',
   ],
   globalSetup: '<rootDir>/test/global-setup.ts',
   globalTeardown: '<rootDir>/test/global-teardown.ts',
