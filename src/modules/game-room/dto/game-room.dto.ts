@@ -15,5 +15,8 @@ export class GameRoomDto extends BaseResponseDto {
   title: string;
 
   @ApiProperty()
-  maxPlayersCount: number;
+  maxMembersCount: number;
+
+  @ApiProperty()
+  currentMembersCount: number;
 }

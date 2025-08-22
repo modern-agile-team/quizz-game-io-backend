@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { ISort } from '@common/base/base.repository';
+
+export class SortDto implements ISort {
+  field: string;
+
+  direction: 'desc' | 'asc';
+}
+
 export class BaseResponseDto {
   constructor(props: BaseResponseDto) {
     this.id = props.id;

@@ -17,6 +17,7 @@ import {
   BaseRepository,
   ICursorPaginated,
   ICursorPaginatedParams,
+  ISort,
 } from '@common/base/base.repository';
 
 import { PRISMA_SERVICE } from '@shared/prisma/prisma.di-token';
@@ -33,6 +34,14 @@ export class GameRoomRepository
     @Inject(PRISMA_SERVICE) protected readonly prismaService: PrismaService,
   ) {
     super(prismaService, GameRoomMapper);
+  }
+
+  async findAll(options: { sort?: ISort[] }): Promise<GameRoom[]> {
+    const rows = await this.prismaService.gameRoom.findMany({
+      orderBy: this.toOrderBy(options.sort),
+    });
+
+    return rows.map((row) => this.mapper.toEntity(row));
   }
 
   async incrementCurrentMembersCount(gameRoomId: EntityId): Promise<number> {

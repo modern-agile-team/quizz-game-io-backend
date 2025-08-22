@@ -60,6 +60,32 @@ describe(GameRoomRepository, () => {
     });
   });
 
+  describe(GameRoomRepository.prototype.findAll, () => {
+    beforeEach(async () => {
+      await Promise.all(
+        GameRoomFactory.buildList(5).map((gameRoom) =>
+          repository.insert(gameRoom),
+        ),
+      );
+    });
+
+    it('게임 방 목록을 조회할 수 있다.', async () => {
+      await expect(repository.findAll({})).resolves.toSatisfyAll(
+        (gameRoom) => gameRoom instanceof GameRoom,
+      );
+    });
+
+    it('생성일 기준 정렬이 가능하다.', async () => {
+      await expect(
+        repository.findAll({
+          sort: [{ field: 'createdAt', direction: 'asc' }],
+        }),
+      ).resolves.toBeSortedBy('createdAt', {
+        descending: false,
+      });
+    });
+  });
+
   describe(GameRoomRepository.prototype.incrementCurrentMembersCount, () => {
     let gameRoom: GameRoom;
 
