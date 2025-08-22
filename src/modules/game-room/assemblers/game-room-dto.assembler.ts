@@ -12,7 +12,8 @@ export class GameRoomDtoAssembler {
     dto.hostId = gameRoom.props.hostId;
     dto.status = gameRoom.props.status;
     dto.title = gameRoom.props.title;
-    dto.maxPlayersCount = gameRoom.props.maxMembersCount;
+    dto.maxMembersCount = gameRoom.props.maxMembersCount;
+    dto.currentMembersCount = gameRoom.props.currentMembersCount;
 
     return dto;
   }
