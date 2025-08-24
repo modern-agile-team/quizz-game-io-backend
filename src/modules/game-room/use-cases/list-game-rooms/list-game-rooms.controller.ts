@@ -1,6 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { GameRoomCollectionDtoAssembler } from '@module/game-room/assemblers/game-room-collection-dto.assembler';
 import { GameRoomCollectionDto } from '@module/game-room/dto/game-room-collection.dto';
@@ -17,6 +17,7 @@ export class ListGameRoomsController {
 
   @ApiErrorResponse({})
   @ApiOperation({ summary: '게임방 목록 조회' })
+  @ApiOkResponse({ type: GameRoomCollectionDto })
   @Get('game-rooms')
   async listGameRooms(
     @Query() dto: ListGameRoomsDto,
