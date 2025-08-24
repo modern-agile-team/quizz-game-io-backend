@@ -57,6 +57,7 @@ export class GameRoomMemberJoinedHandler {
       gameRoomId: event.eventPayload.gameRoomId,
       role: event.eventPayload.role,
       currentMembersCount,
+      nickname: event.eventPayload.nickname,
     });
 
     this.socketEmitter.emitToRoom(

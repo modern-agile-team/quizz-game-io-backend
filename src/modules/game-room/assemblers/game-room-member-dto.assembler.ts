@@ -12,6 +12,7 @@ export class GameRoomMemberDtoAssembler {
     dto.accountId = gameRoomMember.accountId;
     dto.gameRoomId = gameRoomMember.gameRoomId;
     dto.role = gameRoomMember.role;
+    dto.nickname = gameRoomMember.nickname;
 
     return dto;
   }

@@ -13,12 +13,14 @@ export interface GameRoomMemberProps {
   accountId: string;
   gameRoomId: string;
   role: GameRoomMemberRole;
+  nickname: string;
 }
 
 interface CreateGameRoomMemberProps {
   accountId: string;
   gameRoomId: string;
   role: GameRoomMemberRole;
+  nickname: string;
 }
 
 export class GameRoomMember extends BaseEntity<GameRoomMemberProps> {
@@ -36,6 +38,7 @@ export class GameRoomMember extends BaseEntity<GameRoomMemberProps> {
         accountId: props.accountId,
         gameRoomId: props.gameRoomId,
         role: props.role,
+        nickname: props.nickname,
       },
       createdAt: date,
       updatedAt: date,
@@ -52,6 +55,10 @@ export class GameRoomMember extends BaseEntity<GameRoomMemberProps> {
 
   get role(): GameRoomMemberRole {
     return this.props.role;
+  }
+
+  get nickname(): string {
+    return this.props.nickname;
   }
 
   public validate(): void {}

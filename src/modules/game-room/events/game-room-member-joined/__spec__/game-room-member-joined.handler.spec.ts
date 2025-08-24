@@ -54,6 +54,7 @@ describe(GameRoomMemberJoinedHandler, () => {
       gameRoomId,
       accountId: generateEntityId(),
       role: GameRoomMemberRole.player,
+      nickname: generateEntityId(),
     });
 
     await gameRoomRepository.insert(

@@ -1,6 +1,11 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
+import { AccountNotFoundError } from '@module/account/errors/account-not-found.error';
+import {
+  ACCOUNT_REPOSITORY,
+  AccountRepositoryPort,
+} from '@module/account/repositories/account/account.repository.port';
 import { GameRoomMember } from '@module/game-room/entities/game-room-member.entity';
 import { GameRoomMemberAlreadyExistsError } from '@module/game-room/errors/game-room-member-already-exists.error';
 import { GameRoomNotFoundError } from '@module/game-room/errors/game-room-not-found.error';
@@ -28,18 +33,25 @@ export class JoinGameRoomHandler
     private readonly gameRoomRepository: GameRoomRepositoryPort,
     @Inject(GAME_ROOM_MEMBER_REPOSITORY)
     private readonly gameRoomMemberRepository: GameRoomMemberRepositoryPort,
+    @Inject(ACCOUNT_REPOSITORY)
+    private readonly accountRepository: AccountRepositoryPort,
     @Inject(EVENT_STORE)
     private readonly eventStore: IEventStore,
   ) {}
 
   async execute(command: JoinGameRoomCommand): Promise<GameRoomMember> {
-    const [gameRoom, existingMember] = await Promise.all([
+    const [existingAccount, gameRoom, existingMember] = await Promise.all([
+      this.accountRepository.findOneById(command.currentAccountId),
       this.gameRoomRepository.findOneById(command.gameRoomId),
       this.gameRoomMemberRepository.findByAccountIdInGameRoom(
         command.currentAccountId,
         command.gameRoomId,
       ),
     ]);
+
+    if (existingAccount === undefined) {
+      throw new AccountNotFoundError();
+    }
 
     if (gameRoom === undefined) {
       throw new GameRoomNotFoundError();
@@ -49,7 +61,11 @@ export class JoinGameRoomHandler
       throw new GameRoomMemberAlreadyExistsError();
     }
 
-    const member = gameRoom.join(command.currentAccountId, command.role);
+    const member = gameRoom.join({
+      accountId: command.currentAccountId,
+      role: command.role,
+      nickname: existingAccount.nickname,
+    });
 
     await this.gameRoomMemberRepository.insert(member);
 

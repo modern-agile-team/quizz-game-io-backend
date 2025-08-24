@@ -19,6 +19,9 @@ class GameRoomMemberJoinedSocketEventBody {
   role: GameRoomMemberRole;
 
   @ApiProperty()
+  nickname: string;
+
+  @ApiProperty()
   currentMembersCount: number;
 }
 
