@@ -54,6 +54,7 @@ describe(AccountEnteredHandler, () => {
 
   beforeEach(() => {
     event = new AccountEnteredEvent(generateEntityId(), {
+      nickname: generateEntityId(),
       enteredAt: new Date(),
     });
   });

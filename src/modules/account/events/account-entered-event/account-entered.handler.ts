@@ -32,6 +32,7 @@ export class AccountEnteredHandler {
     const socketEvent = new AccountEnteredSocketEvent({
       account: {
         id: event.aggregateId,
+        nickname: event.eventPayload.nickname,
         enteredAt: event.eventPayload.enteredAt,
       },
       currentActiveAccountsCount,

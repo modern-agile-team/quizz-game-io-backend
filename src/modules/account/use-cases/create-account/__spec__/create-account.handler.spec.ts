@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { AccountFactory } from '@module/account/entities/__spec__/account.factory';
+import { AccountNicknameAlreadyOccupiedError } from '@module/account/errors/account-nickname-already-occupied.error';
 import { AccountUsernameAlreadyOccupiedError } from '@module/account/errors/account-username-already-occupied.error';
 import { AccountRepositoryModule } from '@module/account/repositories/account/account.repository.module';
 import {
@@ -55,6 +56,20 @@ describe(CreateAccountHandler.name, () => {
     it('동일한 유저네임을 가진 계정이 이미 존재한다는 에러가 발생해야한다.', async () => {
       await expect(handler.execute(command)).rejects.toThrow(
         AccountUsernameAlreadyOccupiedError,
+      );
+    });
+  });
+
+  describe('동일한 닉네임을 가진 계정이 존재하면', () => {
+    beforeEach(async () => {
+      await accountRepository.insert(
+        AccountFactory.build({ nickname: command.nickname }),
+      );
+    });
+
+    it('동일한 닉네임을 가진 계정이 존재한다는 에러가 발생해야한다.', async () => {
+      await expect(handler.execute(command)).rejects.toThrow(
+        AccountNicknameAlreadyOccupiedError,
       );
     });
   });

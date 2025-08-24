@@ -45,6 +45,20 @@ export class AccountRepository
     return this.mapper.toEntity(account);
   }
 
+  async findOneByNickname(nickname: string): Promise<Account | undefined> {
+    const account = await this.prismaService.account.findFirst({
+      where: {
+        nickname,
+      },
+    });
+
+    if (account === null) {
+      return;
+    }
+
+    return this.mapper.toEntity(account);
+  }
+
   findAllCursorPaginated(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     params: ICursorPaginatedParams<AccountOrder, AccountFilter>,

@@ -10,6 +10,7 @@ interface AccountCreatedEventPayload {
   signInType: SignInType;
   username?: string;
   password?: string;
+  nickname: string;
 }
 
 export class AccountCreatedEvent extends DomainEvent<AccountCreatedEventPayload> {

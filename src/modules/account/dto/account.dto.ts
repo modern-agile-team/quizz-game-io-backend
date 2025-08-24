@@ -20,6 +20,9 @@ export class AccountDto extends BaseResponseDto {
   })
   signInType: SignInType;
 
+  @ApiProperty()
+  nickname: string;
+
   @ApiProperty({
     description: '진입 시점',
   })

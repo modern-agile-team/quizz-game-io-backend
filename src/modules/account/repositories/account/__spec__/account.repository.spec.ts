@@ -90,4 +90,36 @@ describe(AccountRepository, () => {
       });
     });
   });
+
+  describe(AccountRepository.prototype.findOneByNickname, () => {
+    let nickname: string;
+
+    beforeEach(() => {
+      nickname = generateEntityId();
+    });
+
+    describe('넥네임과 일치하는 계정이 존재하면', () => {
+      let account: Account;
+
+      beforeEach(async () => {
+        account = await repository.insert(
+          AccountFactory.build({ nickname: nickname }),
+        );
+      });
+
+      it('계정이 반환돼야한다.', async () => {
+        await expect(repository.findOneByNickname(nickname)).resolves.toEqual(
+          account,
+        );
+      });
+    });
+
+    describe('닉네임과 일치하는 계정이 존재하지 않으면', () => {
+      it('undefined가 반환돼야한다.', async () => {
+        await expect(
+          repository.findOneByNickname(nickname),
+        ).resolves.toBeUndefined();
+      });
+    });
+  });
 });
