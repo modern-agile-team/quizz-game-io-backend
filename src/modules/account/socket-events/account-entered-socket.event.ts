@@ -7,6 +7,9 @@ class AccountEnteredSocketEventBodyAccount {
   id: string;
 
   @ApiProperty()
+  nickname: string;
+
+  @ApiProperty()
   enteredAt: Date;
 }
 

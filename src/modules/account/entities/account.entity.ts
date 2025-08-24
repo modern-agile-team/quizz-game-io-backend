@@ -103,7 +103,12 @@ export class Account extends AggregateRoot<AccountProps> {
 
     this.updatedAt = now;
 
-    this.apply(new AccountEnteredEvent(this.id, { enteredAt: now }));
+    this.apply(
+      new AccountEnteredEvent(this.id, {
+        nickname: this.props.nickname,
+        enteredAt: now,
+      }),
+    );
   }
 
   signIn() {
