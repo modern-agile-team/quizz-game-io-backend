@@ -15,4 +15,5 @@ export interface AccountOrder {}
 export interface AccountRepositoryPort
   extends RepositoryPort<Account, AccountFilter, AccountOrder> {
   findOneByUsername(username: string): Promise<Account | undefined>;
+  findOneByNickname(nickname: string): Promise<Account | undefined>;
 }

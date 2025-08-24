@@ -19,6 +19,7 @@ export const AccountFactory = Factory.define<Account & AccountProps>(
     signInType: () => faker.helpers.arrayElement(Object.values(SignInType)),
     username: () => faker.internet.username(),
     password: () => faker.internet.password(),
+    nickname: () => generateEntityId(),
     enteredAt: () => faker.date.past(),
     createdAt: () => new Date(),
     updatedAt: () => new Date(),

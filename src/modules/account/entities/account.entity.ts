@@ -22,6 +22,7 @@ export interface AccountProps {
   signInType: SignInType;
   username?: string;
   password?: string;
+  nickname: string;
   enteredAt?: Date;
   lastSignedInAt?: Date;
 }
@@ -29,6 +30,7 @@ export interface AccountProps {
 interface CreateAccountProps {
   role: AccountRole;
   signInType: SignInType;
+  nickname?: string;
   username?: string;
   password?: string;
 }
@@ -49,6 +51,7 @@ export class Account extends AggregateRoot<AccountProps> {
         signInType: props.signInType,
         username: props.username,
         password: props.password,
+        nickname: props.nickname ?? generateEntityId(),
       },
       createdAt: date,
       updatedAt: date,
@@ -60,6 +63,7 @@ export class Account extends AggregateRoot<AccountProps> {
         signInType: props.signInType,
         username: props.username,
         password: props.password,
+        nickname: account.props.nickname,
       }),
     );
 
@@ -82,6 +86,10 @@ export class Account extends AggregateRoot<AccountProps> {
 
   get password(): string | undefined {
     return this.props.password;
+  }
+
+  get nickname(): string {
+    return this.props.nickname;
   }
 
   get enteredAt(): Date | undefined {

@@ -2,6 +2,7 @@ import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { Account } from '@module/account/entities/account.entity';
+import { AccountNicknameAlreadyOccupiedError } from '@module/account/errors/account-nickname-already-occupied.error';
 import { AccountUsernameAlreadyOccupiedError } from '@module/account/errors/account-username-already-occupied.error';
 import {
   ACCOUNT_REPOSITORY,
@@ -25,12 +26,20 @@ export class CreateAccountHandler
   ) {}
 
   async execute(command: CreateAccountCommand): Promise<Account> {
-    const existingAccount = await this.accountRepository.findOneByUsername(
-      command.username,
-    );
+    const existingAccountByUsername =
+      await this.accountRepository.findOneByUsername(command.username);
 
-    if (existingAccount) {
+    if (existingAccountByUsername !== undefined) {
       throw new AccountUsernameAlreadyOccupiedError();
+    }
+
+    if (command.nickname !== undefined) {
+      const existingAccountByNickname =
+        await this.accountRepository.findOneByNickname(command.nickname);
+
+      if (existingAccountByNickname !== undefined) {
+        throw new AccountNicknameAlreadyOccupiedError();
+      }
     }
 
     const account = Account.create({
@@ -38,6 +47,7 @@ export class CreateAccountHandler
       signInType: command.signInType,
       username: command.username,
       password: command.password,
+      nickname: command.nickname,
     });
 
     await this.accountRepository.insert(account);
