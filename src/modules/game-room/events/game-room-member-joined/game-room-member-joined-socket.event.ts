@@ -12,6 +12,7 @@ class GameRoomMemberJoinedSocketEventBody {
   gameRoomId: string;
 
   @ApiProperty({
+    title: 'GameRoomMemberRole',
     enum: GameRoomMemberRole,
     enumName: 'GameRoomMemberRole',
   })
