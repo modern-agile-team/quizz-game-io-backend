@@ -7,6 +7,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { AccountNotFoundError } from '@module/account/errors/account-not-found.error';
 import { JwtAuthGuard } from '@module/auth/jwt/jwt-auth.guard';
 import { GameRoomMemberDtoAssembler } from '@module/game-room/assemblers/game-room-member-dto.assembler';
 import { GameRoomMemberDto } from '@module/game-room/dto/game-room-member.dto';
@@ -48,6 +49,7 @@ export class JoinGameRoomController {
       GameRoomMemberAlreadyExistsError,
       GameRoomMemberCapacityExceededError,
     ],
+    [HttpStatus.INTERNAL_SERVER_ERROR]: [AccountNotFoundError],
   })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -80,6 +82,10 @@ export class JoinGameRoomController {
 
       if (error instanceof GameRoomMemberCapacityExceededError) {
         throw new BaseHttpException(HttpStatus.CONFLICT, error);
+      }
+
+      if (error instanceof AccountNotFoundError) {
+        throw new BaseHttpException(HttpStatus.INTERNAL_SERVER_ERROR, error);
       }
 
       throw error;

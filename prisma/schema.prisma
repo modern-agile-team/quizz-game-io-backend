@@ -115,7 +115,8 @@ model GameRoomMember {
   accountId  BigInt
   gameRoomId BigInt
 
-  role GameRoomMemberRole
+  role     GameRoomMemberRole
+  nickname String             @db.VarChar(20)
 
   createdAt DateTime @default(now()) @db.Timestamp(3)
   updatedAt DateTime @updatedAt @db.Timestamp(3)
@@ -124,5 +125,6 @@ model GameRoomMember {
   gameRoom GameRoom @relation(fields: [gameRoomId], references: [id], onDelete: Cascade)
 
   @@unique([accountId, gameRoomId])
+  @@unique([gameRoomId, nickname])
   @@map("game_room_member")
 }

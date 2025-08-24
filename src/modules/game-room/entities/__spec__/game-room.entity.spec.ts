@@ -27,7 +27,11 @@ describe(GameRoom, () => {
     describe('멤버로 추가하는 경우', () => {
       it('구성원을 반환해야한다.', () => {
         expect(
-          gameRoom.join(generateEntityId(), GameRoomMemberRole.player),
+          gameRoom.join({
+            accountId: generateEntityId(),
+            role: GameRoomMemberRole.player,
+            nickname: generateEntityId(),
+          }),
         ).toBeInstanceOf(GameRoomMember);
       });
     });
@@ -35,7 +39,11 @@ describe(GameRoom, () => {
     describe('호스트를 추가하는 경우', () => {
       it('호스트를 반환해야한다.', () => {
         expect(
-          gameRoom.join(gameRoom.hostId, GameRoomMemberRole.host),
+          gameRoom.join({
+            accountId: gameRoom.hostId,
+            role: GameRoomMemberRole.host,
+            nickname: generateEntityId(),
+          }),
         ).toBeInstanceOf(GameRoomMember);
       });
     });
@@ -43,7 +51,11 @@ describe(GameRoom, () => {
     describe('게임방 생성자가 아닌 사람이 호스트로 추가하려는 경우', () => {
       it('게임방 생성자만 호스트가 될 수 있다는 에러가 발생해야한다.', () => {
         expect(() =>
-          gameRoom.join(generateEntityId(), GameRoomMemberRole.host),
+          gameRoom.join({
+            accountId: generateEntityId(),
+            role: GameRoomMemberRole.host,
+            nickname: generateEntityId(),
+          }),
         ).toThrow(GameRoomValidationError);
       });
     });
@@ -57,7 +69,11 @@ describe(GameRoom, () => {
       });
       it('멤버 제한을 초과했다는 에러가 발생해야한다.', () => {
         expect(() =>
-          gameRoom.join(generateEntityId(), GameRoomMemberRole.player),
+          gameRoom.join({
+            accountId: generateEntityId(),
+            role: GameRoomMemberRole.player,
+            nickname: generateEntityId(),
+          }),
         ).toThrow(GameRoomMemberCapacityExceededError);
       });
     });

@@ -1,5 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { AccountFactory } from '@module/account/entities/__spec__/account.factory';
+import { AccountNotFoundError } from '@module/account/errors/account-not-found.error';
+import { AccountRepositoryModule } from '@module/account/repositories/account/account.repository.module';
+import {
+  ACCOUNT_REPOSITORY,
+  AccountRepositoryPort,
+} from '@module/account/repositories/account/account.repository.port';
 import { GameRoomMemberFactory } from '@module/game-room/entities/__spec__/game-room-member.factory';
 import { GameRoomFactory } from '@module/game-room/entities/__spec__/game-room.factory';
 import { GameRoomMember } from '@module/game-room/entities/game-room-member.entity';
@@ -20,6 +27,8 @@ import { JoinGameRoomCommandFactory } from '@module/game-room/use-cases/join-gam
 import { JoinGameRoomCommand } from '@module/game-room/use-cases/join-game-room/join-game-room.command';
 import { JoinGameRoomHandler } from '@module/game-room/use-cases/join-game-room/join-game-room.handler';
 
+import { generateEntityId } from '@common/base/base.entity';
+
 import {
   EVENT_STORE,
   IEventStore,
@@ -31,6 +40,7 @@ describe(JoinGameRoomHandler.name, () => {
 
   let gameRoomRepository: GameRoomRepositoryPort;
   let gameRoomMemberRepository: GameRoomMemberRepositoryPort;
+  let accountRepository: AccountRepositoryPort;
   let eventStore: IEventStore;
 
   let command: JoinGameRoomCommand;
@@ -40,6 +50,7 @@ describe(JoinGameRoomHandler.name, () => {
       imports: [
         GameRoomRepositoryModule,
         GameRoomMemberRepositoryModule,
+        AccountRepositoryModule,
         EventStoreModule,
       ],
       providers: [JoinGameRoomHandler],
@@ -52,6 +63,7 @@ describe(JoinGameRoomHandler.name, () => {
     gameRoomMemberRepository = module.get<GameRoomMemberRepositoryPort>(
       GAME_ROOM_MEMBER_REPOSITORY,
     );
+    accountRepository = module.get<AccountRepositoryPort>(ACCOUNT_REPOSITORY);
     eventStore = module.get<IEventStore>(EVENT_STORE);
   });
 
@@ -72,6 +84,9 @@ describe(JoinGameRoomHandler.name, () => {
         currentMembersCount: 1,
       }),
     );
+    await accountRepository.insert(
+      AccountFactory.build({ id: command.currentAccountId }),
+    );
   });
 
   describe('게임방에 참가하면', () => {
@@ -85,14 +100,10 @@ describe(JoinGameRoomHandler.name, () => {
   });
 
   describe('게임방이 존재하지 않는 경우', () => {
-    beforeEach(() => {
-      command = JoinGameRoomCommandFactory.build();
-    });
-
     it('게임방이 존재하지 않는다는 에러가 발생해야한다.', async () => {
-      await expect(handler.execute(command)).rejects.toThrow(
-        GameRoomNotFoundError,
-      );
+      await expect(
+        handler.execute({ ...command, gameRoomId: generateEntityId() }),
+      ).rejects.toThrow(GameRoomNotFoundError);
     });
   });
 
@@ -110,6 +121,14 @@ describe(JoinGameRoomHandler.name, () => {
       await expect(handler.execute(command)).rejects.toThrow(
         GameRoomMemberAlreadyExistsError,
       );
+    });
+  });
+
+  describe('계정이 존재하지 않으면', () => {
+    it('계정이 존재하지 않는다는 에러가 발생해야한다.', async () => {
+      await expect(
+        handler.execute({ ...command, currentAccountId: generateEntityId() }),
+      ).rejects.toThrow(AccountNotFoundError);
     });
   });
 });

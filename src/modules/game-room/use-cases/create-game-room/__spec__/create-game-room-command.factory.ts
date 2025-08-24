@@ -10,6 +10,6 @@ export const CreateGameRoomCommandFactory =
     CreateGameRoomCommand.name,
     CreateGameRoomCommand,
   ).attrs({
-    currentAccountId: generateEntityId(),
+    currentAccountId: () => generateEntityId(),
     title: faker.string.nanoid(),
   });

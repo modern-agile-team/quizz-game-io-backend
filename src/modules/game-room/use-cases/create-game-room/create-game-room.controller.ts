@@ -7,6 +7,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { AccountNotFoundError } from '@module/account/errors/account-not-found.error';
 import { JwtAuthGuard } from '@module/auth/jwt/jwt-auth.guard';
 import { GameRoomDtoAssembler } from '@module/game-room/assemblers/game-room-dto.assembler';
 import { GameRoomDto } from '@module/game-room/dto/game-room.dto';
@@ -14,6 +15,7 @@ import { GameRoom } from '@module/game-room/entities/game-room.entity';
 import { CreateGameRoomCommand } from '@module/game-room/use-cases/create-game-room/create-game-room.command';
 import { CreateGameRoomDto } from '@module/game-room/use-cases/create-game-room/create-game-room.dto';
 
+import { BaseHttpException } from '@common/base/base-http-exception';
 import {
   RequestValidationError,
   UnauthorizedError,
@@ -35,6 +37,7 @@ export class CreateGameRoomController {
   @ApiErrorResponse({
     [HttpStatus.BAD_REQUEST]: [RequestValidationError],
     [HttpStatus.UNAUTHORIZED]: [UnauthorizedError],
+    [HttpStatus.INTERNAL_SERVER_ERROR]: [AccountNotFoundError],
   })
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -47,11 +50,19 @@ export class CreateGameRoomController {
       title: body.title,
     });
 
-    const gameRoom = await this.commandBus.execute<
-      CreateGameRoomCommand,
-      GameRoom
-    >(command);
+    try {
+      const gameRoom = await this.commandBus.execute<
+        CreateGameRoomCommand,
+        GameRoom
+      >(command);
 
-    return GameRoomDtoAssembler.convertToDto(gameRoom);
+      return GameRoomDtoAssembler.convertToDto(gameRoom);
+    } catch (error) {
+      if (error instanceof AccountNotFoundError) {
+        throw new BaseHttpException(HttpStatus.INTERNAL_SERVER_ERROR, error);
+      }
+
+      throw error;
+    }
   }
 }

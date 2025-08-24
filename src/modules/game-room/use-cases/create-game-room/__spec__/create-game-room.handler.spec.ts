@@ -1,5 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { AccountFactory } from '@module/account/entities/__spec__/account.factory';
+import { AccountNotFoundError } from '@module/account/errors/account-not-found.error';
+import { AccountRepositoryModule } from '@module/account/repositories/account/account.repository.module';
+import {
+  ACCOUNT_REPOSITORY,
+  AccountRepositoryPort,
+} from '@module/account/repositories/account/account.repository.port';
 import { GameRoomMemberRole } from '@module/game-room/entities/game-room-member.entity';
 import { GameRoomMemberRepositoryModule } from '@module/game-room/repositories/game-room-member/game-room-member.repository.module';
 import {
@@ -26,6 +33,7 @@ describe(CreateGameRoomHandler.name, () => {
 
   let gameRoomRepository: GameRoomRepositoryPort;
   let gameRoomMemberRepository: GameRoomMemberRepositoryPort;
+  let accountRepository: AccountRepositoryPort;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let eventStore: IEventStore;
 
@@ -36,6 +44,7 @@ describe(CreateGameRoomHandler.name, () => {
       imports: [
         GameRoomRepositoryModule,
         GameRoomMemberRepositoryModule,
+        AccountRepositoryModule,
         EventStoreModule,
       ],
       providers: [CreateGameRoomHandler],
@@ -48,6 +57,7 @@ describe(CreateGameRoomHandler.name, () => {
     gameRoomMemberRepository = module.get<GameRoomMemberRepositoryPort>(
       GAME_ROOM_MEMBER_REPOSITORY,
     );
+    accountRepository = module.get<AccountRepositoryPort>(ACCOUNT_REPOSITORY);
     eventStore = module.get<IEventStore>(EVENT_STORE);
   });
 
@@ -56,6 +66,14 @@ describe(CreateGameRoomHandler.name, () => {
   });
 
   describe('게임방을 생성하면.', () => {
+    beforeEach(async () => {
+      await accountRepository.insert(
+        AccountFactory.build({
+          id: command.currentAccountId,
+        }),
+      );
+    });
+
     it('게임방이 생성되고 게임방에 호스트로 입장해야한다.', async () => {
       const gameRoom = await handler.execute(command);
 
@@ -76,6 +94,14 @@ describe(CreateGameRoomHandler.name, () => {
         expect.objectContaining({
           role: GameRoomMemberRole.host,
         }),
+      );
+    });
+  });
+
+  describe('계정이 존재하지 않으면', () => {
+    it('계정이 존재하지 않는다는 에러가 발생해야한다.', async () => {
+      await expect(handler.execute(command)).rejects.toThrow(
+        AccountNotFoundError,
       );
     });
   });

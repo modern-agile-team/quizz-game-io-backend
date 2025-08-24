@@ -45,6 +45,12 @@ interface CreateGameRoomProps {
   currentMembersCount?: number;
 }
 
+interface JoinProps {
+  accountId: string;
+  nickname: string;
+  role: GameRoomMemberRole;
+}
+
 export class GameRoom extends AggregateRoot<GameRoomProps> {
   constructor(props: CreateEntityProps<GameRoomProps>) {
     super(props);
@@ -101,8 +107,11 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
     return this.props.currentMembersCount;
   }
 
-  join(accountId: string, role: GameRoomMemberRole): GameRoomMember {
-    if (role === GameRoomMemberRole.host && accountId !== this.props.hostId) {
+  join(props: JoinProps): GameRoomMember {
+    if (
+      props.role === GameRoomMemberRole.host &&
+      props.accountId !== this.props.hostId
+    ) {
       throw new GameRoomValidationError(
         'Only the room creator can be the host.',
       );
@@ -113,9 +122,10 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
     }
 
     const member = GameRoomMember.create({
-      accountId: accountId,
+      accountId: props.accountId,
       gameRoomId: this.id,
-      role,
+      role: props.role,
+      nickname: props.nickname,
     });
 
     this.apply(
@@ -123,6 +133,7 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
         gameRoomId: this.id,
         accountId: member.accountId,
         role: member.role,
+        nickname: member.nickname,
       }),
     );
 

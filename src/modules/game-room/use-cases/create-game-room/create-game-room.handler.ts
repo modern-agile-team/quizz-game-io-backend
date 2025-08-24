@@ -1,6 +1,11 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
+import { AccountNotFoundError } from '@module/account/errors/account-not-found.error';
+import {
+  ACCOUNT_REPOSITORY,
+  AccountRepositoryPort,
+} from '@module/account/repositories/account/account.repository.port';
 import { GameRoomMemberRole } from '@module/game-room/entities/game-room-member.entity';
 import { GameRoom } from '@module/game-room/entities/game-room.entity';
 import {
@@ -19,7 +24,6 @@ import {
 } from '@core/event-sourcing/event-store.interface';
 
 /**
- * @todo 방 생성자의 입장처리
  * @todo 방 생성 시 이미 다른 방에 입장 중인 경우 예외 처리
  */
 @CommandHandler(CreateGameRoomCommand)
@@ -31,11 +35,21 @@ export class CreateGameRoomHandler
     private readonly gameRoomRepository: GameRoomRepositoryPort,
     @Inject(GAME_ROOM_MEMBER_REPOSITORY)
     private readonly gameRoomMemberRepository: GameRoomMemberRepositoryPort,
+    @Inject(ACCOUNT_REPOSITORY)
+    private readonly accountRepository: AccountRepositoryPort,
     @Inject(EVENT_STORE)
     private readonly eventStore: IEventStore,
   ) {}
 
   async execute(command: CreateGameRoomCommand): Promise<GameRoom> {
+    const existingAccount = await this.accountRepository.findOneById(
+      command.currentAccountId,
+    );
+
+    if (existingAccount === undefined) {
+      throw new AccountNotFoundError();
+    }
+
     const gameRoom = GameRoom.create({
       hostId: command.currentAccountId,
       status: command.status,
@@ -46,10 +60,11 @@ export class CreateGameRoomHandler
 
     await this.gameRoomRepository.insert(gameRoom);
 
-    const host = gameRoom.join(
-      command.currentAccountId,
-      GameRoomMemberRole.host,
-    );
+    const host = gameRoom.join({
+      accountId: command.currentAccountId,
+      role: GameRoomMemberRole.host,
+      nickname: existingAccount.nickname,
+    });
 
     await this.gameRoomMemberRepository.insert(host);
 

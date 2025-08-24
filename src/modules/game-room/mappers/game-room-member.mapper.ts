@@ -16,6 +16,7 @@ export class GameRoomMemberMapper extends BaseMapper {
         accountId: this.toEntityId(raw.accountId),
         gameRoomId: this.toEntityId(raw.gameRoomId),
         role: GameRoomMemberRole[raw.role],
+        nickname: raw.nickname,
       },
     });
   }
@@ -28,6 +29,7 @@ export class GameRoomMemberMapper extends BaseMapper {
       accountId: this.toPrimaryKey(entity.props.accountId),
       gameRoomId: this.toPrimaryKey(entity.props.gameRoomId),
       role: entity.props.role,
+      nickname: entity.props.nickname,
     };
   }
 }
