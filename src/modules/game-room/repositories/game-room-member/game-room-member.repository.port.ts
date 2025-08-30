@@ -20,6 +20,8 @@ export interface GameRoomMemberRepositoryPort
     GameRoomMemberFilter,
     GameRoomMemberOrder
   > {
+  findByGameRoomId(gameRoomId: string): Promise<GameRoomMember[]>;
+
   findByAccountIdInGameRoom(
     accountId: string,
     gameRoomId: string,

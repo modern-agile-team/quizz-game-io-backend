@@ -31,6 +31,20 @@ export class GameRoomMemberRepository
     super(prismaService, GameRoomMemberMapper);
   }
 
+  async findByGameRoomId(gameRoomId: string): Promise<GameRoomMember[]> {
+    if (isNaN(Number(gameRoomId))) {
+      return [];
+    }
+
+    const raws = await this.prismaService.gameRoomMember.findMany({
+      where: {
+        gameRoomId: this.mapper.toPrimaryKey(gameRoomId),
+      },
+    });
+
+    return raws.map((raw) => this.mapper.toEntity(raw));
+  }
+
   async findByAccountIdInGameRoom(
     accountId: string,
     gameRoomId: string,
