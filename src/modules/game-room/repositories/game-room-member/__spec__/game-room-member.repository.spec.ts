@@ -61,6 +61,29 @@ describe(GameRoomMemberRepository, () => {
     });
   });
 
+  describe(GameRoomMemberRepository.prototype.findByGameRoomId, () => {
+    let gameRoomId: string;
+    let gameRoomMembers: GameRoomMember[];
+
+    beforeEach(async () => {
+      gameRoomId = generateEntityId();
+
+      gameRoomMembers = await Promise.all(
+        GameRoomMemberFactory.buildList(3, { gameRoomId }).map(
+          (gameRoomMember) => repository.insert(gameRoomMember),
+        ),
+      );
+    });
+
+    describe('특정 게임방의 구성원 목록을 조회하면', () => {
+      it('게임방의 소속된 구성원 목록을 반환해야한다.', async () => {
+        await expect(repository.findByGameRoomId(gameRoomId)).resolves.toEqual(
+          expect.arrayContaining(gameRoomMembers),
+        );
+      });
+    });
+  });
+
   describe(GameRoomMemberRepository.prototype.findByAccountIdInGameRoom, () => {
     let accountId: string;
     let gameRoomId: string;
