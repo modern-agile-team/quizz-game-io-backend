@@ -11,6 +11,10 @@ import {
 } from '@module/game-room/repositories/game-room/game-room.repository.port';
 
 import {
+  ISocketSessionManager,
+  SOCKET_SESSION_MANAGER,
+} from '@core/socket/session-manager/socket-session.manager.interface';
+import {
   ISocketEventEmitter,
   SOCKET_EVENT_EMITTER,
   WS_NAMESPACE,
@@ -24,6 +28,8 @@ export class GameRoomMemberJoinedHandler {
     private readonly gameRoomRepository: GameRoomRepositoryPort,
     @Inject(SOCKET_EVENT_EMITTER)
     private readonly socketEmitter: ISocketEventEmitter,
+    @Inject(SOCKET_SESSION_MANAGER)
+    private readonly socketSessionManager: ISocketSessionManager,
   ) {}
 
   @AsyncApiPub({
@@ -38,6 +44,11 @@ export class GameRoomMemberJoinedHandler {
       await this.gameRoomRepository.incrementCurrentMembersCount(
         event.eventPayload.gameRoomId,
       );
+
+    await this.socketSessionManager.remoteJoinByAccount(
+      event.eventPayload.accountId,
+      gameRoomKeyOf(event.eventPayload.gameRoomId),
+    );
 
     this.publish(event, currentMembersCount);
   }
