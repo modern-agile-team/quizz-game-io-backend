@@ -14,6 +14,8 @@ import { AppConfigModule } from '@common/app-config/app-config.module';
 import { LoggerModule } from '@shared/logger/logger.module';
 import { PrismaModule } from '@shared/prisma/prisma.module';
 
+import { AccountSocketIndexStoreModule } from '@core/socket/index-store/account-socket-index.store.module';
+
 @Module({
   imports: [
     CqrsModule.forRoot(),
@@ -21,6 +23,7 @@ import { PrismaModule } from '@shared/prisma/prisma.module';
     AppConfigModule,
     LoggerModule,
     PrismaModule,
+    AccountSocketIndexStoreModule,
 
     AccountModule,
     AuthModule,

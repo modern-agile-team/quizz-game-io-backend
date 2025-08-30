@@ -13,6 +13,9 @@ import {
 
 import { generateEntityId } from '@common/base/base.entity';
 
+import { CacheModule } from '@shared/cache/cache.module';
+
+import { SocketSessionManagerModule } from '@core/socket/session-manager/socket-session.manager.module';
 import { SocketEventEmitterModule } from '@core/socket/socket-event-emitter.module';
 import {
   ISocketEventEmitter,
@@ -29,7 +32,12 @@ describe(GameRoomMemberJoinedHandler, () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [GameRoomRepositoryModule, SocketEventEmitterModule],
+      imports: [
+        GameRoomRepositoryModule,
+        SocketEventEmitterModule,
+        SocketSessionManagerModule,
+        CacheModule,
+      ],
       providers: [GameRoomMemberJoinedHandler],
     }).compile();
 

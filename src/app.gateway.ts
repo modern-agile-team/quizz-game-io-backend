@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { JsonWebTokenError, JwtService } from '@nestjs/jwt';
 import { OnGatewayConnection, WebSocketGateway } from '@nestjs/websockets';
@@ -15,6 +15,10 @@ import {
   UnauthorizedError,
 } from '@common/base/base.error';
 
+import {
+  ACCOUNT_SOCKET_INDEX_STORE,
+  IAccountSocketIndexStore,
+} from '@core/socket/index-store/account-socket-index.store.interface';
 import { WS_NAMESPACE } from '@core/socket/socket-event.emitter.interface';
 
 /**
@@ -27,6 +31,8 @@ export class AppGateway implements OnGatewayConnection {
   constructor(
     private readonly jwtService: JwtService,
     private readonly commandBus: CommandBus,
+    @Inject(ACCOUNT_SOCKET_INDEX_STORE)
+    private readonly accountSocketIndexStore: IAccountSocketIndexStore,
   ) {}
 
   @AsyncApiPub({
@@ -53,6 +59,8 @@ export class AppGateway implements OnGatewayConnection {
       });
 
       await this.commandBus.execute(command);
+
+      await this.accountSocketIndexStore.set(payload.sub, client.id);
     } catch (err) {
       if (
         err instanceof UnauthorizedError ||

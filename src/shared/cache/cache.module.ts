@@ -2,12 +2,14 @@ import { Module } from '@nestjs/common';
 
 import Redis from 'ioredis';
 
+import { AppConfigModule } from '@common/app-config/app-config.module';
 import { AppConfigService } from '@common/app-config/app-config.service';
 
 import { CacheClient } from '@shared/cache/cache.client';
 import { CACHE_CLIENT } from '@shared/cache/cache.client.interface';
 
 @Module({
+  imports: [AppConfigModule],
   providers: [
     {
       useFactory: (appConfigService: AppConfigService) => {

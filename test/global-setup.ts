@@ -3,8 +3,21 @@ import { PostgreSqlContainer } from '@testcontainers/postgresql';
 import fs from 'fs';
 import path from 'path';
 import { Client } from 'pg';
+import { GenericContainer } from 'testcontainers';
 
-module.exports = async function () {
+async function setupRedis() {
+  const redis = await new GenericContainer('redis:7-alpine')
+    .withExposedPorts(6379)
+    .start();
+
+  const redisHost = redis.getHost();
+  const redisPort = redis.getMappedPort(6379);
+
+  process.env.REDIS_URL = `redis://${redisHost}:${redisPort}`;
+  global.__REDIS_CONTAINER__ = redis;
+}
+
+async function setupPostgresql() {
   const postgresContainer = await new PostgreSqlContainer(
     'postgres:16.1',
   ).start();
@@ -42,4 +55,8 @@ module.exports = async function () {
   await postgresClient.end();
 
   globalThis.__POSTGRES_CONTAINER__ = postgresContainer;
+}
+
+module.exports = async function () {
+  await Promise.all([setupRedis(), setupPostgresql()]);
 };
