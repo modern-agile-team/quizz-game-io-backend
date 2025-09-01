@@ -37,9 +37,11 @@ export class PrismaService
     super(options);
 
     this.$on('query', (event: any) => {
-      this.logger.debug('Query: ' + event.query);
-      this.logger.debug('Params: ' + event.params);
-      this.logger.debug('Duration: ' + event.duration + 'ms');
+      this.logger.verbose({
+        query: event.query,
+        params: event.params,
+        duration: event.duration + 'ms',
+      });
     });
   }
 
