@@ -18,9 +18,14 @@ const JWT = {
   JWT_ACCESS_TOKEN_EXPIRES_IN: 'JWT_ACCESS_TOKEN_EXPIRES_IN',
 } as const;
 
+const LOGGER = {
+  LOGGER_LEVEL: 'LOGGER_LEVEL',
+} as const;
+
 export const ENV_KEY = {
   ...APP,
   ...DATABASE,
   ...REDIS,
   ...JWT,
+  ...LOGGER,
 } as const;

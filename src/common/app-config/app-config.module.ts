@@ -28,6 +28,10 @@ import { AppConfigService } from '@common/app-config/app-config.service';
         [ENV_KEY.JWT_SECRET_KEY]: Joi.string().required(),
         [ENV_KEY.JWT_ISSUER]: Joi.string().required(),
         [ENV_KEY.JWT_ACCESS_TOKEN_EXPIRES_IN]: Joi.string().required(),
+
+        [ENV_KEY.LOGGER_LEVEL]: Joi.string()
+          .valid('fatal', 'error', 'warn', 'info', 'debug', 'trace')
+          .default('trace'),
       }),
     }),
   ],
