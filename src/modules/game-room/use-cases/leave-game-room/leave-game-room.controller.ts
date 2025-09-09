@@ -16,6 +16,8 @@ import {
 
 import { JwtAuthGuard } from '@module/auth/jwt/jwt-auth.guard';
 import { GameRoomAccessDeniedError } from '@module/game-room/errors/game-room-access-denied.error';
+import { GameRoomMemberNotFoundError } from '@module/game-room/errors/game-room-member-not-found.error';
+import { GameRoomNotFoundError } from '@module/game-room/errors/game-room-not-found.error';
 import {
   GAME_ROOM_ACCESS_CONTROL_SERVICE,
   IGameRoomAccessControlService,
@@ -44,6 +46,11 @@ export class LeaveGameRoomController {
   @ApiNoContentResponse()
   @ApiErrorResponse({
     [HttpStatus.BAD_REQUEST]: [RequestValidationError],
+    [HttpStatus.FORBIDDEN]: [GameRoomAccessDeniedError],
+    [HttpStatus.NOT_FOUND]: [
+      GameRoomNotFoundError,
+      GameRoomMemberNotFoundError,
+    ],
   })
   @UseGuards(JwtAuthGuard)
   @Delete('/game-room/:gameRoomId/members/me')
@@ -66,6 +73,12 @@ export class LeaveGameRoomController {
     } catch (error) {
       if (error instanceof GameRoomAccessDeniedError) {
         throw new BaseHttpException(HttpStatus.FORBIDDEN, error);
+      }
+      if (
+        error instanceof GameRoomNotFoundError ||
+        error instanceof GameRoomMemberNotFoundError
+      ) {
+        throw new BaseHttpException(HttpStatus.NOT_FOUND, error);
       }
 
       throw error;
