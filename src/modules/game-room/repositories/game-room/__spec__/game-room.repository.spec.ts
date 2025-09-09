@@ -109,4 +109,28 @@ describe(GameRoomRepository, () => {
       });
     });
   });
+
+  describe(GameRoomRepository.prototype.decrementCurrentMembersCount, () => {
+    let gameRoom: GameRoom;
+
+    beforeEach(async () => {
+      gameRoom = await repository.insert(GameRoomFactory.build());
+    });
+
+    describe('현재 멤버 카운트를 감소시키면', () => {
+      it('현재 멤버 수가 1 감소해야한다.', async () => {
+        await expect(
+          repository.decrementCurrentMembersCount(gameRoom.id),
+        ).resolves.toBe(gameRoom.currentMembersCount - 1);
+      });
+    });
+
+    describe('게임방이 존재하지 않는 경우', () => {
+      it('레코드가 존재하지 않는다는 에러가 발생해야한다.', async () => {
+        await expect(
+          repository.decrementCurrentMembersCount(generateEntityId()),
+        ).rejects.toThrow(RecordNotFoundError);
+      });
+    });
+  });
 });
