@@ -69,6 +69,31 @@ export class GameRoomRepository
     }
   }
 
+  async decrementCurrentMembersCount(gameRoomId: EntityId): Promise<number> {
+    try {
+      const updatedProject = await this.prismaService.gameRoom.update({
+        where: {
+          id: this.mapper.toPrimaryKey(gameRoomId),
+        },
+        data: {
+          currentMembersCount: {
+            decrement: 1,
+          },
+        },
+      });
+
+      return updatedProject.currentMembersCount;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new RecordNotFoundError();
+        }
+      }
+
+      throw error;
+    }
+  }
+
   findAllCursorPaginated(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     params: ICursorPaginatedParams<GameRoomOrder, GameRoomFilter>,

@@ -4,8 +4,11 @@ import {
 } from '@module/game-room/entities/game-room-member.entity';
 import { GameRoomMemberCapacityExceededError } from '@module/game-room/errors/game-room-member-capacity-exceeded.error';
 import { GameRoomValidationError } from '@module/game-room/errors/game-room-validation.error';
+import { GameRoomClosedEvent } from '@module/game-room/events/game-room-closed/game-room-closed.event';
 import { GameRoomCreatedEvent } from '@module/game-room/events/game-room-created/game-room-created.event';
 import { GameRoomMemberJoinedEvent } from '@module/game-room/events/game-room-member-joined/game-room-member-joined.event';
+import { GameRoomMemberLeftEvent } from '@module/game-room/events/game-room-member-left/game-room-member-left.event';
+import { GameRoomMemberRoleChangedEvent } from '@module/game-room/events/game-room-member-role-changed/game-room-member-role-changed.event';
 
 import {
   AggregateRoot,
@@ -107,6 +110,14 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
     return this.props.currentMembersCount;
   }
 
+  close() {
+    this.apply(
+      new GameRoomClosedEvent(this.id, {
+        gameRoomId: this.id,
+      }),
+    );
+  }
+
   join(props: JoinProps): GameRoomMember {
     if (
       props.role === GameRoomMemberRole.host &&
@@ -138,6 +149,36 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
     );
 
     return member;
+  }
+
+  leave(member: GameRoomMember) {
+    this.apply(
+      new GameRoomMemberLeftEvent(this.id, {
+        gameRoomId: this.id,
+        accountId: member.accountId,
+        memberId: member.id,
+        role: member.role,
+        nickname: member.nickname,
+      }),
+    );
+  }
+
+  changeMemberRole(member: GameRoomMember, role: GameRoomMemberRole) {
+    if (role === GameRoomMemberRole.host) {
+      this.props.hostId = member.accountId;
+    }
+
+    member.changeRole(role);
+
+    this.apply(
+      new GameRoomMemberRoleChangedEvent(this.id, {
+        gameRoomId: this.id,
+        accountId: member.accountId,
+        memberId: member.id,
+        role: role,
+        nickname: member.nickname,
+      }),
+    );
   }
 
   public validate(): void {}

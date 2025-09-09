@@ -61,5 +61,9 @@ export class GameRoomMember extends BaseEntity<GameRoomMemberProps> {
     return this.props.nickname;
   }
 
+  changeRole(role: GameRoomMemberRole) {
+    this.props.role = role;
+  }
+
   public validate(): void {}
 }

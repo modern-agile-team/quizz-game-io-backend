@@ -17,4 +17,5 @@ export interface GameRoomRepositoryPort
   extends RepositoryPort<GameRoom, GameRoomFilter, GameRoomOrder> {
   findAll(options: { sort?: ISort[] }): Promise<GameRoom[]>;
   incrementCurrentMembersCount(gameRoomId: EntityId): Promise<number>;
+  decrementCurrentMembersCount(gameRoomId: EntityId): Promise<number>;
 }

@@ -32,8 +32,8 @@
           style="width: 200px"
         />
       </label>
-      <button id="subscribeBtn">Subscribe (game_room.subscribe)</button>
-      <button id="unsubscribeBtn">Unsubscribe</button>
+      <button id="joinBtn">Join Room (game_room.subscribe)</button>
+      <button id="leaveBtn">Leave Room (game_room.leave)</button>
     </div>
 
     <pre
@@ -59,42 +59,72 @@
 
       // Connect
       document.getElementById('connectBtn').addEventListener('click', () => {
+        if (socket) {
+          log('Already connected. Disconnect first.');
+          return;
+        }
         const token = document.getElementById('token').value;
 
         socket = io('http://localhost:3000', {
-          auth: { token: `Bearer ${token}` }, // 서버에서 Bearer 파싱한다면 "Bearer xxx" 형태로 넣기
-          transports: ['websocket'], // 필요 시 제거 가능
+          auth: { token: `Bearer ${token}` },
+          transports: ['websocket'],
         });
 
         socket.on('connect', () => log('[connect]', socket.id));
-        socket.on('disconnect', (reason) => log('[disconnect]', reason));
+        socket.on('disconnect', (reason) => {
+          log('[disconnect]', reason);
+          socket = null;
+        });
         socket.on('exception', (err) => log('[exception]', err));
         socket.on('connect_error', (err) =>
           log('[connect_error]', err.message),
         );
 
-        // ✅ 게임룸 입장 브로드캐스트 수신
-        // 서버 퍼블리시 이벤트명: game_room.member_joined
+        // --- Game Room Events ---
         socket.on('game_room.member_joined', (payload) => {
           log('[game_room.member_joined]', payload);
         });
-
-        // 참고: 계정 입장 이벤트 수신 (있다면)
-        socket.on('account.entered', (payload) =>
-          log('[account.entered]', payload),
-        );
+        socket.on('game_room.member_left', (payload) => {
+          log('[game_room.member_left]', payload);
+        });
+        socket.on('game_room.member_role_changed', (payload) => {
+          log('[game_room.member_role_changed]', payload);
+        });
+        socket.on('game_room.closed', (payload) => {
+          log('[game_room.closed]', payload);
+        });
       });
 
-      // Subscribe (game_room.subscribe)
-      document.getElementById('subscribeBtn').addEventListener('click', () => {
+      // Disconnect
+      document.getElementById('disconnectBtn').addEventListener('click', () => {
+        if (socket && socket.connected) {
+          socket.disconnect();
+        } else {
+          log('Not connected.');
+        }
+      });
+
+      // Join Room (game_room.subscribe)
+      document.getElementById('joinBtn').addEventListener('click', () => {
         if (!socket || !socket.connected) return log('Socket is not connected');
 
         const roomId = getRoomId();
         if (!roomId) return log('roomId is empty');
 
-        // 서버 게이트웨이 @SubscribeMessage('game_room.subscribe')와 일치
         socket.emit('game_room.subscribe', { roomId }, (ack) => {
-          log('[subscribe ack]', ack);
+          log('[game_room.subscribe ack]', ack);
+        });
+      });
+
+      // Leave Room (game_room.leave)
+      document.getElementById('leaveBtn').addEventListener('click', () => {
+        if (!socket || !socket.connected) return log('Socket is not connected');
+
+        const roomId = getRoomId();
+        if (!roomId) return log('roomId is empty');
+
+        socket.emit('game_room.leave', { roomId }, (ack) => {
+          log('[game_room.leave ack]', ack);
         });
       });
     </script>
