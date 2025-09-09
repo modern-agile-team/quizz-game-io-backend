@@ -23,6 +23,10 @@
     </div>
 
     <div style="margin-bottom: 8px">
+      <button id="createBtn">Create Room (game_room.create)</button>
+    </div>
+
+    <div style="margin-bottom: 8px">
       <label
         >Room ID:
         <input
@@ -81,6 +85,9 @@
         );
 
         // --- Game Room Events ---
+        socket.on('game_room.created', (payload) => {
+          log('[game_room.created]', payload);
+        });
         socket.on('game_room.member_joined', (payload) => {
           log('[game_room.member_joined]', payload);
         });
@@ -102,6 +109,15 @@
         } else {
           log('Not connected.');
         }
+      });
+
+      // Create Room (game_room.create)
+      document.getElementById('createBtn').addEventListener('click', () => {
+        if (!socket || !socket.connected) return log('Socket is not connected');
+
+        socket.emit('game_room.create', {}, (ack) => {
+          log('[game_room.create ack]', ack);
+        });
       });
 
       // Join Room (game_room.subscribe)
