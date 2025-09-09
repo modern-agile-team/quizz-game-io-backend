@@ -11,6 +11,7 @@ interface GameRoomCreatedEventPayload {
   visibility: GameRoomVisibility;
   title: string;
   maxPlayers: number;
+  currentMembersCount: number;
 }
 
 export class GameRoomCreatedEvent extends DomainEvent<GameRoomCreatedEventPayload> {

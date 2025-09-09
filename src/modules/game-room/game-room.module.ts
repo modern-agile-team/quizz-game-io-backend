@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import { GameRoomClosedModule } from '@module/game-room/events/game-room-closed/game-room-closed.module';
+import { GameRoomCreatedModule } from '@module/game-room/events/game-room-created/game-room-created.module';
 import { GameRoomMemberJoinedModule } from '@module/game-room/events/game-room-member-joined/game-room-member-joined.module';
 import { GameRoomMemberLeftModule } from '@module/game-room/events/game-room-member-left/game-room-member-left.module';
 import { GameRoomMemberRoleChangedModule } from '@module/game-room/events/game-room-member-role-changed/game-room-member-role-changed.module';
@@ -19,6 +20,7 @@ import { ListGameRoomsModule } from '@module/game-room/use-cases/list-game-rooms
     ListGameRoomsModule,
 
     GameRoomClosedModule,
+    GameRoomCreatedModule,
     GameRoomMemberJoinedModule,
     GameRoomMemberLeftModule,
     GameRoomMemberRoleChangedModule,

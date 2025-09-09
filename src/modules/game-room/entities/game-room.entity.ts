@@ -84,6 +84,7 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
         visibility: props.visibility,
         title: props.title,
         maxPlayers: props.maxMembersCount,
+        currentMembersCount: gameRoom.props.currentMembersCount,
       }),
     );
 
