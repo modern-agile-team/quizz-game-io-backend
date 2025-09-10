@@ -2,7 +2,7 @@ import { Inject, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 
 import { AccountEnteredEvent } from '@module/account/events/account-entered-event/account-entered.event';
-import { AccountEnteredSocketEvent } from '@module/account/socket-events/account-entered-socket.event';
+import { LobbyAccountEnteredSocketEvent } from '@module/account/events/account-entered-event/lobby-account-entered-socket.event';
 import {
   ACTIVE_ACCOUNT_STORE,
   IActiveAccountStore,
@@ -29,7 +29,7 @@ export class AccountEnteredHandler {
     const currentActiveAccountsCount =
       await this.activeAccountStore.increment();
 
-    const socketEvent = new AccountEnteredSocketEvent({
+    const socketEvent = new LobbyAccountEnteredSocketEvent({
       account: {
         id: event.aggregateId,
         nickname: event.eventPayload.nickname,

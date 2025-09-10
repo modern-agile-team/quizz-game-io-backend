@@ -7,7 +7,7 @@ import { AsyncApiPub } from 'nestjs-asyncapi';
 import { Socket } from 'socket.io';
 
 import { AccountNotFoundError } from '@module/account/errors/account-not-found.error';
-import { AccountEnteredSocketEvent } from '@module/account/socket-events/account-entered-socket.event';
+import { LobbyAccountEnteredSocketEvent } from '@module/account/events/account-entered-event/lobby-account-entered-socket.event';
 import { EnterAccountCommand } from '@module/account/use-cases/enter-account/enter-account.command';
 
 import {
@@ -21,9 +21,6 @@ import {
 } from '@core/socket/index-store/account-socket-index.store.interface';
 import { WS_NAMESPACE } from '@core/socket/socket-event.emitter.interface';
 
-/**
- * @todo 문서화
- */
 @WebSocketGateway({ namespace: WS_NAMESPACE.ROOT, cors: true })
 export class AppGateway implements OnGatewayConnection {
   private readonly logger = new Logger(AppGateway.name);
@@ -37,9 +34,9 @@ export class AppGateway implements OnGatewayConnection {
 
   @AsyncApiPub({
     description: '유저가 접속했을 때 발생하는 이벤트',
-    channel: AccountEnteredSocketEvent.EVENT_NAME,
+    channel: LobbyAccountEnteredSocketEvent.EVENT_NAME,
     message: {
-      payload: AccountEnteredSocketEvent,
+      payload: LobbyAccountEnteredSocketEvent,
     },
   })
   async handleConnection(client: Socket) {

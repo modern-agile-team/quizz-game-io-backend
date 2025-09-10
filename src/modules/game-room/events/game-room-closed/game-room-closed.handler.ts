@@ -3,8 +3,8 @@ import { OnEvent } from '@nestjs/event-emitter';
 
 import { AsyncApi, AsyncApiPub } from 'nestjs-asyncapi';
 
-import { GameRoomClosedSocketEvent } from '@module/game-room/events/game-room-closed/game-room-closed-socket.event';
 import { GameRoomClosedEvent } from '@module/game-room/events/game-room-closed/game-room-closed.event';
+import { LobbyGameRoomClosedSocketEvent } from '@module/game-room/events/game-room-closed/lobby-game-room-closed-socket.event';
 
 import {
   ISocketEventEmitter,
@@ -27,11 +27,11 @@ export class GameRoomClosedHandler {
   @AsyncApiPub({
     tags: [{ name: 'game_room' }],
     description: '게임방이 폐쇄됨',
-    channel: GameRoomClosedSocketEvent.EVENT_NAME,
-    message: { payload: GameRoomClosedSocketEvent },
+    channel: LobbyGameRoomClosedSocketEvent.EVENT_NAME,
+    message: { payload: LobbyGameRoomClosedSocketEvent },
   })
   private publish(event: GameRoomClosedEvent): void {
-    const socketEvent = new GameRoomClosedSocketEvent({
+    const socketEvent = new LobbyGameRoomClosedSocketEvent({
       gameRoomId: event.eventPayload.gameRoomId,
     });
 
