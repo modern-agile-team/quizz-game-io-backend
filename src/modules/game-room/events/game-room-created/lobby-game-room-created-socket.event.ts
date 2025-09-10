@@ -7,7 +7,7 @@ import {
 
 import { BaseSocketEvent } from '@common/base/base-socket-event';
 
-class GameRoomCreatedSocketEventBody {
+class LobbyGameRoomCreatedSocketEventBody {
   @ApiProperty()
   gameRoomId: string;
 
@@ -35,12 +35,12 @@ class GameRoomCreatedSocketEventBody {
   currentMembersCount: number;
 }
 
-export class GameRoomCreatedSocketEvent extends BaseSocketEvent<GameRoomCreatedSocketEventBody> {
-  static readonly EVENT_NAME = 'game_room.created';
+export class LobbyGameRoomCreatedSocketEvent extends BaseSocketEvent<LobbyGameRoomCreatedSocketEventBody> {
+  static readonly EVENT_NAME = 'lobby.game_room.created';
 
-  @ApiProperty({ example: GameRoomCreatedSocketEvent.EVENT_NAME })
-  readonly eventName: string = GameRoomCreatedSocketEvent.EVENT_NAME;
+  @ApiProperty({ example: LobbyGameRoomCreatedSocketEvent.EVENT_NAME })
+  readonly eventName: string = LobbyGameRoomCreatedSocketEvent.EVENT_NAME;
 
-  @ApiProperty({ type: GameRoomCreatedSocketEventBody })
-  body: GameRoomCreatedSocketEventBody;
+  @ApiProperty({ type: LobbyGameRoomCreatedSocketEventBody })
+  body: LobbyGameRoomCreatedSocketEventBody;
 }

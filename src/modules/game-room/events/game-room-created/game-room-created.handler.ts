@@ -3,8 +3,8 @@ import { OnEvent } from '@nestjs/event-emitter';
 
 import { AsyncApi, AsyncApiPub } from 'nestjs-asyncapi';
 
-import { GameRoomCreatedSocketEvent } from '@module/game-room/events/game-room-created/game-room-created-socket.event';
 import { GameRoomCreatedEvent } from '@module/game-room/events/game-room-created/game-room-created.event';
+import { LobbyGameRoomCreatedSocketEvent } from '@module/game-room/events/game-room-created/lobby-game-room-created-socket.event';
 
 import {
   ISocketEventEmitter,
@@ -27,11 +27,11 @@ export class GameRoomCreatedHandler {
   @AsyncApiPub({
     tags: [{ name: 'game_room' }],
     description: '게임방이 생성됨',
-    channel: GameRoomCreatedSocketEvent.EVENT_NAME,
-    message: { payload: GameRoomCreatedSocketEvent },
+    channel: LobbyGameRoomCreatedSocketEvent.EVENT_NAME,
+    message: { payload: LobbyGameRoomCreatedSocketEvent },
   })
   private publish(event: GameRoomCreatedEvent): void {
-    const socketEvent = new GameRoomCreatedSocketEvent({
+    const socketEvent = new LobbyGameRoomCreatedSocketEvent({
       gameRoomId: event.aggregateId,
       status: event.eventPayload.status,
       visibility: event.eventPayload.visibility,

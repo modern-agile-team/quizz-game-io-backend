@@ -32,12 +32,6 @@ export class GameRoomMemberJoinedHandler {
     private readonly socketSessionManager: ISocketSessionManager,
   ) {}
 
-  @AsyncApiPub({
-    tags: [{ name: 'game_room' }],
-    description: '유저가 게임방에 접속',
-    channel: GameRoomMemberJoinedSocketEvent.EVENT_NAME,
-    message: { payload: GameRoomMemberJoinedSocketEvent },
-  })
   @OnEvent(GameRoomMemberJoinedEvent.name)
   async handle(event: GameRoomMemberJoinedEvent): Promise<void> {
     const currentMembersCount =
