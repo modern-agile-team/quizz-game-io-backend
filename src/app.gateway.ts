@@ -3,11 +3,9 @@ import { CommandBus } from '@nestjs/cqrs';
 import { JsonWebTokenError, JwtService } from '@nestjs/jwt';
 import { OnGatewayConnection, WebSocketGateway } from '@nestjs/websockets';
 
-import { AsyncApiPub } from 'nestjs-asyncapi';
 import { Socket } from 'socket.io';
 
 import { AccountNotFoundError } from '@module/account/errors/account-not-found.error';
-import { LobbyAccountEnteredSocketEvent } from '@module/account/events/account-entered-event/lobby-account-entered-socket.event';
 import { EnterAccountCommand } from '@module/account/use-cases/enter-account/enter-account.command';
 
 import {
@@ -32,13 +30,6 @@ export class AppGateway implements OnGatewayConnection {
     private readonly accountSocketIndexStore: IAccountSocketIndexStore,
   ) {}
 
-  @AsyncApiPub({
-    description: '유저가 접속했을 때 발생하는 이벤트',
-    channel: LobbyAccountEnteredSocketEvent.EVENT_NAME,
-    message: {
-      payload: LobbyAccountEnteredSocketEvent,
-    },
-  })
   async handleConnection(client: Socket) {
     try {
       const token = this.extractTokenFromClient(client);

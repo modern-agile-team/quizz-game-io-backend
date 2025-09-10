@@ -1,6 +1,8 @@
 import { Inject, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 
+import { AsyncApi, AsyncApiPub } from 'nestjs-asyncapi';
+
 import { AccountEnteredEvent } from '@module/account/events/account-entered-event/account-entered.event';
 import { LobbyAccountEnteredSocketEvent } from '@module/account/events/account-entered-event/lobby-account-entered-socket.event';
 import {
@@ -14,6 +16,7 @@ import {
   WS_NAMESPACE,
 } from '@core/socket/socket-event.emitter.interface';
 
+@AsyncApi()
 export class AccountEnteredHandler {
   private logger = new Logger(AccountEnteredHandler.name);
 
@@ -29,6 +32,21 @@ export class AccountEnteredHandler {
     const currentActiveAccountsCount =
       await this.activeAccountStore.increment();
 
+    this.publish(event, currentActiveAccountsCount);
+  }
+
+  @AsyncApiPub({
+    tags: [{ name: 'account' }],
+    description: '유저가 접속했을 때 발생하는 이벤트',
+    channel: LobbyAccountEnteredSocketEvent.EVENT_NAME,
+    message: {
+      payload: LobbyAccountEnteredSocketEvent,
+    },
+  })
+  private publish(
+    event: AccountEnteredEvent,
+    currentActiveAccountsCount: number,
+  ) {
     const socketEvent = new LobbyAccountEnteredSocketEvent({
       account: {
         id: event.aggregateId,
