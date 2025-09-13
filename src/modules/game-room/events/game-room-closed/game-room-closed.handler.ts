@@ -4,7 +4,10 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { AsyncApi, AsyncApiPub } from 'nestjs-asyncapi';
 
 import { GameRoomClosedEvent } from '@module/game-room/events/game-room-closed/game-room-closed.event';
-import { LobbyGameRoomClosedSocketEvent } from '@module/game-room/events/game-room-closed/lobby-game-room-closed-socket.event';
+import {
+  GameRoomDeletedSocketEventAction,
+  LobbyGameRoomDeletedSocketEvent,
+} from '@module/game-room/socket-events/game-room-deleted.socket-event';
 
 import {
   ISocketEventEmitter,
@@ -21,19 +24,22 @@ export class GameRoomClosedHandler {
 
   @OnEvent(GameRoomClosedEvent.name)
   async handle(event: GameRoomClosedEvent): Promise<void> {
-    this.publish(event);
+    this.publish(event.eventPayload.gameRoomId);
   }
 
   @AsyncApiPub({
-    tags: [{ name: 'game_room' }],
+    tags: [{ name: 'lobby' }],
     description: '게임방이 폐쇄됨',
-    channel: LobbyGameRoomClosedSocketEvent.EVENT_NAME,
-    message: { payload: LobbyGameRoomClosedSocketEvent },
+    channel: LobbyGameRoomDeletedSocketEvent.EVENT_NAME,
+    message: { payload: LobbyGameRoomDeletedSocketEvent },
   })
-  private publish(event: GameRoomClosedEvent): void {
-    const socketEvent = new LobbyGameRoomClosedSocketEvent({
-      gameRoomId: event.eventPayload.gameRoomId,
-    });
+  private publish(gameRoomId: string): void {
+    const socketEvent = new LobbyGameRoomDeletedSocketEvent(
+      GameRoomDeletedSocketEventAction.closed,
+      {
+        gameRoomId,
+      },
+    );
 
     this.socketEmitter.emitToNamespace(WS_NAMESPACE.ROOT, socketEvent);
   }

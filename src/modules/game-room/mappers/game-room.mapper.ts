@@ -20,6 +20,7 @@ export class GameRoomMapper extends BaseMapper {
         title: raw.title,
         maxMembersCount: raw.maxMembersCount,
         currentMembersCount: raw.currentMembersCount,
+        members: [],
       },
     });
   }

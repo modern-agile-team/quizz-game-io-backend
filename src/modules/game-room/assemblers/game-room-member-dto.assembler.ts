@@ -1,3 +1,4 @@
+import { GameRoomMemberSocketEventDto } from '@module/game-room/dto/game-room-member-socket-event.dto';
 import { GameRoomMemberDto } from '@module/game-room/dto/game-room-member.dto';
 import { GameRoomMember } from '@module/game-room/entities/game-room-member.entity';
 
@@ -11,6 +12,18 @@ export class GameRoomMemberDtoAssembler {
 
     dto.accountId = gameRoomMember.accountId;
     dto.gameRoomId = gameRoomMember.gameRoomId;
+    dto.role = gameRoomMember.role;
+    dto.nickname = gameRoomMember.nickname;
+
+    return dto;
+  }
+
+  static convertToSocketEventDto(
+    gameRoomMember: GameRoomMember,
+  ): GameRoomMemberSocketEventDto {
+    const dto = new GameRoomMemberSocketEventDto();
+
+    dto.accountId = gameRoomMember.accountId;
     dto.role = gameRoomMember.role;
     dto.nickname = gameRoomMember.nickname;
 
