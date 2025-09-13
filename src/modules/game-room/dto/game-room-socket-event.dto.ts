@@ -1,13 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { GameRoomMemberSocketEventDto } from '@module/game-room/dto/game-room-member-socket-event.dto';
 import {
   GameRoomStatus,
   GameRoomVisibility,
 } from '@module/game-room/entities/game-room.entity';
 
-import { BaseSocketEvent } from '@common/base/base-socket-event';
+export class GameRoomIdentifierSocketEventDto {
+  @ApiProperty()
+  gameRoomId: string;
+}
 
-class LobbyGameRoomCreatedSocketEventBody {
+export class GameRoomSocketEventDto {
   @ApiProperty()
   gameRoomId: string;
 
@@ -33,14 +37,9 @@ class LobbyGameRoomCreatedSocketEventBody {
 
   @ApiProperty()
   currentMembersCount: number;
-}
 
-export class LobbyGameRoomCreatedSocketEvent extends BaseSocketEvent<LobbyGameRoomCreatedSocketEventBody> {
-  static readonly EVENT_NAME = 'lobby.game_room.created';
-
-  @ApiProperty({ example: LobbyGameRoomCreatedSocketEvent.EVENT_NAME })
-  readonly eventName: string = LobbyGameRoomCreatedSocketEvent.EVENT_NAME;
-
-  @ApiProperty({ type: LobbyGameRoomCreatedSocketEventBody })
-  body: LobbyGameRoomCreatedSocketEventBody;
+  @ApiProperty({
+    type: [GameRoomMemberSocketEventDto],
+  })
+  members: GameRoomMemberSocketEventDto[];
 }

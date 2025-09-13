@@ -37,6 +37,7 @@ export interface GameRoomProps {
   title: string;
   maxMembersCount: number;
   currentMembersCount: number;
+  members: GameRoomMember[];
 }
 
 interface CreateGameRoomProps {
@@ -54,6 +55,9 @@ interface JoinProps {
   role: GameRoomMemberRole;
 }
 
+/**
+ * @todo #68 이슈에서 members 속성 정리
+ */
 export class GameRoom extends AggregateRoot<GameRoomProps> {
   constructor(props: CreateEntityProps<GameRoomProps>) {
     super(props);
@@ -72,6 +76,7 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
         title: props.title,
         maxMembersCount: props.maxMembersCount,
         currentMembersCount: props.currentMembersCount ?? 0,
+        members: [],
       },
       createdAt: date,
       updatedAt: date,
@@ -99,6 +104,10 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
     return this.props.status;
   }
 
+  get visibility(): GameRoomVisibility {
+    return this.props.visibility;
+  }
+
   get title(): string {
     return this.props.title;
   }
@@ -109,6 +118,10 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
 
   get currentMembersCount(): number {
     return this.props.currentMembersCount;
+  }
+
+  set members(value: GameRoomMember[]) {
+    this.props.members = value;
   }
 
   close() {

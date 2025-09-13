@@ -1,14 +1,21 @@
 import { Inject } from '@nestjs/common';
+import { QueryBus } from '@nestjs/cqrs';
 import { OnEvent } from '@nestjs/event-emitter';
 
 import { AsyncApi, AsyncApiPub } from 'nestjs-asyncapi';
 
-import { GameRoomMemberJoinedSocketEvent } from '@module/game-room/events/game-room-member-joined/game-room-member-joined-socket.event';
+import { GameRoomDtoAssembler } from '@module/game-room/assemblers/game-room-dto.assembler';
+import { GameRoom } from '@module/game-room/entities/game-room.entity';
 import { GameRoomMemberJoinedEvent } from '@module/game-room/events/game-room-member-joined/game-room-member-joined.event';
 import {
   GAME_ROOM_REPOSITORY,
   GameRoomRepositoryPort,
 } from '@module/game-room/repositories/game-room/game-room.repository.port';
+import {
+  GameRoomChangedSocketEvent,
+  GameRoomChangedSocketEventAction,
+} from '@module/game-room/socket-events/game-room-changed.socket-event';
+import { GetGameRoomQuery } from '@module/game-room/use-cases/get-game-room/get-game-room.query';
 
 import {
   ISocketSessionManager,
@@ -24,6 +31,7 @@ import { gameRoomKeyOf } from '@core/socket/socket-room.util';
 @AsyncApi()
 export class GameRoomMemberJoinedHandler {
   constructor(
+    private readonly queryBus: QueryBus,
     @Inject(GAME_ROOM_REPOSITORY)
     private readonly gameRoomRepository: GameRoomRepositoryPort,
     @Inject(SOCKET_EVENT_EMITTER)
@@ -34,40 +42,36 @@ export class GameRoomMemberJoinedHandler {
 
   @OnEvent(GameRoomMemberJoinedEvent.name)
   async handle(event: GameRoomMemberJoinedEvent): Promise<void> {
-    const currentMembersCount =
-      await this.gameRoomRepository.incrementCurrentMembersCount(
-        event.eventPayload.gameRoomId,
-      );
-
     await this.socketSessionManager.remoteJoinByAccount(
       event.eventPayload.accountId,
       gameRoomKeyOf(event.eventPayload.gameRoomId),
     );
 
-    this.publish(event, currentMembersCount);
+    await this.gameRoomRepository.incrementCurrentMembersCount(
+      event.eventPayload.gameRoomId,
+    );
+    const gameRoom = await this.queryBus.execute<GetGameRoomQuery, GameRoom>(
+      new GetGameRoomQuery({ gameRoomId: event.eventPayload.gameRoomId }),
+    );
+
+    this.publish(gameRoom);
   }
 
   @AsyncApiPub({
     tags: [{ name: 'game_room' }],
     description: '유저가 게임방에 접속',
-    channel: GameRoomMemberJoinedSocketEvent.EVENT_NAME,
-    message: { payload: GameRoomMemberJoinedSocketEvent },
+    channel: GameRoomChangedSocketEvent.EVENT_NAME,
+    message: { payload: GameRoomChangedSocketEvent },
   })
-  private publish(
-    event: GameRoomMemberJoinedEvent,
-    currentMembersCount: number,
-  ): void {
-    const socketEvent = new GameRoomMemberJoinedSocketEvent({
-      accountId: event.eventPayload.accountId,
-      gameRoomId: event.eventPayload.gameRoomId,
-      role: event.eventPayload.role,
-      currentMembersCount,
-      nickname: event.eventPayload.nickname,
-    });
+  private publish(gameRoom: GameRoom): void {
+    const socketEvent = new GameRoomChangedSocketEvent(
+      GameRoomChangedSocketEventAction.member_joined,
+      GameRoomDtoAssembler.convertToSocketEventDto(gameRoom),
+    );
 
     this.socketEmitter.emitToRoom(
       WS_NAMESPACE.ROOT,
-      gameRoomKeyOf(event.eventPayload.gameRoomId),
+      gameRoomKeyOf(gameRoom.id),
       socketEvent,
     );
   }

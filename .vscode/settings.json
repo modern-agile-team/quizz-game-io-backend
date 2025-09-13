@@ -10,5 +10,6 @@
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "typescript.preferences.autoImportFileExcludePatterns": [
     "node_modules/@prisma/client"
-  ]
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
