@@ -120,6 +120,9 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
     return this.props.currentMembersCount;
   }
 
+  get members(): GameRoomMember[] {
+    return this.props.members;
+  }
   set members(value: GameRoomMember[]) {
     this.props.members = value;
   }
