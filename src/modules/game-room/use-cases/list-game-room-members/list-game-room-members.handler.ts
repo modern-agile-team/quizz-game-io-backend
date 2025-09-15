@@ -2,8 +2,6 @@ import { Inject } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 import { GameRoomNotFoundError } from '@module/game-room/errors/game-room-not-found.error';
-import { GameRoomMemberRepository } from '@module/game-room/repositories/game-room-member/game-room-member.repository';
-import { GAME_ROOM_MEMBER_REPOSITORY } from '@module/game-room/repositories/game-room-member/game-room-member.repository.port';
 import {
   GAME_ROOM_REPOSITORY,
   GameRoomRepositoryPort,
@@ -17,8 +15,6 @@ export class ListGameRoomMembersHandler
   constructor(
     @Inject(GAME_ROOM_REPOSITORY)
     private readonly gameRoomRepository: GameRoomRepositoryPort,
-    @Inject(GAME_ROOM_MEMBER_REPOSITORY)
-    private readonly gameRoomMemberRepository: GameRoomMemberRepository,
   ) {}
 
   async execute(query: ListGameRoomMembersQuery): Promise<unknown> {
@@ -30,9 +26,6 @@ export class ListGameRoomMembersHandler
       throw new GameRoomNotFoundError();
     }
 
-    const gameRoomMembers =
-      await this.gameRoomMemberRepository.findByGameRoomId(query.gameRoomId);
-
-    return gameRoomMembers;
+    return gameRoom.members;
   }
 }

@@ -2,9 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { GameRoomAccessDeniedError } from '@module/game-room/errors/game-room-access-denied.error';
 import {
-  GAME_ROOM_MEMBER_REPOSITORY,
-  GameRoomMemberRepositoryPort,
-} from '@module/game-room/repositories/game-room-member/game-room-member.repository.port';
+  GAME_ROOM_REPOSITORY,
+  GameRoomRepositoryPort,
+} from '@module/game-room/repositories/game-room/game-room.repository.port';
 import {
   AllowMemberProps,
   IGameRoomAccessControlService,
@@ -15,16 +15,22 @@ export class GameRoomAccessControlService
   implements IGameRoomAccessControlService
 {
   constructor(
-    @Inject(GAME_ROOM_MEMBER_REPOSITORY)
-    private readonly gameRoomMemberRepository: GameRoomMemberRepositoryPort,
+    @Inject(GAME_ROOM_REPOSITORY)
+    private readonly gameRoomRepository: GameRoomRepositoryPort,
   ) {}
 
   async allowMember(props: AllowMemberProps): Promise<void> {
-    const gameRoomMember =
-      await this.gameRoomMemberRepository.findByAccountIdInGameRoom(
-        props.accountId,
-        props.gameRoomId,
-      );
+    const gameRoom = await this.gameRoomRepository.findOneById(
+      props.gameRoomId,
+    );
+
+    if (gameRoom === undefined) {
+      throw new GameRoomAccessDeniedError('Game room not found');
+    }
+
+    const gameRoomMember = gameRoom.members.find(
+      (member) => member.accountId === props.accountId,
+    );
 
     if (gameRoomMember === undefined) {
       throw new GameRoomAccessDeniedError(

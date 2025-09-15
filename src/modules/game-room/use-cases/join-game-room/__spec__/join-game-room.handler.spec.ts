@@ -7,17 +7,10 @@ import {
   ACCOUNT_REPOSITORY,
   AccountRepositoryPort,
 } from '@module/account/repositories/account/account.repository.port';
-import { GameRoomMemberFactory } from '@module/game-room/entities/__spec__/game-room-member.factory';
 import { GameRoomFactory } from '@module/game-room/entities/__spec__/game-room.factory';
 import { GameRoomMember } from '@module/game-room/entities/game-room-member.entity';
 import { GameRoom } from '@module/game-room/entities/game-room.entity';
-import { GameRoomMemberAlreadyExistsError } from '@module/game-room/errors/game-room-member-already-exists.error';
 import { GameRoomNotFoundError } from '@module/game-room/errors/game-room-not-found.error';
-import { GameRoomMemberRepositoryModule } from '@module/game-room/repositories/game-room-member/game-room-member.repository.module';
-import {
-  GAME_ROOM_MEMBER_REPOSITORY,
-  GameRoomMemberRepositoryPort,
-} from '@module/game-room/repositories/game-room-member/game-room-member.repository.port';
 import { GameRoomRepositoryModule } from '@module/game-room/repositories/game-room/game-room.repository.module';
 import {
   GAME_ROOM_REPOSITORY,
@@ -39,7 +32,6 @@ describe(JoinGameRoomHandler.name, () => {
   let handler: JoinGameRoomHandler;
 
   let gameRoomRepository: GameRoomRepositoryPort;
-  let gameRoomMemberRepository: GameRoomMemberRepositoryPort;
   let accountRepository: AccountRepositoryPort;
   let eventStore: IEventStore;
 
@@ -49,7 +41,6 @@ describe(JoinGameRoomHandler.name, () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         GameRoomRepositoryModule,
-        GameRoomMemberRepositoryModule,
         AccountRepositoryModule,
         EventStoreModule,
       ],
@@ -60,9 +51,6 @@ describe(JoinGameRoomHandler.name, () => {
 
     gameRoomRepository =
       module.get<GameRoomRepositoryPort>(GAME_ROOM_REPOSITORY);
-    gameRoomMemberRepository = module.get<GameRoomMemberRepositoryPort>(
-      GAME_ROOM_MEMBER_REPOSITORY,
-    );
     accountRepository = module.get<AccountRepositoryPort>(ACCOUNT_REPOSITORY);
     eventStore = module.get<IEventStore>(EVENT_STORE);
   });
@@ -81,7 +69,6 @@ describe(JoinGameRoomHandler.name, () => {
       GameRoomFactory.build({
         id: command.gameRoomId,
         maxMembersCount: 8,
-        currentMembersCount: 1,
       }),
     );
     await accountRepository.insert(
@@ -104,23 +91,6 @@ describe(JoinGameRoomHandler.name, () => {
       await expect(
         handler.execute({ ...command, gameRoomId: generateEntityId() }),
       ).rejects.toThrow(GameRoomNotFoundError);
-    });
-  });
-
-  describe('이미 게임방에 참가한 경우', () => {
-    beforeEach(async () => {
-      await gameRoomMemberRepository.insert(
-        GameRoomMemberFactory.build({
-          accountId: command.currentAccountId,
-          gameRoomId: command.gameRoomId,
-        }),
-      );
-    });
-
-    it('이미 참가했다는 에러가 발생해야한다.', async () => {
-      await expect(handler.execute(command)).rejects.toThrow(
-        GameRoomMemberAlreadyExistsError,
-      );
     });
   });
 

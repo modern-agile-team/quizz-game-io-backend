@@ -43,10 +43,9 @@ async function setupPostgresql() {
       let migrationSQL = fs.readFileSync(migrationPath, 'utf8');
 
       // FOREIGN KEY 제약 조건 제거
-      migrationSQL = migrationSQL.replace(
-        /ALTER TABLE.*?ADD CONSTRAINT.*?FOREIGN KEY.*?;/gs,
-        '',
-      );
+      migrationSQL = migrationSQL
+        .replace(/ALTER TABLE.*?ADD CONSTRAINT.*?FOREIGN KEY.*?;/gs, '')
+        .replace(/ALTER TABLE.*?DROP CONSTRAINT.*?;/gs, '');
 
       await postgresClient.query(migrationSQL);
     }

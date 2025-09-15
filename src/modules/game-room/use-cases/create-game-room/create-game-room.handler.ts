@@ -6,12 +6,7 @@ import {
   ACCOUNT_REPOSITORY,
   AccountRepositoryPort,
 } from '@module/account/repositories/account/account.repository.port';
-import { GameRoomMemberRole } from '@module/game-room/entities/game-room-member.entity';
 import { GameRoom } from '@module/game-room/entities/game-room.entity';
-import {
-  GAME_ROOM_MEMBER_REPOSITORY,
-  GameRoomMemberRepositoryPort,
-} from '@module/game-room/repositories/game-room-member/game-room-member.repository.port';
 import {
   GAME_ROOM_REPOSITORY,
   GameRoomRepositoryPort,
@@ -33,8 +28,6 @@ export class CreateGameRoomHandler
   constructor(
     @Inject(GAME_ROOM_REPOSITORY)
     private readonly gameRoomRepository: GameRoomRepositoryPort,
-    @Inject(GAME_ROOM_MEMBER_REPOSITORY)
-    private readonly gameRoomMemberRepository: GameRoomMemberRepositoryPort,
     @Inject(ACCOUNT_REPOSITORY)
     private readonly accountRepository: AccountRepositoryPort,
     @Inject(EVENT_STORE)
@@ -51,22 +44,15 @@ export class CreateGameRoomHandler
     }
 
     const gameRoom = GameRoom.create({
-      hostId: command.currentAccountId,
       status: command.status,
       visibility: command.visibility,
       title: command.title,
       maxMembersCount: command.maxPlayersCount,
+      hostAccountId: command.currentAccountId,
+      hostNickname: existingAccount.nickname,
     });
 
     await this.gameRoomRepository.insert(gameRoom);
-
-    const host = gameRoom.join({
-      accountId: command.currentAccountId,
-      role: GameRoomMemberRole.host,
-      nickname: existingAccount.nickname,
-    });
-
-    await this.gameRoomMemberRepository.insert(host);
 
     await this.eventStore.storeAggregateEvents(gameRoom);
 

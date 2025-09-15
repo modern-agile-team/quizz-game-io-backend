@@ -13,6 +13,8 @@ export interface GameRoomFilter {}
 
 export interface GameRoomOrder extends ISort<'createdAt'> {}
 
+export interface GameRoomMemberRaw extends PrismaJson.GameRoomMember {}
+
 export interface GameRoomRepositoryPort
   extends RepositoryPort<GameRoom, GameRoomFilter, GameRoomOrder> {
   findAll(options: { sort?: ISort[] }): Promise<GameRoom[]>;

@@ -42,7 +42,7 @@ describe(GameRoomCreatedHandler, () => {
   beforeEach(async () => {
     const gameRoomId = generateEntityId();
     event = new GameRoomCreatedEvent(gameRoomId, {
-      hostId: generateEntityId(),
+      hostAccountId: generateEntityId(),
       status: GameRoomStatus.waiting,
       visibility: GameRoomVisibility.public,
       title: 'title',

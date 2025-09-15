@@ -2,7 +2,7 @@ import {
   GameRoomMember,
   GameRoomMemberRole,
 } from '@module/game-room/entities/game-room-member.entity';
-import { GameRoomMemberRaw } from '@module/game-room/repositories/game-room-member/game-room-member.repository.port';
+import { GameRoomMemberRaw } from '@module/game-room/repositories/game-room/game-room.repository.port';
 
 import { BaseMapper } from '@common/base/base.mapper';
 
@@ -10,11 +10,10 @@ export class GameRoomMemberMapper extends BaseMapper {
   static toEntity(raw: GameRoomMemberRaw): GameRoomMember {
     return new GameRoomMember({
       id: this.toEntityId(raw.id),
-      createdAt: raw.createdAt,
-      updatedAt: raw.updatedAt,
+      createdAt: new Date(raw.createdAt),
+      updatedAt: new Date(raw.updatedAt),
       props: {
         accountId: this.toEntityId(raw.accountId),
-        gameRoomId: this.toEntityId(raw.gameRoomId),
         role: GameRoomMemberRole[raw.role],
         nickname: raw.nickname,
       },
@@ -24,11 +23,10 @@ export class GameRoomMemberMapper extends BaseMapper {
   static toPersistence(entity: GameRoomMember): GameRoomMemberRaw {
     return {
       id: this.toPrimaryKey(entity.id),
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
+      createdAt: entity.createdAt.toISOString(),
+      updatedAt: entity.updatedAt.toISOString(),
       accountId: this.toPrimaryKey(entity.props.accountId),
-      gameRoomId: this.toPrimaryKey(entity.props.gameRoomId),
-      role: entity.props.role,
+      role: entity.props.role as PrismaJson.GameRoomMemberRole,
       nickname: entity.props.nickname,
     };
   }

@@ -6,7 +6,7 @@ import {
 import { DomainEvent } from '@common/base/base.domain-event';
 
 interface GameRoomCreatedEventPayload {
-  hostId: string;
+  hostAccountId: string;
   status: GameRoomStatus;
   visibility: GameRoomVisibility;
   title: string;

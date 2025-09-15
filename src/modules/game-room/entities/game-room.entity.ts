@@ -2,6 +2,7 @@ import {
   GameRoomMember,
   GameRoomMemberRole,
 } from '@module/game-room/entities/game-room-member.entity';
+import { GameRoomMemberAlreadyExistsError } from '@module/game-room/errors/game-room-member-already-exists.error';
 import { GameRoomMemberCapacityExceededError } from '@module/game-room/errors/game-room-member-capacity-exceeded.error';
 import { GameRoomValidationError } from '@module/game-room/errors/game-room-validation.error';
 import { GameRoomClosedEvent } from '@module/game-room/events/game-room-closed/game-room-closed.event';
@@ -30,8 +31,11 @@ export enum GameRoomVisibility {
   hidden = 'hidden',
 }
 
+/**
+ * @todo currentMembersCount를 필드로 정의하지 않고 구성원을 세게끔 변경
+ */
 export interface GameRoomProps {
-  hostId: string;
+  hostAccountId: string;
   status: GameRoomStatus;
   visibility: GameRoomVisibility;
   title: string;
@@ -41,23 +45,14 @@ export interface GameRoomProps {
 }
 
 interface CreateGameRoomProps {
-  hostId: string;
   status: GameRoomStatus;
   visibility: GameRoomVisibility;
   title: string;
   maxMembersCount: number;
-  currentMembersCount?: number;
+  hostAccountId: string;
+  hostNickname: string;
 }
 
-interface JoinProps {
-  accountId: string;
-  nickname: string;
-  role: GameRoomMemberRole;
-}
-
-/**
- * @todo #68 이슈에서 members 속성 정리
- */
 export class GameRoom extends AggregateRoot<GameRoomProps> {
   constructor(props: CreateEntityProps<GameRoomProps>) {
     super(props);
@@ -70,12 +65,12 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
     const gameRoom = new GameRoom({
       id,
       props: {
-        hostId: props.hostId,
+        hostAccountId: props.hostAccountId,
         status: props.status,
         visibility: props.visibility,
         title: props.title,
         maxMembersCount: props.maxMembersCount,
-        currentMembersCount: props.currentMembersCount ?? 0,
+        currentMembersCount: 0,
         members: [],
       },
       createdAt: date,
@@ -84,7 +79,7 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
 
     gameRoom.apply(
       new GameRoomCreatedEvent(gameRoom.id, {
-        hostId: props.hostId,
+        hostAccountId: props.hostAccountId,
         status: props.status,
         visibility: props.visibility,
         title: props.title,
@@ -93,11 +88,19 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
       }),
     );
 
+    gameRoom.joinMember(
+      GameRoomMember.create({
+        accountId: props.hostAccountId,
+        nickname: props.hostNickname,
+        role: GameRoomMemberRole.host,
+      }),
+    );
+
     return gameRoom;
   }
 
-  get hostId(): string {
-    return this.props.hostId;
+  get hostAccountId(): string {
+    return this.props.hostAccountId;
   }
 
   get status(): GameRoomStatus {
@@ -120,6 +123,12 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
     return this.props.currentMembersCount;
   }
 
+  get host(): GameRoomMember | undefined {
+    return this.props.members.find(
+      (member) => member.role === GameRoomMemberRole.host,
+    );
+  }
+
   get members(): GameRoomMember[] {
     return this.props.members;
   }
@@ -135,26 +144,24 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
     );
   }
 
-  join(props: JoinProps): GameRoomMember {
-    if (
-      props.role === GameRoomMemberRole.host &&
-      props.accountId !== this.props.hostId
-    ) {
-      throw new GameRoomValidationError(
-        'Only the room creator can be the host.',
-      );
+  joinMember(member: GameRoomMember): GameRoomMember {
+    const existingMember = this.props.members.find(
+      (joinedMember) => joinedMember.id === member.id,
+    );
+
+    if (existingMember !== undefined) {
+      throw new GameRoomMemberAlreadyExistsError();
+    }
+
+    if (member.role === GameRoomMemberRole.host && this.host !== undefined) {
+      throw new GameRoomValidationError(`Game room host only one`);
     }
 
     if (this.props.currentMembersCount >= this.props.maxMembersCount) {
       throw new GameRoomMemberCapacityExceededError();
     }
 
-    const member = GameRoomMember.create({
-      accountId: props.accountId,
-      gameRoomId: this.id,
-      role: props.role,
-      nickname: props.nickname,
-    });
+    this.props.members.push(member);
 
     this.apply(
       new GameRoomMemberJoinedEvent(this.id, {
@@ -168,7 +175,11 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
     return member;
   }
 
-  leave(member: GameRoomMember) {
+  leaveMember(member: GameRoomMember) {
+    const memberIdx = this.props.members.findIndex((el) => el.id === member.id);
+
+    this.props.members.splice(memberIdx, 1);
+
     this.apply(
       new GameRoomMemberLeftEvent(this.id, {
         gameRoomId: this.id,
@@ -181,8 +192,12 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
   }
 
   changeMemberRole(member: GameRoomMember, role: GameRoomMemberRole) {
-    if (role === GameRoomMemberRole.host) {
-      this.props.hostId = member.accountId;
+    if (member.role === role) {
+      return member;
+    }
+
+    if (role === GameRoomMemberRole.host && this.host !== undefined) {
+      throw new GameRoomValidationError(`Game room host only one`);
     }
 
     member.changeRole(role);
@@ -196,6 +211,15 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
         nickname: member.nickname,
       }),
     );
+
+    return member;
+  }
+
+  isEmptyRoom(): boolean {
+    if (this.props.members.length === 0) {
+      return true;
+    }
+    return false;
   }
 
   public validate(): void {}

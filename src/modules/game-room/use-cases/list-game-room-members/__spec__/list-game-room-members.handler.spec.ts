@@ -4,11 +4,6 @@ import { GameRoomMemberFactory } from '@module/game-room/entities/__spec__/game-
 import { GameRoomFactory } from '@module/game-room/entities/__spec__/game-room.factory';
 import { GameRoomMember } from '@module/game-room/entities/game-room-member.entity';
 import { GameRoomNotFoundError } from '@module/game-room/errors/game-room-not-found.error';
-import { GameRoomMemberRepositoryModule } from '@module/game-room/repositories/game-room-member/game-room-member.repository.module';
-import {
-  GAME_ROOM_MEMBER_REPOSITORY,
-  GameRoomMemberRepositoryPort,
-} from '@module/game-room/repositories/game-room-member/game-room-member.repository.port';
 import { GameRoomRepositoryModule } from '@module/game-room/repositories/game-room/game-room.repository.module';
 import {
   GAME_ROOM_REPOSITORY,
@@ -22,13 +17,12 @@ describe(ListGameRoomMembersHandler.name, () => {
   let handler: ListGameRoomMembersHandler;
 
   let gameRoomRepository: GameRoomRepositoryPort;
-  let gameRoomMemberRepository: GameRoomMemberRepositoryPort;
 
   let query: ListGameRoomMembersQuery;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [GameRoomRepositoryModule, GameRoomMemberRepositoryModule],
+      imports: [GameRoomRepositoryModule],
       providers: [ListGameRoomMembersHandler],
     }).compile();
 
@@ -38,9 +32,6 @@ describe(ListGameRoomMembersHandler.name, () => {
 
     gameRoomRepository =
       module.get<GameRoomRepositoryPort>(GAME_ROOM_REPOSITORY);
-    gameRoomMemberRepository = module.get<GameRoomMemberRepositoryPort>(
-      GAME_ROOM_MEMBER_REPOSITORY,
-    );
   });
 
   beforeEach(() => {
@@ -51,16 +42,12 @@ describe(ListGameRoomMembersHandler.name, () => {
     let gameRoomMembers: GameRoomMember[];
 
     beforeEach(async () => {
+      gameRoomMembers = GameRoomMemberFactory.buildList(3, {});
       await gameRoomRepository.insert(
-        GameRoomFactory.build({ id: query.gameRoomId }),
-      );
-
-      gameRoomMembers = await Promise.all(
-        GameRoomMemberFactory.buildList(3, {
-          gameRoomId: query.gameRoomId,
-        }).map((gameRoomMember) =>
-          gameRoomMemberRepository.insert(gameRoomMember),
-        ),
+        GameRoomFactory.build({
+          id: query.gameRoomId,
+          members: gameRoomMembers,
+        }),
       );
     });
 
