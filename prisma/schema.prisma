@@ -61,7 +61,7 @@ model AccountEventStore {
 
 enum GameRoomStatus {
   waiting
-  ready
+  starting
   inProgress
   finished
   paused

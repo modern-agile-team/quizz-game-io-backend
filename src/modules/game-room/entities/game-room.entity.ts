@@ -19,7 +19,7 @@ import {
 
 export enum GameRoomStatus {
   waiting = 'waiting',
-  ready = 'ready',
+  starting = 'starting',
   inProgress = 'inProgress',
   finished = 'finished',
   paused = 'paused',
