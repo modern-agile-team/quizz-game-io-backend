@@ -52,7 +52,6 @@ describe(GameRoomMemberLeftHandler, () => {
     jest
       .spyOn(socketEmitter, 'emitToRoom')
       .mockResolvedValue(undefined as never);
-    jest.spyOn(gameRoomRepository, 'decrementCurrentMembersCount');
   });
 
   let existingGameRoom: GameRoom;
@@ -78,16 +77,9 @@ describe(GameRoomMemberLeftHandler, () => {
   });
 
   describe('게임방에 멤버가 입장하면', () => {
-    it('현재 멤버 수를 1 감소시키고 이벤트를 발생시켜야한다.', async () => {
+    it('이벤트를 발생시켜야한다.', async () => {
       await expect(handler.handle(event)).resolves.toBeUndefined();
 
-      await expect(
-        gameRoomRepository.findOneById(existingGameRoom.id),
-      ).resolves.toEqual(
-        expect.objectContaining({
-          currentMembersCount: existingGameRoom.currentMembersCount - 1,
-        }),
-      );
       expect(socketEmitter.emitToRoom).toHaveBeenCalled();
     });
   });

@@ -15,7 +15,7 @@ export class GameRoomDtoAssembler {
     dto.status = gameRoom.props.status;
     dto.title = gameRoom.props.title;
     dto.maxMembersCount = gameRoom.props.maxMembersCount;
-    dto.currentMembersCount = gameRoom.props.currentMembersCount;
+    dto.currentMembersCount = gameRoom.currentMembersCount;
 
     return dto;
   }

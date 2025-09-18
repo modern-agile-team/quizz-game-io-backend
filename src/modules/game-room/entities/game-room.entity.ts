@@ -40,7 +40,6 @@ export interface GameRoomProps {
   visibility: GameRoomVisibility;
   title: string;
   maxMembersCount: number;
-  currentMembersCount: number;
   members: GameRoomMember[];
 }
 
@@ -70,7 +69,6 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
         visibility: props.visibility,
         title: props.title,
         maxMembersCount: props.maxMembersCount,
-        currentMembersCount: 0,
         members: [],
       },
       createdAt: date,
@@ -84,7 +82,7 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
         visibility: props.visibility,
         title: props.title,
         maxPlayers: props.maxMembersCount,
-        currentMembersCount: gameRoom.props.currentMembersCount,
+        currentMembersCount: gameRoom.currentMembersCount,
       }),
     );
 
@@ -120,7 +118,7 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
   }
 
   get currentMembersCount(): number {
-    return this.props.currentMembersCount;
+    return this.props.members.length;
   }
 
   get host(): GameRoomMember | undefined {
@@ -157,7 +155,7 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
       throw new GameRoomValidationError(`Game room host only one`);
     }
 
-    if (this.props.currentMembersCount >= this.props.maxMembersCount) {
+    if (this.currentMembersCount >= this.props.maxMembersCount) {
       throw new GameRoomMemberCapacityExceededError();
     }
 

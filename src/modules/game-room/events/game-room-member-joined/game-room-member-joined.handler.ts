@@ -44,9 +44,6 @@ export class GameRoomMemberJoinedHandler {
       gameRoomKeyOf(event.eventPayload.gameRoomId),
     );
 
-    await this.gameRoomRepository.incrementCurrentMembersCount(
-      event.eventPayload.gameRoomId,
-    );
     const gameRoom = await this.gameRoomRepository.findOneById(
       event.aggregateId,
     );

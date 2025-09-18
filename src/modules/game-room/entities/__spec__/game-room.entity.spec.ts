@@ -10,6 +10,7 @@ import {
   GameRoomVisibility,
 } from '@module/game-room/entities/game-room.entity';
 import { GameRoomMemberAlreadyExistsError } from '@module/game-room/errors/game-room-member-already-exists.error';
+import { GameRoomMemberCapacityExceededError } from '@module/game-room/errors/game-room-member-capacity-exceeded.error';
 import { GameRoomValidationError } from '@module/game-room/errors/game-room-validation.error';
 
 import { generateEntityId } from '@common/base/base.entity';
@@ -108,17 +109,21 @@ describe(GameRoom, () => {
       });
     });
 
-    /**
-     * @todo 추가
-     */
-    describe.skip('정원이 꽉찬 경우', () => {
+    describe('정원이 꽉찬 경우', () => {
       beforeEach(() => {
+        GameRoomMemberFactory.buildList(gameRoom.maxMembersCount, {
+          role: GameRoomMemberRole.player,
+        }).forEach((member) => gameRoom.joinMember(member));
         member = GameRoomMemberFactory.build({
           role: GameRoomMemberRole.player,
         });
       });
 
-      it('정원이 초과했다는 에러가 발생해야한다.', () => {});
+      it('정원이 초과했다는 에러가 발생해야한다.', () => {
+        expect(() => gameRoom.joinMember(member)).toThrow(
+          GameRoomMemberCapacityExceededError,
+        );
+      });
     });
   });
 
