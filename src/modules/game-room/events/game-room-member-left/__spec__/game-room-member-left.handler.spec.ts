@@ -52,27 +52,24 @@ describe(GameRoomMemberLeftHandler, () => {
     jest
       .spyOn(socketEmitter, 'emitToRoom')
       .mockResolvedValue(undefined as never);
-    jest.spyOn(gameRoomRepository, 'decrementCurrentMembersCount');
   });
 
   let existingGameRoom: GameRoom;
 
   beforeEach(async () => {
-    const gameRoomId = generateEntityId();
-    event = new GameRoomMemberLeftEvent(gameRoomId, {
-      gameRoomId,
+    existingGameRoom = await gameRoomRepository.insert(
+      GameRoomFactory.build({
+        currentMembersCount: 1,
+      }),
+    );
+
+    event = new GameRoomMemberLeftEvent(existingGameRoom.id, {
+      gameRoomId: existingGameRoom.id,
       accountId: generateEntityId(),
       memberId: generateEntityId(),
       role: GameRoomMemberRole.player,
       nickname: generateEntityId(),
     });
-
-    existingGameRoom = await gameRoomRepository.insert(
-      GameRoomFactory.build({
-        id: gameRoomId,
-        currentMembersCount: 1,
-      }),
-    );
   });
 
   afterEach(() => {
@@ -80,16 +77,9 @@ describe(GameRoomMemberLeftHandler, () => {
   });
 
   describe('게임방에 멤버가 입장하면', () => {
-    it('현재 멤버 수를 1 감소시키고 이벤트를 발생시켜야한다.', async () => {
+    it('이벤트를 발생시켜야한다.', async () => {
       await expect(handler.handle(event)).resolves.toBeUndefined();
 
-      await expect(
-        gameRoomRepository.findOneById(existingGameRoom.id),
-      ).resolves.toEqual(
-        expect.objectContaining({
-          currentMembersCount: existingGameRoom.currentMembersCount - 1,
-        }),
-      );
       expect(socketEmitter.emitToRoom).toHaveBeenCalled();
     });
   });

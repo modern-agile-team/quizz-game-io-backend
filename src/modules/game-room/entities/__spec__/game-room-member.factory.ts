@@ -15,7 +15,6 @@ export const GameRoomMemberFactory = Factory.define<
   .attrs({
     id: () => generateEntityId(),
     accountId: () => generateEntityId(),
-    gameRoomId: () => generateEntityId(),
     role: () => faker.helpers.enumValue(GameRoomMemberRole),
     nickname: () => generateEntityId(),
     createdAt: () => new Date(),

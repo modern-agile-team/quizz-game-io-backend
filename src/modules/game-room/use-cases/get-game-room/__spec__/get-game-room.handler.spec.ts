@@ -1,14 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { GameRoomMemberFactory } from '@module/game-room/entities/__spec__/game-room-member.factory';
 import { GameRoomFactory } from '@module/game-room/entities/__spec__/game-room.factory';
 import { GameRoom } from '@module/game-room/entities/game-room.entity';
 import { GameRoomNotFoundError } from '@module/game-room/errors/game-room-not-found.error';
-import { GameRoomMemberRepositoryModule } from '@module/game-room/repositories/game-room-member/game-room-member.repository.module';
-import {
-  GAME_ROOM_MEMBER_REPOSITORY,
-  GameRoomMemberRepositoryPort,
-} from '@module/game-room/repositories/game-room-member/game-room-member.repository.port';
 import { GameRoomRepositoryModule } from '@module/game-room/repositories/game-room/game-room.repository.module';
 import {
   GAME_ROOM_REPOSITORY,
@@ -22,13 +16,12 @@ describe(GetGameRoomHandler.name, () => {
   let handler: GetGameRoomHandler;
 
   let gameRoomRepository: GameRoomRepositoryPort;
-  let gameRoomMemberRepository: GameRoomMemberRepositoryPort;
 
   let query: GetGameRoomQuery;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [GameRoomRepositoryModule, GameRoomMemberRepositoryModule],
+      imports: [GameRoomRepositoryModule],
       providers: [GetGameRoomHandler],
     }).compile();
 
@@ -36,9 +29,6 @@ describe(GetGameRoomHandler.name, () => {
 
     gameRoomRepository =
       module.get<GameRoomRepositoryPort>(GAME_ROOM_REPOSITORY);
-    gameRoomMemberRepository = module.get<GameRoomMemberRepositoryPort>(
-      GAME_ROOM_MEMBER_REPOSITORY,
-    );
   });
 
   beforeEach(() => {
@@ -50,16 +40,10 @@ describe(GetGameRoomHandler.name, () => {
 
     beforeEach(async () => {
       gameRoom = await gameRoomRepository.insert(
-        GameRoomFactory.build({ id: query.gameRoomId }),
+        GameRoomFactory.build({
+          id: query.gameRoomId,
+        }),
       );
-      gameRoom.members = [
-        await gameRoomMemberRepository.insert(
-          GameRoomMemberFactory.build({
-            gameRoomId: query.gameRoomId,
-            accountId: gameRoom.hostId,
-          }),
-        ),
-      ];
     });
 
     it('게임방 정보를 반환해야한다.', async () => {

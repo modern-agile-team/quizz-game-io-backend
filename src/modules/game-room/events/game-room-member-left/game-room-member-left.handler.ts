@@ -1,5 +1,4 @@
 import { Inject } from '@nestjs/common';
-import { QueryBus } from '@nestjs/cqrs';
 import { OnEvent } from '@nestjs/event-emitter';
 
 import { AsyncApi, AsyncApiPub } from 'nestjs-asyncapi';
@@ -15,7 +14,6 @@ import {
   GameRoomChangedSocketEvent,
   GameRoomChangedSocketEventAction,
 } from '@module/game-room/socket-events/game-room-changed.socket-event';
-import { GetGameRoomQuery } from '@module/game-room/use-cases/get-game-room/get-game-room.query';
 
 import {
   ISocketSessionManager,
@@ -31,7 +29,6 @@ import { gameRoomKeyOf } from '@core/socket/socket-room.util';
 @AsyncApi()
 export class GameRoomMemberLeftHandler {
   constructor(
-    private readonly queryBus: QueryBus,
     @Inject(GAME_ROOM_REPOSITORY)
     private readonly gameRoomRepository: GameRoomRepositoryPort,
     @Inject(SOCKET_EVENT_EMITTER)
@@ -47,14 +44,11 @@ export class GameRoomMemberLeftHandler {
       gameRoomKeyOf(event.eventPayload.gameRoomId),
     );
 
-    await this.gameRoomRepository.decrementCurrentMembersCount(
-      event.eventPayload.gameRoomId,
-    );
-    const gameRoom = await this.queryBus.execute<GetGameRoomQuery, GameRoom>(
-      new GetGameRoomQuery({ gameRoomId: event.eventPayload.gameRoomId }),
+    const gameRoom = await this.gameRoomRepository.findOneById(
+      event.aggregateId,
     );
 
-    this.publish(gameRoom);
+    this.publish(gameRoom as GameRoom);
   }
 
   @AsyncApiPub({

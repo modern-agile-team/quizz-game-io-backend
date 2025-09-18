@@ -53,23 +53,16 @@ describe(GameRoomMemberJoinedHandler, () => {
     jest
       .spyOn(socketEmitter, 'emitToRoom')
       .mockResolvedValue(undefined as never);
-    jest.spyOn(gameRoomRepository, 'incrementCurrentMembersCount');
   });
 
   beforeEach(async () => {
-    const gameRoomId = generateEntityId();
-    event = new GameRoomMemberJoinedEvent(gameRoomId, {
-      gameRoomId,
+    const gameRoom = await gameRoomRepository.insert(GameRoomFactory.build());
+    event = new GameRoomMemberJoinedEvent(gameRoom.id, {
+      gameRoomId: gameRoom.id,
       accountId: generateEntityId(),
       role: GameRoomMemberRole.player,
       nickname: generateEntityId(),
     });
-
-    await gameRoomRepository.insert(
-      GameRoomFactory.build({
-        id: gameRoomId,
-      }),
-    );
   });
 
   afterEach(() => {
@@ -77,12 +70,9 @@ describe(GameRoomMemberJoinedHandler, () => {
   });
 
   describe('게임방에 멤버가 입장하면', () => {
-    it('현재 멤버 수를 1 증가시키고 이벤트를 발생시켜야한다.', async () => {
+    it('이벤트를 발생시켜야한다.', async () => {
       await expect(handler.handle(event)).resolves.toBeUndefined();
 
-      expect(
-        gameRoomRepository.incrementCurrentMembersCount,
-      ).toHaveBeenCalled();
       expect(socketEmitter.emitToRoom).toHaveBeenCalled();
     });
   });

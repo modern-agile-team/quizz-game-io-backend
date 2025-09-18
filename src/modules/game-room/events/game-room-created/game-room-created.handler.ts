@@ -1,5 +1,4 @@
 import { Inject } from '@nestjs/common';
-import { QueryBus } from '@nestjs/cqrs';
 import { OnEvent } from '@nestjs/event-emitter';
 
 import { AsyncApi, AsyncApiPub } from 'nestjs-asyncapi';
@@ -8,10 +7,13 @@ import { GameRoomDtoAssembler } from '@module/game-room/assemblers/game-room-dto
 import { GameRoom } from '@module/game-room/entities/game-room.entity';
 import { GameRoomCreatedEvent } from '@module/game-room/events/game-room-created/game-room-created.event';
 import {
+  GAME_ROOM_REPOSITORY,
+  GameRoomRepositoryPort,
+} from '@module/game-room/repositories/game-room/game-room.repository.port';
+import {
   GameRoomCreatedSocketEventAction,
   LobbyGameRoomCreatedSocketEvent,
 } from '@module/game-room/socket-events/game-room-created.socket-event';
-import { GetGameRoomQuery } from '@module/game-room/use-cases/get-game-room/get-game-room.query';
 
 import {
   ISocketEventEmitter,
@@ -22,18 +24,19 @@ import {
 @AsyncApi()
 export class GameRoomCreatedHandler {
   constructor(
-    private readonly queryBus: QueryBus,
+    @Inject(GAME_ROOM_REPOSITORY)
+    private readonly gameRoomRepository: GameRoomRepositoryPort,
     @Inject(SOCKET_EVENT_EMITTER)
     private readonly socketEmitter: ISocketEventEmitter,
   ) {}
 
   @OnEvent(GameRoomCreatedEvent.name)
   async handle(event: GameRoomCreatedEvent): Promise<void> {
-    const gameRoom = await this.queryBus.execute<GetGameRoomQuery, GameRoom>(
-      new GetGameRoomQuery({ gameRoomId: event.aggregateId }),
+    const gameRoom = await this.gameRoomRepository.findOneById(
+      event.aggregateId,
     );
 
-    this.publish(gameRoom);
+    this.publish(gameRoom as GameRoom);
   }
 
   @AsyncApiPub({

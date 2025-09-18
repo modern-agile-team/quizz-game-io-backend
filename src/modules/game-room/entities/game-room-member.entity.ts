@@ -11,14 +11,12 @@ export enum GameRoomMemberRole {
 
 export interface GameRoomMemberProps {
   accountId: string;
-  gameRoomId: string;
   role: GameRoomMemberRole;
   nickname: string;
 }
 
 interface CreateGameRoomMemberProps {
   accountId: string;
-  gameRoomId: string;
   role: GameRoomMemberRole;
   nickname: string;
 }
@@ -36,7 +34,6 @@ export class GameRoomMember extends BaseEntity<GameRoomMemberProps> {
       id,
       props: {
         accountId: props.accountId,
-        gameRoomId: props.gameRoomId,
         role: props.role,
         nickname: props.nickname,
       },
@@ -47,10 +44,6 @@ export class GameRoomMember extends BaseEntity<GameRoomMemberProps> {
 
   get accountId(): string {
     return this.props.accountId;
-  }
-
-  get gameRoomId(): string {
-    return this.props.gameRoomId;
   }
 
   get role(): GameRoomMemberRole {

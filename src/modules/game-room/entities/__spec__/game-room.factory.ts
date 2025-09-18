@@ -15,12 +15,11 @@ export const GameRoomFactory = Factory.define<GameRoom & GameRoomProps>(
 )
   .attrs({
     id: () => generateEntityId(),
-    hostId: () => generateEntityId(),
+    hostAccountId: () => generateEntityId(),
     status: () => faker.helpers.enumValue(GameRoomStatus),
     visibility: () => faker.helpers.enumValue(GameRoomVisibility),
     title: () => faker.string.nanoid(),
     maxMembersCount: () => faker.number.int({ min: 2, max: 10 }),
-    currentMembersCount: () => faker.number.int({ min: 0, max: 10 }),
     members: () => [],
     createdAt: () => new Date(),
     updatedAt: () => new Date(),

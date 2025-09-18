@@ -2,15 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { GameRoomMemberFactory } from '@module/game-room/entities/__spec__/game-room-member.factory';
 import { GameRoomFactory } from '@module/game-room/entities/__spec__/game-room.factory';
-import { GameRoomMember } from '@module/game-room/entities/game-room-member.entity';
+import {
+  GameRoomMember,
+  GameRoomMemberRole,
+} from '@module/game-room/entities/game-room-member.entity';
 import { GameRoom } from '@module/game-room/entities/game-room.entity';
 import { GameRoomMemberNotFoundError } from '@module/game-room/errors/game-room-member-not-found.error';
 import { GameRoomNotFoundError } from '@module/game-room/errors/game-room-not-found.error';
-import { GameRoomMemberRepositoryModule } from '@module/game-room/repositories/game-room-member/game-room-member.repository.module';
-import {
-  GAME_ROOM_MEMBER_REPOSITORY,
-  GameRoomMemberRepositoryPort,
-} from '@module/game-room/repositories/game-room-member/game-room-member.repository.port';
 import { GameRoomRepositoryModule } from '@module/game-room/repositories/game-room/game-room.repository.module';
 import {
   GAME_ROOM_REPOSITORY,
@@ -32,7 +30,6 @@ describe(LeaveGameRoomHandler.name, () => {
   let handler: LeaveGameRoomHandler;
 
   let gameRoomRepository: GameRoomRepositoryPort;
-  let gameRoomMemberRepository: GameRoomMemberRepositoryPort;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let eventStore: IEventStore;
 
@@ -40,11 +37,7 @@ describe(LeaveGameRoomHandler.name, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        GameRoomRepositoryModule,
-        GameRoomMemberRepositoryModule,
-        EventStoreModule,
-      ],
+      imports: [GameRoomRepositoryModule, EventStoreModule],
       providers: [LeaveGameRoomHandler],
     }).compile();
 
@@ -52,9 +45,6 @@ describe(LeaveGameRoomHandler.name, () => {
 
     gameRoomRepository =
       module.get<GameRoomRepositoryPort>(GAME_ROOM_REPOSITORY);
-    gameRoomMemberRepository = module.get<GameRoomMemberRepositoryPort>(
-      GAME_ROOM_MEMBER_REPOSITORY,
-    );
     eventStore = module.get<IEventStore>(EVENT_STORE);
   });
 
@@ -67,16 +57,15 @@ describe(LeaveGameRoomHandler.name, () => {
   let hostMember: GameRoomMember;
 
   beforeEach(async () => {
+    hostMember = GameRoomMemberFactory.build({
+      accountId: command.currentAccountId,
+      role: GameRoomMemberRole.host,
+    });
     gameRoom = await gameRoomRepository.insert(
       GameRoomFactory.build({
         id: command.gameRoomId,
-        hostId: command.currentAccountId,
-      }),
-    );
-    hostMember = await gameRoomMemberRepository.insert(
-      GameRoomMemberFactory.build({
-        accountId: command.currentAccountId,
-        gameRoomId: command.gameRoomId,
+        hostAccountId: command.currentAccountId,
+        members: [hostMember],
       }),
     );
   });
@@ -86,21 +75,25 @@ describe(LeaveGameRoomHandler.name, () => {
       let nextHostMember: GameRoomMember;
 
       beforeEach(async () => {
-        nextHostMember = await gameRoomMemberRepository.insert(
-          GameRoomMemberFactory.build({ gameRoomId: command.gameRoomId }),
-        );
+        nextHostMember = GameRoomMemberFactory.build({
+          role: GameRoomMemberRole.player,
+        });
+        gameRoom.joinMember(nextHostMember);
+        await gameRoomRepository.update(gameRoom);
       });
 
-      it('남은 플레이어가 있다면 방장을 위임해야한다', async () => {
+      it('남은 플레이어가 방장을 위임해야한다', async () => {
         await expect(handler.execute(command)).resolves.toBeUndefined();
 
-        await expect(
-          gameRoomRepository.findOneById(gameRoom.id),
-        ).resolves.toEqual(
-          expect.objectContaining({
-            hostId: nextHostMember.accountId,
-          }),
+        const gameRoom = await gameRoomRepository.findOneById(
+          command.gameRoomId,
         );
+
+        expect(
+          gameRoom?.members.find(
+            (member) => member.accountId === nextHostMember.accountId,
+          )?.role,
+        ).toBe(GameRoomMemberRole.host);
       });
     });
   });
@@ -109,9 +102,9 @@ describe(LeaveGameRoomHandler.name, () => {
     let player: GameRoomMember;
 
     beforeEach(async () => {
-      player = await gameRoomMemberRepository.insert(
-        GameRoomMemberFactory.build({ gameRoomId: command.gameRoomId }),
-      );
+      player = GameRoomMemberFactory.build({ role: GameRoomMemberRole.player });
+      gameRoom.joinMember(player);
+      await gameRoomRepository.update(gameRoom);
     });
 
     it('방에서 나가야 한다.', async () => {
@@ -119,12 +112,9 @@ describe(LeaveGameRoomHandler.name, () => {
         handler.execute({ ...command, currentAccountId: player.accountId }),
       ).resolves.toBeUndefined();
 
-      await expect(
-        gameRoomMemberRepository.findByAccountIdInGameRoom(
-          player.accountId,
-          gameRoom.id,
-        ),
-      ).resolves.toBeUndefined();
+      const gameRoom = await gameRoomRepository.findOneById(command.gameRoomId);
+
+      expect(gameRoom?.members).toEqual(expect.not.arrayContaining([player]));
     });
   });
 
