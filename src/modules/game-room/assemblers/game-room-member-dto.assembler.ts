@@ -22,6 +22,7 @@ export class GameRoomMemberDtoAssembler {
   ): GameRoomMemberSocketEventDto {
     const dto = new GameRoomMemberSocketEventDto();
 
+    dto.id = gameRoomMember.id;
     dto.accountId = gameRoomMember.accountId;
     dto.role = gameRoomMember.role;
     dto.nickname = gameRoomMember.nickname;
