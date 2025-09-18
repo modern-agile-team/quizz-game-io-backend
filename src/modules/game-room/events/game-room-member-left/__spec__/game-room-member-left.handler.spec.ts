@@ -58,21 +58,19 @@ describe(GameRoomMemberLeftHandler, () => {
   let existingGameRoom: GameRoom;
 
   beforeEach(async () => {
-    const gameRoomId = generateEntityId();
-    event = new GameRoomMemberLeftEvent(gameRoomId, {
-      gameRoomId,
+    existingGameRoom = await gameRoomRepository.insert(
+      GameRoomFactory.build({
+        currentMembersCount: 1,
+      }),
+    );
+
+    event = new GameRoomMemberLeftEvent(existingGameRoom.id, {
+      gameRoomId: existingGameRoom.id,
       accountId: generateEntityId(),
       memberId: generateEntityId(),
       role: GameRoomMemberRole.player,
       nickname: generateEntityId(),
     });
-
-    existingGameRoom = await gameRoomRepository.insert(
-      GameRoomFactory.build({
-        id: gameRoomId,
-        currentMembersCount: 1,
-      }),
-    );
   });
 
   afterEach(() => {

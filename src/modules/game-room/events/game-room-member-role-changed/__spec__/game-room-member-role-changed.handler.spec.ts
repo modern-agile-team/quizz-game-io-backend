@@ -1,9 +1,15 @@
 import { Test } from '@nestjs/testing';
 import { TestingModule } from '@nestjs/testing/testing-module';
 
+import { GameRoomFactory } from '@module/game-room/entities/__spec__/game-room.factory';
 import { GameRoomMemberRole } from '@module/game-room/entities/game-room-member.entity';
 import { GameRoomMemberRoleChangedEvent } from '@module/game-room/events/game-room-member-role-changed/game-room-member-role-changed.event';
 import { GameRoomMemberRoleChangedHandler } from '@module/game-room/events/game-room-member-role-changed/game-room-member-role-changed.handler';
+import { GameRoomRepositoryModule } from '@module/game-room/repositories/game-room/game-room.repository.module';
+import {
+  GAME_ROOM_REPOSITORY,
+  GameRoomRepositoryPort,
+} from '@module/game-room/repositories/game-room/game-room.repository.port';
 
 import { generateEntityId } from '@common/base/base.entity';
 
@@ -17,19 +23,27 @@ import {
 describe(GameRoomMemberRoleChangedHandler, () => {
   let handler: GameRoomMemberRoleChangedHandler;
 
+  let gameRoomRepository: GameRoomRepositoryPort;
   let socketEmitter: ISocketEventEmitter;
 
   let event: GameRoomMemberRoleChangedEvent;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [SocketEventEmitterModule, SocketSessionManagerModule],
+      imports: [
+        GameRoomRepositoryModule,
+        SocketEventEmitterModule,
+        SocketSessionManagerModule,
+      ],
       providers: [GameRoomMemberRoleChangedHandler],
     }).compile();
 
     handler = module.get<GameRoomMemberRoleChangedHandler>(
       GameRoomMemberRoleChangedHandler,
     );
+
+    gameRoomRepository =
+      module.get<GameRoomRepositoryPort>(GAME_ROOM_REPOSITORY);
     socketEmitter = module.get<ISocketEventEmitter>(SOCKET_EVENT_EMITTER);
   });
 
@@ -40,9 +54,9 @@ describe(GameRoomMemberRoleChangedHandler, () => {
   });
 
   beforeEach(async () => {
-    const gameRoomId = generateEntityId();
-    event = new GameRoomMemberRoleChangedEvent(gameRoomId, {
-      gameRoomId,
+    const gameRoom = await gameRoomRepository.insert(GameRoomFactory.build());
+    event = new GameRoomMemberRoleChangedEvent(gameRoom.id, {
+      gameRoomId: gameRoom.id,
       accountId: generateEntityId(),
       memberId: generateEntityId(),
       role: GameRoomMemberRole.player,

@@ -57,19 +57,13 @@ describe(GameRoomMemberJoinedHandler, () => {
   });
 
   beforeEach(async () => {
-    const gameRoomId = generateEntityId();
-    event = new GameRoomMemberJoinedEvent(gameRoomId, {
-      gameRoomId,
+    const gameRoom = await gameRoomRepository.insert(GameRoomFactory.build());
+    event = new GameRoomMemberJoinedEvent(gameRoom.id, {
+      gameRoomId: gameRoom.id,
       accountId: generateEntityId(),
       role: GameRoomMemberRole.player,
       nickname: generateEntityId(),
     });
-
-    await gameRoomRepository.insert(
-      GameRoomFactory.build({
-        id: gameRoomId,
-      }),
-    );
   });
 
   afterEach(() => {

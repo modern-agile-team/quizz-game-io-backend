@@ -1,14 +1,14 @@
 import { Test } from '@nestjs/testing';
 import { TestingModule } from '@nestjs/testing/testing-module';
 
-import {
-  GameRoomStatus,
-  GameRoomVisibility,
-} from '@module/game-room/entities/game-room.entity';
+import { GameRoomFactory } from '@module/game-room/entities/__spec__/game-room.factory';
 import { GameRoomCreatedEvent } from '@module/game-room/events/game-room-created/game-room-created.event';
 import { GameRoomCreatedHandler } from '@module/game-room/events/game-room-created/game-room-created.handler';
-
-import { generateEntityId } from '@common/base/base.entity';
+import { GameRoomRepositoryModule } from '@module/game-room/repositories/game-room/game-room.repository.module';
+import {
+  GAME_ROOM_REPOSITORY,
+  GameRoomRepositoryPort,
+} from '@module/game-room/repositories/game-room/game-room.repository.port';
 
 import { SocketEventEmitterModule } from '@core/socket/socket-event-emitter.module';
 import {
@@ -19,17 +19,21 @@ import {
 describe(GameRoomCreatedHandler, () => {
   let handler: GameRoomCreatedHandler;
 
+  let gameRoomRepository: GameRoomRepositoryPort;
   let socketEmitter: ISocketEventEmitter;
 
   let event: GameRoomCreatedEvent;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [SocketEventEmitterModule],
+      imports: [GameRoomRepositoryModule, SocketEventEmitterModule],
       providers: [GameRoomCreatedHandler],
     }).compile();
 
     handler = module.get<GameRoomCreatedHandler>(GameRoomCreatedHandler);
+
+    gameRoomRepository =
+      module.get<GameRoomRepositoryPort>(GAME_ROOM_REPOSITORY);
     socketEmitter = module.get<ISocketEventEmitter>(SOCKET_EVENT_EMITTER);
   });
 
@@ -40,14 +44,15 @@ describe(GameRoomCreatedHandler, () => {
   });
 
   beforeEach(async () => {
-    const gameRoomId = generateEntityId();
-    event = new GameRoomCreatedEvent(gameRoomId, {
-      hostAccountId: generateEntityId(),
-      status: GameRoomStatus.waiting,
-      visibility: GameRoomVisibility.public,
-      title: 'title',
-      maxPlayers: 8,
-      currentMembersCount: 0,
+    const gameRoom = await gameRoomRepository.insert(GameRoomFactory.build());
+
+    event = new GameRoomCreatedEvent(gameRoom.id, {
+      hostAccountId: gameRoom.hostAccountId,
+      status: gameRoom.status,
+      visibility: gameRoom.visibility,
+      title: gameRoom.title,
+      maxPlayers: gameRoom.maxMembersCount,
+      currentMembersCount: gameRoom.currentMembersCount,
     });
   });
 
