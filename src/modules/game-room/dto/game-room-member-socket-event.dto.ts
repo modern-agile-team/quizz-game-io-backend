@@ -4,6 +4,9 @@ import { GameRoomMemberRole } from '@module/game-room/entities/game-room-member.
 
 export class GameRoomMemberSocketEventDto {
   @ApiProperty()
+  id: string;
+
+  @ApiProperty()
   accountId: string;
 
   @ApiProperty({
