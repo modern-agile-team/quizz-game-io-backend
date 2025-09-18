@@ -144,7 +144,7 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
 
   joinMember(member: GameRoomMember): GameRoomMember {
     const existingMember = this.props.members.find(
-      (joinedMember) => joinedMember.id === member.id,
+      (joinedMember) => joinedMember.accountId === member.accountId,
     );
 
     if (existingMember !== undefined) {
