@@ -54,6 +54,8 @@ export class JoinGameRoomHandler
       }),
     );
 
+    await this.gameRoomRepository.update(gameRoom);
+
     await this.eventStore.storeAggregateEvents(gameRoom);
 
     return member;

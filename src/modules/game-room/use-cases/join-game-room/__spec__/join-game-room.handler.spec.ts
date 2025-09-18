@@ -77,10 +77,19 @@ describe(JoinGameRoomHandler.name, () => {
   });
 
   describe('게임방에 참가하면', () => {
-    it('게임방에 참가한 멤버를 반환한다.', async () => {
+    it('게임방에 참가해야한다.', async () => {
       await expect(handler.execute(command)).resolves.toBeInstanceOf(
         GameRoomMember,
       );
+
+      const updatedGameRoom = await gameRoomRepository.findOneById(
+        command.gameRoomId,
+      );
+      await expect(
+        updatedGameRoom?.members.find(
+          (member) => member.accountId === command.currentAccountId,
+        ),
+      ).toBeDefined();
 
       expect(eventStore.storeAggregateEvents).toHaveBeenCalled();
     });
