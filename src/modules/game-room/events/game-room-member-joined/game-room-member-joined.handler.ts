@@ -13,6 +13,7 @@ import {
 import {
   GameRoomChangedSocketEvent,
   GameRoomChangedSocketEventAction,
+  LobbyGameRoomChangedSocketEvent,
 } from '@module/game-room/socket-events/game-room-changed.socket-event';
 
 import {
@@ -48,7 +49,8 @@ export class GameRoomMemberJoinedHandler {
       event.aggregateId,
     );
 
-    this.publish(gameRoom as GameRoom);
+    this.publishGameRoomEvent(gameRoom as GameRoom);
+    this.publishLobbyEvent(gameRoom as GameRoom);
   }
 
   @AsyncApiPub({
@@ -57,7 +59,7 @@ export class GameRoomMemberJoinedHandler {
     channel: GameRoomChangedSocketEvent.EVENT_NAME,
     message: { payload: GameRoomChangedSocketEvent },
   })
-  private publish(gameRoom: GameRoom): void {
+  private publishGameRoomEvent(gameRoom: GameRoom): void {
     const socketEvent = new GameRoomChangedSocketEvent(
       GameRoomChangedSocketEventAction.member_joined,
       GameRoomDtoAssembler.convertToSocketEventDto(gameRoom),
@@ -68,5 +70,20 @@ export class GameRoomMemberJoinedHandler {
       gameRoomKeyOf(gameRoom.id),
       socketEvent,
     );
+  }
+
+  @AsyncApiPub({
+    tags: [{ name: 'lobby' }],
+    description: '유저가 게임방에 접속',
+    channel: LobbyGameRoomChangedSocketEvent.EVENT_NAME,
+    message: { payload: LobbyGameRoomChangedSocketEvent },
+  })
+  private publishLobbyEvent(gameRoom: GameRoom): void {
+    const socketEvent = new LobbyGameRoomChangedSocketEvent(
+      GameRoomChangedSocketEventAction.member_joined,
+      GameRoomDtoAssembler.convertToSocketEventDto(gameRoom),
+    );
+
+    this.socketEmitter.emitToNamespace(WS_NAMESPACE.ROOT, socketEvent);
   }
 }

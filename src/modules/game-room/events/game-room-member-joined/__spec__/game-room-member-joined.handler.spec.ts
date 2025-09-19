@@ -53,6 +53,9 @@ describe(GameRoomMemberJoinedHandler, () => {
     jest
       .spyOn(socketEmitter, 'emitToRoom')
       .mockResolvedValue(undefined as never);
+    jest
+      .spyOn(socketEmitter, 'emitToNamespace')
+      .mockResolvedValue(undefined as never);
   });
 
   beforeEach(async () => {
@@ -74,6 +77,7 @@ describe(GameRoomMemberJoinedHandler, () => {
       await expect(handler.handle(event)).resolves.toBeUndefined();
 
       expect(socketEmitter.emitToRoom).toHaveBeenCalled();
+      expect(socketEmitter.emitToNamespace).toHaveBeenCalled();
     });
   });
 });
