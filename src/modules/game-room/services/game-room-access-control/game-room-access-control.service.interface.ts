@@ -7,6 +7,12 @@ export interface AllowMemberProps {
   gameRoomId: string;
 }
 
+export interface AllowHostProps {
+  accountId: string;
+  gameRoomId: string;
+}
+
 export interface IGameRoomAccessControlService {
   allowMember(props: AllowMemberProps): Promise<void>;
+  allowHost(props: AllowHostProps): Promise<void>;
 }
