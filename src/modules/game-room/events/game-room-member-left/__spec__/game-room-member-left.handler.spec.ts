@@ -52,6 +52,9 @@ describe(GameRoomMemberLeftHandler, () => {
     jest
       .spyOn(socketEmitter, 'emitToRoom')
       .mockResolvedValue(undefined as never);
+    jest
+      .spyOn(socketEmitter, 'emitToNamespace')
+      .mockResolvedValue(undefined as never);
   });
 
   let existingGameRoom: GameRoom;
@@ -76,11 +79,12 @@ describe(GameRoomMemberLeftHandler, () => {
     jest.clearAllMocks();
   });
 
-  describe('게임방에 멤버가 입장하면', () => {
+  describe('게임방에 멤버가 퇴장하면', () => {
     it('이벤트를 발생시켜야한다.', async () => {
       await expect(handler.handle(event)).resolves.toBeUndefined();
 
       expect(socketEmitter.emitToRoom).toHaveBeenCalled();
+      expect(socketEmitter.emitToNamespace).toHaveBeenCalled();
     });
   });
 });
