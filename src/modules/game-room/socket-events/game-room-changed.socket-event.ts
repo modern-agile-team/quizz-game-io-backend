@@ -8,6 +8,7 @@ export enum GameRoomChangedSocketEventAction {
   member_joined = 'member_joined',
   member_left = 'member_left',
   member_role_changed = 'member_role_changed',
+  game_starting = 'game_starting',
 }
 
 export class GameRoomChangedSocketEvent extends BaseSocketEvent<GameRoomSocketEventDto> {
@@ -22,6 +23,23 @@ export class GameRoomChangedSocketEvent extends BaseSocketEvent<GameRoomSocketEv
 
   @ApiProperty({ example: GameRoomChangedSocketEvent.EVENT_NAME })
   readonly eventName: string = GameRoomChangedSocketEvent.EVENT_NAME;
+
+  @ApiProperty({ type: GameRoomSocketEventDto })
+  body: GameRoomSocketEventDto;
+}
+
+export class LobbyGameRoomChangedSocketEvent extends BaseSocketEvent<GameRoomSocketEventDto> {
+  static readonly EVENT_NAME = 'lobby.game_room.changed';
+
+  @ApiProperty({
+    title: 'GameRoomChangedSocketEventAction',
+    enum: GameRoomChangedSocketEventAction,
+    enumName: 'GameRoomChangedSocketEventAction',
+  })
+  action: GameRoomChangedSocketEventAction;
+
+  @ApiProperty({ example: LobbyGameRoomChangedSocketEvent.EVENT_NAME })
+  readonly eventName: string = LobbyGameRoomChangedSocketEvent.EVENT_NAME;
 
   @ApiProperty({ type: GameRoomSocketEventDto })
   body: GameRoomSocketEventDto;

@@ -11,6 +11,7 @@ import { JoinGameRoomModule } from '@module/game-room/use-cases/join-game-room/j
 import { LeaveGameRoomModule } from '@module/game-room/use-cases/leave-game-room/leave-game-room.module';
 import { ListGameRoomMembersModule } from '@module/game-room/use-cases/list-game-room-members/list-game-room-members.module';
 import { ListGameRoomsModule } from '@module/game-room/use-cases/list-game-rooms/list-game-rooms.module';
+import { StartGameModule } from '@module/game-room/use-cases/start-game/start-game.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ListGameRoomsModule } from '@module/game-room/use-cases/list-game-rooms
     LeaveGameRoomModule,
     ListGameRoomMembersModule,
     ListGameRoomsModule,
+    StartGameModule,
 
     GameRoomClosedModule,
     GameRoomCreatedModule,

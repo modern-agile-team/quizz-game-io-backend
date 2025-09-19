@@ -10,6 +10,7 @@ import { GameRoomCreatedEvent } from '@module/game-room/events/game-room-created
 import { GameRoomMemberJoinedEvent } from '@module/game-room/events/game-room-member-joined/game-room-member-joined.event';
 import { GameRoomMemberLeftEvent } from '@module/game-room/events/game-room-member-left/game-room-member-left.event';
 import { GameRoomMemberRoleChangedEvent } from '@module/game-room/events/game-room-member-role-changed/game-room-member-role-changed.event';
+import { GameRoomStartingEvent } from '@module/game-room/events/game-room-starting/game-room-starting.event';
 
 import {
   AggregateRoot,
@@ -19,7 +20,7 @@ import {
 
 export enum GameRoomStatus {
   waiting = 'waiting',
-  ready = 'ready',
+  starting = 'starting',
   inProgress = 'inProgress',
   finished = 'finished',
   paused = 'paused',
@@ -31,9 +32,6 @@ export enum GameRoomVisibility {
   hidden = 'hidden',
 }
 
-/**
- * @todo currentMembersCount를 필드로 정의하지 않고 구성원을 세게끔 변경
- */
 export interface GameRoomProps {
   hostAccountId: string;
   status: GameRoomStatus;
@@ -132,6 +130,23 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
   }
   set members(value: GameRoomMember[]) {
     this.props.members = value;
+  }
+
+  start() {
+    if (this.props.status !== GameRoomStatus.waiting) {
+      throw new GameRoomValidationError(
+        'Game can only be started from the waiting state.',
+      );
+    }
+
+    this.props.status = GameRoomStatus.starting;
+
+    this.apply(
+      new GameRoomStartingEvent(this.id, {
+        gameRoomId: this.id,
+        status: this.props.status,
+      }),
+    );
   }
 
   close() {
