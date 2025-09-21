@@ -11,23 +11,19 @@ import {
   GAME_ROOM_REPOSITORY,
   GameRoomRepositoryPort,
 } from '@module/game-room/repositories/game-room/game-room.repository.port';
+import { MockGameRoomSocketEventPublisherModule } from '@module/game-room/socket-events/publisher/__mock__/game-room-socket-event.publisher.mock';
+import {
+  GAME_ROOM_SOCKET_EVENT_PUBLISHER,
+  IGameRoomSocketEventPublisher,
+} from '@module/game-room/socket-events/publisher/game-room-socket-event.publisher.interface';
 
 import { generateEntityId } from '@common/base/base.entity';
-
-import { CacheModule } from '@shared/cache/cache.module';
-
-import { SocketSessionManagerModule } from '@core/socket/session-manager/socket-session.manager.module';
-import { SocketEventEmitterModule } from '@core/socket/socket-event-emitter.module';
-import {
-  ISocketEventEmitter,
-  SOCKET_EVENT_EMITTER,
-} from '@core/socket/socket-event.emitter.interface';
 
 describe(GameRoomMemberLeftHandler, () => {
   let handler: GameRoomMemberLeftHandler;
 
   let gameRoomRepository: GameRoomRepositoryPort;
-  let socketEmitter: ISocketEventEmitter;
+  let eventPublisher: IGameRoomSocketEventPublisher;
 
   let event: GameRoomMemberLeftEvent;
 
@@ -35,9 +31,7 @@ describe(GameRoomMemberLeftHandler, () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         GameRoomRepositoryModule,
-        SocketEventEmitterModule,
-        SocketSessionManagerModule,
-        CacheModule,
+        MockGameRoomSocketEventPublisherModule,
       ],
       providers: [GameRoomMemberLeftHandler],
     }).compile();
@@ -45,15 +39,17 @@ describe(GameRoomMemberLeftHandler, () => {
     handler = module.get<GameRoomMemberLeftHandler>(GameRoomMemberLeftHandler);
     gameRoomRepository =
       module.get<GameRoomRepositoryPort>(GAME_ROOM_REPOSITORY);
-    socketEmitter = module.get<ISocketEventEmitter>(SOCKET_EVENT_EMITTER);
+    eventPublisher = module.get<IGameRoomSocketEventPublisher>(
+      GAME_ROOM_SOCKET_EVENT_PUBLISHER,
+    );
   });
 
   beforeEach(() => {
     jest
-      .spyOn(socketEmitter, 'emitToRoom')
+      .spyOn(eventPublisher, 'publishToLobby')
       .mockResolvedValue(undefined as never);
     jest
-      .spyOn(socketEmitter, 'emitToNamespace')
+      .spyOn(eventPublisher, 'leaveAndPublishToGameRoom')
       .mockResolvedValue(undefined as never);
   });
 
@@ -83,8 +79,8 @@ describe(GameRoomMemberLeftHandler, () => {
     it('이벤트를 발생시켜야한다.', async () => {
       await expect(handler.handle(event)).resolves.toBeUndefined();
 
-      expect(socketEmitter.emitToRoom).toHaveBeenCalled();
-      expect(socketEmitter.emitToNamespace).toHaveBeenCalled();
+      expect(eventPublisher.publishToLobby).toHaveBeenCalled();
+      expect(eventPublisher.leaveAndPublishToGameRoom).toHaveBeenCalled();
     });
   });
 });

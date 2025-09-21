@@ -9,24 +9,26 @@ import {
   GAME_ROOM_REPOSITORY,
   GameRoomRepositoryPort,
 } from '@module/game-room/repositories/game-room/game-room.repository.port';
-
-import { SocketEventEmitterModule } from '@core/socket/socket-event-emitter.module';
+import { MockGameRoomSocketEventPublisherModule } from '@module/game-room/socket-events/publisher/__mock__/game-room-socket-event.publisher.mock';
 import {
-  ISocketEventEmitter,
-  SOCKET_EVENT_EMITTER,
-} from '@core/socket/socket-event.emitter.interface';
+  GAME_ROOM_SOCKET_EVENT_PUBLISHER,
+  IGameRoomSocketEventPublisher,
+} from '@module/game-room/socket-events/publisher/game-room-socket-event.publisher.interface';
 
 describe(GameRoomCreatedHandler, () => {
   let handler: GameRoomCreatedHandler;
 
   let gameRoomRepository: GameRoomRepositoryPort;
-  let socketEmitter: ISocketEventEmitter;
+  let eventPublisher: IGameRoomSocketEventPublisher;
 
   let event: GameRoomCreatedEvent;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [GameRoomRepositoryModule, SocketEventEmitterModule],
+      imports: [
+        GameRoomRepositoryModule,
+        MockGameRoomSocketEventPublisherModule,
+      ],
       providers: [GameRoomCreatedHandler],
     }).compile();
 
@@ -34,12 +36,14 @@ describe(GameRoomCreatedHandler, () => {
 
     gameRoomRepository =
       module.get<GameRoomRepositoryPort>(GAME_ROOM_REPOSITORY);
-    socketEmitter = module.get<ISocketEventEmitter>(SOCKET_EVENT_EMITTER);
+    eventPublisher = module.get<IGameRoomSocketEventPublisher>(
+      GAME_ROOM_SOCKET_EVENT_PUBLISHER,
+    );
   });
 
   beforeEach(() => {
     jest
-      .spyOn(socketEmitter, 'emitToNamespace')
+      .spyOn(eventPublisher, 'publishToLobby')
       .mockResolvedValue(undefined as never);
   });
 
@@ -64,7 +68,7 @@ describe(GameRoomCreatedHandler, () => {
     it('소켓 이벤트를 발생시켜야한다.', async () => {
       await expect(handler.handle(event)).resolves.toBeUndefined();
 
-      expect(socketEmitter.emitToNamespace).toHaveBeenCalled();
+      expect(eventPublisher.publishToLobby).toHaveBeenCalled();
     });
   });
 });

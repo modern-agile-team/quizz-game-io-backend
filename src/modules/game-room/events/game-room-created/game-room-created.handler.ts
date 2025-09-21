@@ -1,7 +1,5 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-
-import { AsyncApi, AsyncApiPub } from 'nestjs-asyncapi';
 
 import { GameRoomDtoAssembler } from '@module/game-room/assemblers/game-room-dto.assembler';
 import { GameRoom } from '@module/game-room/entities/game-room.entity';
@@ -14,20 +12,18 @@ import {
   GameRoomCreatedSocketEventAction,
   LobbyGameRoomCreatedSocketEvent,
 } from '@module/game-room/socket-events/game-room-created.socket-event';
-
 import {
-  ISocketEventEmitter,
-  SOCKET_EVENT_EMITTER,
-  WS_NAMESPACE,
-} from '@core/socket/socket-event.emitter.interface';
+  GAME_ROOM_SOCKET_EVENT_PUBLISHER,
+  IGameRoomSocketEventPublisher,
+} from '@module/game-room/socket-events/publisher/game-room-socket-event.publisher.interface';
 
-@AsyncApi()
+@Injectable()
 export class GameRoomCreatedHandler {
   constructor(
     @Inject(GAME_ROOM_REPOSITORY)
     private readonly gameRoomRepository: GameRoomRepositoryPort,
-    @Inject(SOCKET_EVENT_EMITTER)
-    private readonly socketEmitter: ISocketEventEmitter,
+    @Inject(GAME_ROOM_SOCKET_EVENT_PUBLISHER)
+    private readonly eventPublisher: IGameRoomSocketEventPublisher,
   ) {}
 
   @OnEvent(GameRoomCreatedEvent.name)
@@ -36,21 +32,11 @@ export class GameRoomCreatedHandler {
       event.aggregateId,
     );
 
-    this.publish(gameRoom as GameRoom);
-  }
-
-  @AsyncApiPub({
-    tags: [{ name: 'lobby' }],
-    description: '게임방이 생성됨',
-    channel: LobbyGameRoomCreatedSocketEvent.EVENT_NAME,
-    message: { payload: LobbyGameRoomCreatedSocketEvent },
-  })
-  private publish(gameRoom: GameRoom): void {
     const socketEvent = new LobbyGameRoomCreatedSocketEvent(
       GameRoomCreatedSocketEventAction.created,
-      GameRoomDtoAssembler.convertToSocketEventDto(gameRoom),
+      GameRoomDtoAssembler.convertToSocketEventDto(gameRoom as GameRoom),
     );
 
-    this.socketEmitter.emitToNamespace(WS_NAMESPACE.ROOT, socketEvent);
+    this.eventPublisher.publishToLobby(socketEvent);
   }
 }

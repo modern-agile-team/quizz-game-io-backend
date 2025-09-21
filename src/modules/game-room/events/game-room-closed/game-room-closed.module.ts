@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
 
 import { GameRoomClosedHandler } from '@module/game-room/events/game-room-closed/game-room-closed.handler';
-
-import { SocketEventEmitterModule } from '@core/socket/socket-event-emitter.module';
+import { GameRoomSocketEventPublisherModule } from '@module/game-room/socket-events/publisher/game-room-socket-event-publisher.module';
 
 @Module({
-  imports: [SocketEventEmitterModule],
+  imports: [GameRoomSocketEventPublisherModule],
   providers: [GameRoomClosedHandler],
 })
 export class GameRoomClosedModule {}

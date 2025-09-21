@@ -13,40 +13,44 @@ import {
   GAME_ROOM_REPOSITORY,
   GameRoomRepositoryPort,
 } from '@module/game-room/repositories/game-room/game-room.repository.port';
-
-import { SocketEventEmitterModule } from '@core/socket/socket-event-emitter.module';
+import { MockGameRoomSocketEventPublisherModule } from '@module/game-room/socket-events/publisher/__mock__/game-room-socket-event.publisher.mock';
 import {
-  ISocketEventEmitter,
-  SOCKET_EVENT_EMITTER,
-} from '@core/socket/socket-event.emitter.interface';
+  GAME_ROOM_SOCKET_EVENT_PUBLISHER,
+  IGameRoomSocketEventPublisher,
+} from '@module/game-room/socket-events/publisher/game-room-socket-event.publisher.interface';
 
 describe(GameRoomStartingHandler, () => {
   let handler: GameRoomStartingHandler;
 
   let gameRoomRepository: GameRoomRepositoryPort;
 
-  let socketEmitter: ISocketEventEmitter;
+  let eventPublisher: IGameRoomSocketEventPublisher;
 
   let event: GameRoomStartingEvent;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [GameRoomRepositoryModule, SocketEventEmitterModule],
+      imports: [
+        GameRoomRepositoryModule,
+        MockGameRoomSocketEventPublisherModule,
+      ],
       providers: [GameRoomStartingHandler],
     }).compile();
 
     handler = module.get<GameRoomStartingHandler>(GameRoomStartingHandler);
     gameRoomRepository =
       module.get<GameRoomRepositoryPort>(GAME_ROOM_REPOSITORY);
-    socketEmitter = module.get<ISocketEventEmitter>(SOCKET_EVENT_EMITTER);
+    eventPublisher = module.get<IGameRoomSocketEventPublisher>(
+      GAME_ROOM_SOCKET_EVENT_PUBLISHER,
+    );
   });
 
   beforeEach(() => {
     jest
-      .spyOn(socketEmitter, 'emitToRoom')
+      .spyOn(eventPublisher, 'publishToLobby')
       .mockResolvedValue(undefined as never);
     jest
-      .spyOn(socketEmitter, 'emitToNamespace')
+      .spyOn(eventPublisher, 'publishToGameRoom')
       .mockResolvedValue(undefined as never);
   });
 
@@ -71,8 +75,8 @@ describe(GameRoomStartingHandler, () => {
     it('소켓 이벤트를 발생시켜야한다.', async () => {
       await expect(handler.handle(event)).resolves.toBeUndefined();
 
-      expect(socketEmitter.emitToRoom).toHaveBeenCalled();
-      expect(socketEmitter.emitToNamespace).toHaveBeenCalled();
+      expect(eventPublisher.publishToLobby).toHaveBeenCalled();
+      expect(eventPublisher.publishToGameRoom).toHaveBeenCalled();
     });
   });
 });
