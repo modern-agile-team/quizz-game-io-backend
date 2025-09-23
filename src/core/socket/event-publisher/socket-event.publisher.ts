@@ -104,16 +104,15 @@ export class SocketEventPublisher implements ISocketEventPublisher {
     channel: LobbyGameRoomCreatedSocketEvent.EVENT_NAME,
     message: { payload: LobbyGameRoomCreatedSocketEvent },
   })
-  private _createdToDoc() {}
+  private _lobbyGameRoomCreatedSocketEvent() {}
 
   @AsyncApiPub({
-    operationId: LobbyGameRoomChangedSocketEvent.name,
     tags: [{ name: 'lobby' }],
     description: '게임방의 상태 변경',
     channel: LobbyGameRoomChangedSocketEvent.EVENT_NAME,
     message: { payload: LobbyGameRoomChangedSocketEvent },
   })
-  private _changedToLobbyDoc() {}
+  private _lobbyGameRoomChangedSocketEvent() {}
 
   @AsyncApiPub({
     tags: [{ name: 'lobby' }],
@@ -121,7 +120,7 @@ export class SocketEventPublisher implements ISocketEventPublisher {
     channel: LobbyGameRoomDeletedSocketEvent.EVENT_NAME,
     message: { payload: LobbyGameRoomDeletedSocketEvent },
   })
-  private _deletedToLobbyDoc() {}
+  private _lobbyGameRoomDeletedSocketEvent() {}
 
   @AsyncApiPub({
     tags: [{ name: 'game_room' }],
@@ -129,5 +128,5 @@ export class SocketEventPublisher implements ISocketEventPublisher {
     channel: GameRoomChangedSocketEvent.EVENT_NAME,
     message: { payload: GameRoomChangedSocketEvent },
   })
-  private _changedToRoomDoc() {}
+  private _gameRoomChangedSocketEvent() {}
 }
