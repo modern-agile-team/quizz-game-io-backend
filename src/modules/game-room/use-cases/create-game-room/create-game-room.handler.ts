@@ -50,6 +50,7 @@ export class CreateGameRoomHandler
       maxMembersCount: command.maxPlayersCount,
       hostAccountId: command.currentAccountId,
       hostNickname: existingAccount.nickname,
+      quizTimeLimitInSeconds: GameRoom.DEFAULT_QUIZ_TIME_LIMIT_IN_SECONDS,
     });
 
     await this.gameRoomRepository.insert(gameRoom);

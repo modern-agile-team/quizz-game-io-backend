@@ -19,4 +19,7 @@ export class GameRoomDto extends BaseResponseDto {
 
   @ApiProperty()
   currentMembersCount: number;
+
+  @ApiProperty()
+  quizTimeLimitInSeconds: number;
 }
