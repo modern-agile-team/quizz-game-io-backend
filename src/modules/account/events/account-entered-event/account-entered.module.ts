@@ -4,12 +4,12 @@ import { AccountEnteredHandler } from '@module/account/events/account-entered-ev
 import { AccountRepositoryModule } from '@module/account/repositories/account/account.repository.module';
 import { ActiveAccountStoreModule } from '@module/account/stores/active-account/active-account.store.module';
 
-import { SocketEventEmitterModule } from '@core/socket/socket-event-emitter.module';
+import { SocketEventPublisherModule } from '@core/socket/event-publisher/socket-event-publisher.module';
 
 @Module({
   imports: [
     AccountRepositoryModule,
-    SocketEventEmitterModule,
+    SocketEventPublisherModule,
     ActiveAccountStoreModule,
   ],
   providers: [AccountEnteredHandler],

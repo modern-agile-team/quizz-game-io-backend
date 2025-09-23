@@ -2,6 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { AsyncApi, AsyncApiPub } from 'nestjs-asyncapi';
 
+import { LobbyAccountChangedSocketEvent } from '@module/account/socket-events/account-changed.socket-event';
+import { LobbyActiveAccountChangedSocketEvent } from '@module/account/socket-events/active-account-changed.socket-event';
 import {
   GameRoomChangedSocketEvent,
   LobbyGameRoomChangedSocketEvent,
@@ -129,4 +131,20 @@ export class SocketEventPublisher implements ISocketEventPublisher {
     message: { payload: GameRoomChangedSocketEvent },
   })
   private _gameRoomChangedSocketEvent() {}
+
+  @AsyncApiPub({
+    tags: [{ name: 'lobby' }],
+    description: '유저가 서비스에 접속',
+    channel: LobbyAccountChangedSocketEvent.EVENT_NAME,
+    message: { payload: LobbyAccountChangedSocketEvent },
+  })
+  private _lobbyAccountChangedSocketEvent() {}
+
+  @AsyncApiPub({
+    tags: [{ name: 'lobby' }],
+    description: '유저가 서비스에 접속',
+    channel: LobbyActiveAccountChangedSocketEvent.EVENT_NAME,
+    message: { payload: LobbyActiveAccountChangedSocketEvent },
+  })
+  private _lobbyActiveAccountChangedSocketEvent() {}
 }
