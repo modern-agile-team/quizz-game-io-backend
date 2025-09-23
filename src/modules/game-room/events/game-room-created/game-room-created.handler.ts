@@ -1,10 +1,9 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-
-import { AsyncApi, AsyncApiPub } from 'nestjs-asyncapi';
 
 import { GameRoomDtoAssembler } from '@module/game-room/assemblers/game-room-dto.assembler';
 import { GameRoom } from '@module/game-room/entities/game-room.entity';
+import { GameRoomNotFoundError } from '@module/game-room/errors/game-room-not-found.error';
 import { GameRoomCreatedEvent } from '@module/game-room/events/game-room-created/game-room-created.event';
 import {
   GAME_ROOM_REPOSITORY,
@@ -16,18 +15,17 @@ import {
 } from '@module/game-room/socket-events/game-room-created.socket-event';
 
 import {
-  ISocketEventEmitter,
-  SOCKET_EVENT_EMITTER,
-  WS_NAMESPACE,
-} from '@core/socket/socket-event.emitter.interface';
+  ISocketEventPublisher,
+  SOCKET_EVENT_PUBLISHER,
+} from '@core/socket/event-publisher/socket-event.publisher.interface';
 
-@AsyncApi()
+@Injectable()
 export class GameRoomCreatedHandler {
   constructor(
     @Inject(GAME_ROOM_REPOSITORY)
     private readonly gameRoomRepository: GameRoomRepositoryPort,
-    @Inject(SOCKET_EVENT_EMITTER)
-    private readonly socketEmitter: ISocketEventEmitter,
+    @Inject(SOCKET_EVENT_PUBLISHER)
+    private readonly eventPublisher: ISocketEventPublisher,
   ) {}
 
   @OnEvent(GameRoomCreatedEvent.name)
@@ -36,21 +34,17 @@ export class GameRoomCreatedHandler {
       event.aggregateId,
     );
 
-    this.publish(gameRoom as GameRoom);
-  }
+    if (gameRoom === undefined) {
+      throw new GameRoomNotFoundError(
+        `GameRoomCreatedHandler expected game room, received undefined.`,
+      );
+    }
 
-  @AsyncApiPub({
-    tags: [{ name: 'lobby' }],
-    description: '게임방이 생성됨',
-    channel: LobbyGameRoomCreatedSocketEvent.EVENT_NAME,
-    message: { payload: LobbyGameRoomCreatedSocketEvent },
-  })
-  private publish(gameRoom: GameRoom): void {
     const socketEvent = new LobbyGameRoomCreatedSocketEvent(
       GameRoomCreatedSocketEventAction.created,
-      GameRoomDtoAssembler.convertToSocketEventDto(gameRoom),
+      GameRoomDtoAssembler.convertToSocketEventDto(gameRoom as GameRoom),
     );
 
-    this.socketEmitter.emitToNamespace(WS_NAMESPACE.ROOT, socketEvent);
+    this.eventPublisher.publishToLobby(socketEvent);
   }
 }

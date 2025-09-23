@@ -6,32 +6,32 @@ import { GameRoomClosedHandler } from '@module/game-room/events/game-room-closed
 
 import { generateEntityId } from '@common/base/base.entity';
 
-import { SocketEventEmitterModule } from '@core/socket/socket-event-emitter.module';
+import { MockSocketEventPublisherModule } from '@core/socket/event-publisher/__mock__/socket-event.publisher.mock';
 import {
-  ISocketEventEmitter,
-  SOCKET_EVENT_EMITTER,
-} from '@core/socket/socket-event.emitter.interface';
+  ISocketEventPublisher,
+  SOCKET_EVENT_PUBLISHER,
+} from '@core/socket/event-publisher/socket-event.publisher.interface';
 
 describe(GameRoomClosedHandler, () => {
   let handler: GameRoomClosedHandler;
 
-  let socketEmitter: ISocketEventEmitter;
+  let eventPublisher: ISocketEventPublisher;
 
   let event: GameRoomClosedEvent;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [SocketEventEmitterModule],
+      imports: [MockSocketEventPublisherModule],
       providers: [GameRoomClosedHandler],
     }).compile();
 
     handler = module.get<GameRoomClosedHandler>(GameRoomClosedHandler);
-    socketEmitter = module.get<ISocketEventEmitter>(SOCKET_EVENT_EMITTER);
+    eventPublisher = module.get<ISocketEventPublisher>(SOCKET_EVENT_PUBLISHER);
   });
 
   beforeEach(() => {
     jest
-      .spyOn(socketEmitter, 'emitToNamespace')
+      .spyOn(eventPublisher, 'publishToLobby')
       .mockResolvedValue(undefined as never);
   });
 
@@ -50,7 +50,7 @@ describe(GameRoomClosedHandler, () => {
     it('소켓 이벤트를 발생시켜야한다.', async () => {
       await expect(handler.handle(event)).resolves.toBeUndefined();
 
-      expect(socketEmitter.emitToNamespace).toHaveBeenCalled();
+      expect(eventPublisher.publishToLobby).toHaveBeenCalled();
     });
   });
 });

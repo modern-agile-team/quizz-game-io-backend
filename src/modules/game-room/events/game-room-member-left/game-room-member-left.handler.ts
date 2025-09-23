@@ -1,10 +1,9 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-
-import { AsyncApi, AsyncApiPub } from 'nestjs-asyncapi';
 
 import { GameRoomDtoAssembler } from '@module/game-room/assemblers/game-room-dto.assembler';
 import { GameRoom } from '@module/game-room/entities/game-room.entity';
+import { GameRoomNotFoundError } from '@module/game-room/errors/game-room-not-found.error';
 import { GameRoomMemberLeftEvent } from '@module/game-room/events/game-room-member-left/game-room-member-left.event';
 import {
   GAME_ROOM_REPOSITORY,
@@ -17,73 +16,49 @@ import {
 } from '@module/game-room/socket-events/game-room-changed.socket-event';
 
 import {
-  ISocketSessionManager,
-  SOCKET_SESSION_MANAGER,
-} from '@core/socket/session-manager/socket-session.manager.interface';
-import {
-  ISocketEventEmitter,
-  SOCKET_EVENT_EMITTER,
-  WS_NAMESPACE,
-} from '@core/socket/socket-event.emitter.interface';
-import { gameRoomKeyOf } from '@core/socket/socket-room.util';
+  ISocketEventPublisher,
+  SOCKET_EVENT_PUBLISHER,
+} from '@core/socket/event-publisher/socket-event.publisher.interface';
 
-@AsyncApi()
+@Injectable()
 export class GameRoomMemberLeftHandler {
   constructor(
     @Inject(GAME_ROOM_REPOSITORY)
     private readonly gameRoomRepository: GameRoomRepositoryPort,
-    @Inject(SOCKET_EVENT_EMITTER)
-    private readonly socketEmitter: ISocketEventEmitter,
-    @Inject(SOCKET_SESSION_MANAGER)
-    private readonly socketSessionManager: ISocketSessionManager,
+    @Inject(SOCKET_EVENT_PUBLISHER)
+    private readonly eventPublisher: ISocketEventPublisher,
   ) {}
 
   @OnEvent(GameRoomMemberLeftEvent.name)
   async handle(event: GameRoomMemberLeftEvent): Promise<void> {
-    await this.socketSessionManager.remoteLeaveByAccount(
-      event.eventPayload.accountId,
-      gameRoomKeyOf(event.eventPayload.gameRoomId),
-    );
-
     const gameRoom = await this.gameRoomRepository.findOneById(
       event.aggregateId,
     );
 
-    this.publishGameRoomEvent(gameRoom as GameRoom);
-    this.publishLobby(gameRoom as GameRoom);
-  }
+    if (gameRoom === undefined) {
+      throw new GameRoomNotFoundError(
+        `GameRoomMemberLeftHandler expected game room, received undefined.`,
+      );
+    }
 
-  @AsyncApiPub({
-    tags: [{ name: 'game_room' }],
-    description: '유저가 게임방에 퇴장',
-    channel: GameRoomChangedSocketEvent.EVENT_NAME,
-    message: { payload: GameRoomChangedSocketEvent },
-  })
-  private publishGameRoomEvent(gameRoom: GameRoom): void {
-    const socketEvent = new GameRoomChangedSocketEvent(
-      GameRoomChangedSocketEventAction.member_left,
-      GameRoomDtoAssembler.convertToSocketEventDto(gameRoom),
+    const socketDto = GameRoomDtoAssembler.convertToSocketEventDto(
+      gameRoom as GameRoom,
     );
 
-    this.socketEmitter.emitToRoom(
-      WS_NAMESPACE.ROOT,
-      gameRoomKeyOf(gameRoom.id),
-      socketEvent,
-    );
-  }
-
-  @AsyncApiPub({
-    tags: [{ name: 'lobby' }],
-    description: '유저가 게임방에 퇴장',
-    channel: LobbyGameRoomChangedSocketEvent.EVENT_NAME,
-    message: { payload: LobbyGameRoomChangedSocketEvent },
-  })
-  private publishLobby(gameRoom: GameRoom): void {
-    const socketEvent = new LobbyGameRoomChangedSocketEvent(
-      GameRoomChangedSocketEventAction.member_left,
-      GameRoomDtoAssembler.convertToSocketEventDto(gameRoom),
+    this.eventPublisher.publishToLobby(
+      new LobbyGameRoomChangedSocketEvent(
+        GameRoomChangedSocketEventAction.member_left,
+        socketDto,
+      ),
     );
 
-    this.socketEmitter.emitToNamespace(WS_NAMESPACE.ROOT, socketEvent);
+    this.eventPublisher.leaveAndPublishToGameRoom(
+      event.eventPayload.accountId,
+      gameRoom.id,
+      new GameRoomChangedSocketEvent(
+        GameRoomChangedSocketEventAction.member_left,
+        socketDto,
+      ),
+    );
   }
 }

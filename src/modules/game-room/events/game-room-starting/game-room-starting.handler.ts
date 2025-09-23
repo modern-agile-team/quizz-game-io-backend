@@ -1,10 +1,9 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-
-import { AsyncApi, AsyncApiPub } from 'nestjs-asyncapi';
 
 import { GameRoomDtoAssembler } from '@module/game-room/assemblers/game-room-dto.assembler';
 import { GameRoom } from '@module/game-room/entities/game-room.entity';
+import { GameRoomNotFoundError } from '@module/game-room/errors/game-room-not-found.error';
 import { GameRoomStartingEvent } from '@module/game-room/events/game-room-starting/game-room-starting.event';
 import {
   GAME_ROOM_REPOSITORY,
@@ -17,19 +16,17 @@ import {
 } from '@module/game-room/socket-events/game-room-changed.socket-event';
 
 import {
-  ISocketEventEmitter,
-  SOCKET_EVENT_EMITTER,
-  WS_NAMESPACE,
-} from '@core/socket/socket-event.emitter.interface';
-import { gameRoomKeyOf } from '@core/socket/socket-room.util';
+  ISocketEventPublisher,
+  SOCKET_EVENT_PUBLISHER,
+} from '@core/socket/event-publisher/socket-event.publisher.interface';
 
-@AsyncApi()
+@Injectable()
 export class GameRoomStartingHandler {
   constructor(
     @Inject(GAME_ROOM_REPOSITORY)
     private readonly gameRoomRepository: GameRoomRepositoryPort,
-    @Inject(SOCKET_EVENT_EMITTER)
-    private readonly socketEmitter: ISocketEventEmitter,
+    @Inject(SOCKET_EVENT_PUBLISHER)
+    private readonly eventPublisher: ISocketEventPublisher,
   ) {}
 
   @OnEvent(GameRoomStartingEvent.name)
@@ -38,41 +35,28 @@ export class GameRoomStartingHandler {
       event.aggregateId,
     );
 
-    this.publishGameRoomEvent(gameRoom as GameRoom);
-    this.publishLobbyEvent(gameRoom as GameRoom);
-  }
+    if (gameRoom === undefined) {
+      throw new GameRoomNotFoundError(
+        `GameRoomStartingHandler expected game room, received undefined.`,
+      );
+    }
 
-  @AsyncApiPub({
-    tags: [{ name: 'game_room' }],
-    description: '게임 시작 처리',
-    channel: GameRoomChangedSocketEvent.EVENT_NAME,
-    message: { payload: GameRoomChangedSocketEvent },
-  })
-  private publishGameRoomEvent(gameRoom: GameRoom): void {
-    const socketEvent = new GameRoomChangedSocketEvent(
-      GameRoomChangedSocketEventAction.game_starting,
-      GameRoomDtoAssembler.convertToSocketEventDto(gameRoom),
+    const eventDto = GameRoomDtoAssembler.convertToSocketEventDto(
+      gameRoom as GameRoom,
     );
 
-    this.socketEmitter.emitToRoom(
-      WS_NAMESPACE.ROOT,
-      gameRoomKeyOf(gameRoom.id),
-      socketEvent,
+    this.eventPublisher.publishToGameRoom(
+      gameRoom.id,
+      new GameRoomChangedSocketEvent(
+        GameRoomChangedSocketEventAction.game_starting,
+        eventDto,
+      ),
     );
-  }
-
-  @AsyncApiPub({
-    tags: [{ name: 'lobby' }],
-    description: '게임 시작 처리',
-    channel: LobbyGameRoomChangedSocketEvent.EVENT_NAME,
-    message: { payload: LobbyGameRoomChangedSocketEvent },
-  })
-  private publishLobbyEvent(gameRoom: GameRoom): void {
-    const socketEvent = new LobbyGameRoomChangedSocketEvent(
-      GameRoomChangedSocketEventAction.game_starting,
-      GameRoomDtoAssembler.convertToSocketEventDto(gameRoom),
+    this.eventPublisher.publishToLobby(
+      new LobbyGameRoomChangedSocketEvent(
+        GameRoomChangedSocketEventAction.game_starting,
+        eventDto,
+      ),
     );
-
-    this.socketEmitter.emitToNamespace(WS_NAMESPACE.ROOT, socketEvent);
   }
 }
