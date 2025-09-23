@@ -45,4 +45,7 @@ export class GameRoomSocketEventDto {
     type: [GameRoomMemberSocketEventDto],
   })
   members: GameRoomMemberSocketEventDto[];
+
+  @ApiProperty()
+  quizzesCount: number;
 }

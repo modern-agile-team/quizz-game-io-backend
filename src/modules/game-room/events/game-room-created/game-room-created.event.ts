@@ -13,6 +13,7 @@ interface GameRoomCreatedEventPayload {
   maxPlayers: number;
   currentMembersCount: number;
   quizTimeLimitInSeconds: number;
+  quizzesCount: number;
 }
 
 export class GameRoomCreatedEvent extends DomainEvent<GameRoomCreatedEventPayload> {

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsInt, IsNotEmpty, IsString, Length, Max, Min } from 'class-validator';
 
 export class CreateGameRoomDto {
   @ApiProperty({
@@ -13,4 +13,13 @@ export class CreateGameRoomDto {
   @IsNotEmpty()
   @IsString()
   title: string;
+
+  @ApiProperty({
+    minimum: 10,
+    maximum: 100,
+  })
+  @Max(100)
+  @Min(10)
+  @IsInt()
+  quizzesCount: number;
 }

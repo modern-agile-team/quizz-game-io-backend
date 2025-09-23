@@ -47,6 +47,7 @@ export class CreateGameRoomHandler
       status: command.status,
       visibility: command.visibility,
       title: command.title,
+      quizzesCount: command.quizzesCount,
       maxMembersCount: command.maxPlayersCount,
       hostAccountId: command.currentAccountId,
       hostNickname: existingAccount.nickname,

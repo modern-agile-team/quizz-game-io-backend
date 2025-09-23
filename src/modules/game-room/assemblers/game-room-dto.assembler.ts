@@ -17,6 +17,7 @@ export class GameRoomDtoAssembler {
     dto.maxMembersCount = gameRoom.props.maxMembersCount;
     dto.currentMembersCount = gameRoom.currentMembersCount;
     dto.quizTimeLimitInSeconds = gameRoom.props.quizTimeLimitInSeconds;
+    dto.quizzesCount = gameRoom.quizzesCount;
 
     return dto;
   }
@@ -31,6 +32,7 @@ export class GameRoomDtoAssembler {
     dto.maxPlayers = gameRoom.maxMembersCount;
     dto.currentMembersCount = gameRoom.currentMembersCount;
     dto.quizTimeLimitInSeconds = gameRoom.props.quizTimeLimitInSeconds;
+    dto.quizzesCount = gameRoom.quizzesCount;
     dto.members = gameRoom.members.map((member) =>
       GameRoomMemberDtoAssembler.convertToSocketEventDto(member),
     );

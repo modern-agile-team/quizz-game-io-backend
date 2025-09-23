@@ -48,6 +48,7 @@ export class CreateGameRoomController {
     const command = new CreateGameRoomCommand({
       currentAccountId: currentUser.id,
       title: body.title,
+      quizzesCount: body.quizzesCount,
     });
 
     try {

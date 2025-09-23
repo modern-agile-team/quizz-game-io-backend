@@ -31,6 +31,7 @@ describe(GameRoom, () => {
         visibility: GameRoomVisibility.public,
         title: 'title',
         maxMembersCount: 8,
+        quizzesCount: 5,
         hostAccountId: generateEntityId(),
         hostNickname: 'nickname',
       };
