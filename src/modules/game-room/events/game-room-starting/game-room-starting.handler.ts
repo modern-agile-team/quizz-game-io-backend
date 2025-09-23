@@ -3,6 +3,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 
 import { GameRoomDtoAssembler } from '@module/game-room/assemblers/game-room-dto.assembler';
 import { GameRoom } from '@module/game-room/entities/game-room.entity';
+import { GameRoomNotFoundError } from '@module/game-room/errors/game-room-not-found.error';
 import { GameRoomStartingEvent } from '@module/game-room/events/game-room-starting/game-room-starting.event';
 import {
   GAME_ROOM_REPOSITORY,
@@ -13,18 +14,19 @@ import {
   GameRoomChangedSocketEventAction,
   LobbyGameRoomChangedSocketEvent,
 } from '@module/game-room/socket-events/game-room-changed.socket-event';
+
 import {
-  GAME_ROOM_SOCKET_EVENT_PUBLISHER,
-  IGameRoomSocketEventPublisher,
-} from '@module/game-room/socket-events/publisher/game-room-socket-event.publisher.interface';
+  ISocketEventPublisher,
+  SOCKET_EVENT_PUBLISHER,
+} from '@core/socket/event-publisher/socket-event.publisher.interface';
 
 @Injectable()
 export class GameRoomStartingHandler {
   constructor(
     @Inject(GAME_ROOM_REPOSITORY)
     private readonly gameRoomRepository: GameRoomRepositoryPort,
-    @Inject(GAME_ROOM_SOCKET_EVENT_PUBLISHER)
-    private readonly eventPublisher: IGameRoomSocketEventPublisher,
+    @Inject(SOCKET_EVENT_PUBLISHER)
+    private readonly eventPublisher: ISocketEventPublisher,
   ) {}
 
   @OnEvent(GameRoomStartingEvent.name)
@@ -33,11 +35,18 @@ export class GameRoomStartingHandler {
       event.aggregateId,
     );
 
+    if (gameRoom === undefined) {
+      throw new GameRoomNotFoundError(
+        `GameRoomStartingHandler expected game room, received undefined.`,
+      );
+    }
+
     const eventDto = GameRoomDtoAssembler.convertToSocketEventDto(
       gameRoom as GameRoom,
     );
 
     this.eventPublisher.publishToGameRoom(
+      gameRoom.id,
       new GameRoomChangedSocketEvent(
         GameRoomChangedSocketEventAction.game_starting,
         eventDto,

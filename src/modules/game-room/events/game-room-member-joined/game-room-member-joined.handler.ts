@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 
 import { GameRoomDtoAssembler } from '@module/game-room/assemblers/game-room-dto.assembler';
-import { GameRoom } from '@module/game-room/entities/game-room.entity';
+import { GameRoomNotFoundError } from '@module/game-room/errors/game-room-not-found.error';
 import { GameRoomMemberJoinedEvent } from '@module/game-room/events/game-room-member-joined/game-room-member-joined.event';
 import {
   GAME_ROOM_REPOSITORY,
@@ -13,18 +13,19 @@ import {
   GameRoomChangedSocketEventAction,
   LobbyGameRoomChangedSocketEvent,
 } from '@module/game-room/socket-events/game-room-changed.socket-event';
+
 import {
-  GAME_ROOM_SOCKET_EVENT_PUBLISHER,
-  IGameRoomSocketEventPublisher,
-} from '@module/game-room/socket-events/publisher/game-room-socket-event.publisher.interface';
+  ISocketEventPublisher,
+  SOCKET_EVENT_PUBLISHER,
+} from '@core/socket/event-publisher/socket-event.publisher.interface';
 
 @Injectable()
 export class GameRoomMemberJoinedHandler {
   constructor(
     @Inject(GAME_ROOM_REPOSITORY)
     private readonly gameRoomRepository: GameRoomRepositoryPort,
-    @Inject(GAME_ROOM_SOCKET_EVENT_PUBLISHER)
-    private readonly eventPublisher: IGameRoomSocketEventPublisher,
+    @Inject(SOCKET_EVENT_PUBLISHER)
+    private readonly eventPublisher: ISocketEventPublisher,
   ) {}
 
   @OnEvent(GameRoomMemberJoinedEvent.name)
@@ -33,9 +34,13 @@ export class GameRoomMemberJoinedHandler {
       event.aggregateId,
     );
 
-    const socketDto = GameRoomDtoAssembler.convertToSocketEventDto(
-      gameRoom as GameRoom,
-    );
+    if (gameRoom === undefined) {
+      throw new GameRoomNotFoundError(
+        `GameRoomMemberJoinedHandler expected game room, received undefined.`,
+      );
+    }
+
+    const socketDto = GameRoomDtoAssembler.convertToSocketEventDto(gameRoom);
 
     this.eventPublisher.publishToLobby(
       new LobbyGameRoomChangedSocketEvent(
@@ -45,6 +50,7 @@ export class GameRoomMemberJoinedHandler {
     );
     await this.eventPublisher.joinAndPublishToGameRoom(
       event.eventPayload.accountId,
+      gameRoom.id,
       new GameRoomChangedSocketEvent(
         GameRoomChangedSocketEventAction.member_joined,
         socketDto,

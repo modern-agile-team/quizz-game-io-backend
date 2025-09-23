@@ -6,16 +6,17 @@ import {
   GameRoomDeletedSocketEventAction,
   LobbyGameRoomDeletedSocketEvent,
 } from '@module/game-room/socket-events/game-room-deleted.socket-event';
+
 import {
-  GAME_ROOM_SOCKET_EVENT_PUBLISHER,
-  IGameRoomSocketEventPublisher,
-} from '@module/game-room/socket-events/publisher/game-room-socket-event.publisher.interface';
+  ISocketEventPublisher,
+  SOCKET_EVENT_PUBLISHER,
+} from '@core/socket/event-publisher/socket-event.publisher.interface';
 
 @Injectable()
 export class GameRoomClosedHandler {
   constructor(
-    @Inject(GAME_ROOM_SOCKET_EVENT_PUBLISHER)
-    private readonly eventPublisher: IGameRoomSocketEventPublisher,
+    @Inject(SOCKET_EVENT_PUBLISHER)
+    private readonly eventPublisher: ISocketEventPublisher,
   ) {}
 
   @OnEvent(GameRoomClosedEvent.name)

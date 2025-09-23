@@ -3,31 +3,30 @@ import { TestingModule } from '@nestjs/testing/testing-module';
 
 import { GameRoomClosedEvent } from '@module/game-room/events/game-room-closed/game-room-closed.event';
 import { GameRoomClosedHandler } from '@module/game-room/events/game-room-closed/game-room-closed.handler';
-import { MockGameRoomSocketEventPublisherModule } from '@module/game-room/socket-events/publisher/__mock__/game-room-socket-event.publisher.mock';
-import {
-  GAME_ROOM_SOCKET_EVENT_PUBLISHER,
-  IGameRoomSocketEventPublisher,
-} from '@module/game-room/socket-events/publisher/game-room-socket-event.publisher.interface';
 
 import { generateEntityId } from '@common/base/base.entity';
+
+import { MockSocketEventPublisherModule } from '@core/socket/event-publisher/__mock__/socket-event.publisher.mock';
+import {
+  ISocketEventPublisher,
+  SOCKET_EVENT_PUBLISHER,
+} from '@core/socket/event-publisher/socket-event.publisher.interface';
 
 describe(GameRoomClosedHandler, () => {
   let handler: GameRoomClosedHandler;
 
-  let eventPublisher: IGameRoomSocketEventPublisher;
+  let eventPublisher: ISocketEventPublisher;
 
   let event: GameRoomClosedEvent;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [MockGameRoomSocketEventPublisherModule],
+      imports: [MockSocketEventPublisherModule],
       providers: [GameRoomClosedHandler],
     }).compile();
 
     handler = module.get<GameRoomClosedHandler>(GameRoomClosedHandler);
-    eventPublisher = module.get<IGameRoomSocketEventPublisher>(
-      GAME_ROOM_SOCKET_EVENT_PUBLISHER,
-    );
+    eventPublisher = module.get<ISocketEventPublisher>(SOCKET_EVENT_PUBLISHER);
   });
 
   beforeEach(() => {

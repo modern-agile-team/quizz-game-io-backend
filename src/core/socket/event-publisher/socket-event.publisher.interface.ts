@@ -5,28 +5,28 @@ import {
 import { LobbyGameRoomCreatedSocketEvent } from '@module/game-room/socket-events/game-room-created.socket-event';
 import { LobbyGameRoomDeletedSocketEvent } from '@module/game-room/socket-events/game-room-deleted.socket-event';
 
-export const GAME_ROOM_SOCKET_EVENT_PUBLISHER = Symbol(
-  'GAME_ROOM_SOCKET_EVENT_PUBLISHER',
-);
+export const SOCKET_EVENT_PUBLISHER = Symbol('SOCKET_EVENT_PUBLISHER');
 
-export type PublishableGameRoomSocketEvent =
+export type PublishableSocketEvent =
   | GameRoomChangedSocketEvent
   | LobbyGameRoomChangedSocketEvent
   | LobbyGameRoomCreatedSocketEvent
   | LobbyGameRoomDeletedSocketEvent;
 
-export interface IGameRoomSocketEventPublisher {
-  publishToLobby(event: PublishableGameRoomSocketEvent): void;
+export interface ISocketEventPublisher {
+  publishToLobby(event: PublishableSocketEvent): void;
 
-  publishToGameRoom(event: PublishableGameRoomSocketEvent): void;
+  publishToGameRoom(gameRoomId: string, event: PublishableSocketEvent): void;
 
   joinAndPublishToGameRoom(
     accountId: string,
-    event: PublishableGameRoomSocketEvent,
+    gameRoomId: string,
+    event: PublishableSocketEvent,
   ): Promise<void>;
 
   leaveAndPublishToGameRoom(
     accountId: string,
-    event: PublishableGameRoomSocketEvent,
+    gameRoomId: string,
+    event: PublishableSocketEvent,
   ): Promise<void>;
 }

@@ -8,13 +8,13 @@ import {
 } from '@module/game-room/socket-events/game-room-changed.socket-event';
 import { LobbyGameRoomCreatedSocketEvent } from '@module/game-room/socket-events/game-room-created.socket-event';
 import { LobbyGameRoomDeletedSocketEvent } from '@module/game-room/socket-events/game-room-deleted.socket-event';
-import {
-  IGameRoomSocketEventPublisher,
-  PublishableGameRoomSocketEvent,
-} from '@module/game-room/socket-events/publisher/game-room-socket-event.publisher.interface';
 
 import { InternalServerError } from '@common/base/base.error';
 
+import {
+  ISocketEventPublisher,
+  PublishableSocketEvent,
+} from '@core/socket/event-publisher/socket-event.publisher.interface';
 import {
   ISocketSessionManager,
   SOCKET_SESSION_MANAGER,
@@ -28,9 +28,7 @@ import { gameRoomKeyOf } from '@core/socket/socket-room.util';
 
 @AsyncApi()
 @Injectable()
-export class GameRoomSocketEventPublisher
-  implements IGameRoomSocketEventPublisher
-{
+export class SocketEventPublisher implements ISocketEventPublisher {
   constructor(
     @Inject(SOCKET_EVENT_EMITTER)
     private readonly socketEmitter: ISocketEventEmitter,
@@ -38,59 +36,53 @@ export class GameRoomSocketEventPublisher
     private readonly socketSessionManager: ISocketSessionManager,
   ) {}
 
-  publishToLobby(event: PublishableGameRoomSocketEvent): void {
+  publishToLobby(event: PublishableSocketEvent): void {
     this.assertLobbyEvent(event);
 
     this.socketEmitter.emitToNamespace(WS_NAMESPACE.ROOT, event);
   }
 
-  publishToGameRoom(event: PublishableGameRoomSocketEvent): void {
+  publishToGameRoom(gameRoomId: string, event: PublishableSocketEvent): void {
     this.assertGameRoomEvent(event);
 
-    const roomKey = this.getRoomKey(event);
-
-    this.socketEmitter.emitToRoom(WS_NAMESPACE.ROOT, roomKey, event);
+    this.socketEmitter.emitToRoom(
+      WS_NAMESPACE.ROOT,
+      gameRoomKeyOf(gameRoomId),
+      event,
+    );
   }
 
   async joinAndPublishToGameRoom(
     accountId: string,
-    event: PublishableGameRoomSocketEvent,
+    gameRoomId: string,
+    event: PublishableSocketEvent,
   ): Promise<void> {
     this.assertGameRoomEvent(event);
 
-    const roomKey = this.getRoomKey(event);
+    await this.socketSessionManager.remoteJoinByAccount(
+      accountId,
+      gameRoomKeyOf(gameRoomId),
+    );
 
-    await this.socketSessionManager.remoteJoinByAccount(accountId, roomKey);
-
-    this.publishToGameRoom(event);
+    this.publishToGameRoom(gameRoomId, event);
   }
 
   async leaveAndPublishToGameRoom(
     accountId: string,
-    event: PublishableGameRoomSocketEvent,
+    gameRoomId: string,
+    event: PublishableSocketEvent,
   ): Promise<void> {
     this.assertGameRoomEvent(event);
 
-    const roomKey = this.getRoomKey(event);
+    await this.socketSessionManager.remoteLeaveByAccount(
+      accountId,
+      gameRoomKeyOf(gameRoomId),
+    );
 
-    await this.socketSessionManager.remoteLeaveByAccount(accountId, roomKey);
-
-    this.publishToGameRoom(event);
+    this.publishToGameRoom(gameRoomId, event);
   }
 
-  private getRoomKey(event: PublishableGameRoomSocketEvent): string {
-    const { gameRoomId } = event.body;
-
-    if (!gameRoomId) {
-      throw new InternalServerError(
-        'GameRoomSocketEventPublisher requires event.body.gameRoomId to publish.',
-      );
-    }
-
-    return gameRoomKeyOf(gameRoomId);
-  }
-
-  private assertLobbyEvent(event: PublishableGameRoomSocketEvent): void {
+  private assertLobbyEvent(event: PublishableSocketEvent): void {
     if (!event.eventName.startsWith('lobby.')) {
       throw new InternalServerError(
         `GameRoomSocketEventPublisher expected lobby event, received ${event.eventName}.`,
@@ -98,7 +90,7 @@ export class GameRoomSocketEventPublisher
     }
   }
 
-  private assertGameRoomEvent(event: PublishableGameRoomSocketEvent): void {
+  private assertGameRoomEvent(event: PublishableSocketEvent): void {
     if (!event.eventName.startsWith('game_room.')) {
       throw new InternalServerError(
         `GameRoomSocketEventPublisher expected game room event, received ${event.eventName}.`,
