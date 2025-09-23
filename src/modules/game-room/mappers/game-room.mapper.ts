@@ -20,6 +20,7 @@ export class GameRoomMapper extends BaseMapper {
         visibility: GameRoomVisibility[raw.visibility],
         title: raw.title,
         maxMembersCount: raw.maxMembersCount,
+        quizTimeLimitInSeconds: raw.quizTimeLimitInSec,
         members: raw.members.map((member) =>
           GameRoomMemberMapper.toEntity(member),
         ),
@@ -37,6 +38,7 @@ export class GameRoomMapper extends BaseMapper {
       visibility: entity.props.visibility,
       title: entity.props.title,
       maxMembersCount: entity.props.maxMembersCount,
+      quizTimeLimitInSec: entity.props.quizTimeLimitInSeconds,
       members: entity.members.map((member) =>
         GameRoomMemberMapper.toPersistence(member),
       ),

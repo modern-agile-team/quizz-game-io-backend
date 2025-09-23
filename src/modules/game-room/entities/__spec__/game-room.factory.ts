@@ -21,6 +21,7 @@ export const GameRoomFactory = Factory.define<GameRoom & GameRoomProps>(
     title: () => faker.string.nanoid(),
     maxMembersCount: () => faker.number.int({ min: 2, max: 10 }),
     members: () => [],
+    quizTimeLimitInSeconds: () => faker.number.int({ min: 10, max: 60 }),
     createdAt: () => new Date(),
     updatedAt: () => new Date(),
   })

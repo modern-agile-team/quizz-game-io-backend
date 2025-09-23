@@ -38,6 +38,9 @@ export class GameRoomSocketEventDto {
   @ApiProperty()
   currentMembersCount: number;
 
+  @ApiProperty()
+  quizTimeLimitInSeconds: number;
+
   @ApiProperty({
     type: [GameRoomMemberSocketEventDto],
   })
