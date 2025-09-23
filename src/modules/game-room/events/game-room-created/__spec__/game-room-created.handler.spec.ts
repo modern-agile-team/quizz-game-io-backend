@@ -58,6 +58,7 @@ describe(GameRoomCreatedHandler, () => {
       maxPlayers: gameRoom.maxMembersCount,
       currentMembersCount: gameRoom.currentMembersCount,
       quizTimeLimitInSeconds: gameRoom.props.quizTimeLimitInSeconds,
+      quizzesCount: gameRoom.quizzesCount,
     });
   });
 

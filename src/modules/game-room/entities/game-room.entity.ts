@@ -39,6 +39,7 @@ export interface GameRoomProps {
   title: string;
   maxMembersCount: number;
   quizTimeLimitInSeconds: number;
+  quizzesCount: number;
   members: GameRoomMember[];
 }
 
@@ -48,6 +49,7 @@ interface CreateGameRoomProps {
   title: string;
   maxMembersCount: number;
   quizTimeLimitInSeconds?: number;
+  quizzesCount: number;
   hostAccountId: string;
   hostNickname: string;
 }
@@ -74,6 +76,7 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
         quizTimeLimitInSeconds:
           props.quizTimeLimitInSeconds ??
           GameRoom.DEFAULT_QUIZ_TIME_LIMIT_IN_SECONDS,
+        quizzesCount: props.quizzesCount,
         members: [],
       },
       createdAt: date,
@@ -89,6 +92,7 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
         maxPlayers: props.maxMembersCount,
         currentMembersCount: gameRoom.currentMembersCount,
         quizTimeLimitInSeconds: gameRoom.props.quizTimeLimitInSeconds,
+        quizzesCount: gameRoom.props.quizzesCount,
       }),
     );
 
@@ -125,6 +129,10 @@ export class GameRoom extends AggregateRoot<GameRoomProps> {
 
   get currentMembersCount(): number {
     return this.props.members.length;
+  }
+
+  get quizzesCount(): number {
+    return this.props.quizzesCount;
   }
 
   get host(): GameRoomMember | undefined {

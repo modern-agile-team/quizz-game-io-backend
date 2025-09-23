@@ -83,6 +83,7 @@ model GameRoom {
   title              String
   maxMembersCount    Int                @default(0)
   quizTimeLimitInSec Int
+  quizzesCount       Int
   /// [GameRoomMember]
   members            Json[]             @default([])
 

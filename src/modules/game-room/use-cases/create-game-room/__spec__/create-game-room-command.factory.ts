@@ -11,5 +11,6 @@ export const CreateGameRoomCommandFactory =
     CreateGameRoomCommand,
   ).attrs({
     currentAccountId: () => generateEntityId(),
-    title: faker.string.nanoid(),
+    title: () => faker.string.nanoid(),
+    quizzesCount: () => faker.number.int({ min: 1, max: 10 }),
   });
