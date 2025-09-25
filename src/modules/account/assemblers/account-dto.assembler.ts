@@ -14,6 +14,8 @@ export class AccountDtoAssembler {
     dto.signInType = account.signInType;
     dto.nickname = account.nickname;
     dto.enteredAt = account.enteredAt;
+    dto.leftAt = account.leftAt;
+    dto.isActive = account.isActive;
 
     return dto;
   }

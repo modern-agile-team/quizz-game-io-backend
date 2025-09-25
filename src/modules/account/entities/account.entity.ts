@@ -24,6 +24,8 @@ export interface AccountProps {
   password?: string;
   nickname: string;
   enteredAt?: Date;
+  leftAt?: Date;
+  isActive: boolean;
   lastSignedInAt?: Date;
 }
 
@@ -52,6 +54,7 @@ export class Account extends AggregateRoot<AccountProps> {
         username: props.username,
         password: props.password,
         nickname: props.nickname ?? generateEntityId(),
+        isActive: false,
       },
       createdAt: date,
       updatedAt: date,
@@ -94,6 +97,14 @@ export class Account extends AggregateRoot<AccountProps> {
 
   get enteredAt(): Date | undefined {
     return this.props.enteredAt;
+  }
+
+  get leftAt(): Date | undefined {
+    return this.props.leftAt;
+  }
+
+  get isActive(): boolean {
+    return this.props.isActive;
   }
 
   enter() {

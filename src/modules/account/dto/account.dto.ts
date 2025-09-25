@@ -27,4 +27,10 @@ export class AccountDto extends BaseResponseDto {
     description: '진입 시점',
   })
   enteredAt?: Date;
+
+  @ApiProperty()
+  leftAt?: Date;
+
+  @ApiProperty()
+  isActive: boolean;
 }
