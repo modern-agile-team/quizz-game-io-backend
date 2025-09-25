@@ -111,6 +111,7 @@ export class Account extends AggregateRoot<AccountProps> {
     const now = new Date();
 
     this.props.enteredAt = now;
+    this.props.isActive = true;
 
     this.updatedAt = now;
 
