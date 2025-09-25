@@ -109,3 +109,30 @@ model GameRoomEventStore {
   @@unique([aggregateId, version])
   @@map("game_room_event_store")
 }
+
+model Quiz {
+  id BigInt @id
+
+  type     String
+  answer   String
+  imageUrl String?
+  question String?
+
+  createdAt DateTime @default(now()) @db.Timestamp(3)
+  updatedAt DateTime @updatedAt @db.Timestamp(3)
+
+  @@map("quiz")
+}
+
+model QuizEventStore {
+  id           BigInt   @id
+  actorId      BigInt?
+  aggregateId  BigInt
+  eventName    String
+  eventPayload Json
+  version      Int
+  storedAt     DateTime @default(now()) @db.Timestamp(3)
+
+  @@unique([aggregateId, version])
+  @@map("quiz_event_store")
+}

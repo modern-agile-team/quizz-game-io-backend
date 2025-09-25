@@ -19,7 +19,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "gen:usecase": "ts-node scripts/generate-usecase-preset.script.ts",
-    "gen:domain": "ts-node scripts/generate-domain.script.ts"
+    "gen:domain": "ts-node scripts/generate-domain.script.ts",
+    "db:seed:mock": "ts-node prisma/seed/mock.seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -99,5 +100,8 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3"
+  },
+  "prisma": {
+    "seed:mock": "npx tsx prisma/seed/seed.mock.ts"
   }
 }
