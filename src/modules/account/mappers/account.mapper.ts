@@ -20,6 +20,8 @@ export class AccountMapper extends BaseMapper {
         password: raw.password ?? undefined,
         nickname: raw.nickname,
         enteredAt: raw.lastEnteredAt ?? undefined,
+        leftAt: raw.lastLeftAt ?? undefined,
+        isActive: raw.isActive,
         lastSignedInAt: raw.lastSignedInAt ?? undefined,
       },
     });
@@ -37,6 +39,8 @@ export class AccountMapper extends BaseMapper {
       nickname: entity.props.nickname,
       lastEnteredAt: entity.props.enteredAt ?? null,
       lastSignedInAt: entity.props.lastSignedInAt ?? null,
+      lastLeftAt: entity.props.leftAt ?? null,
+      isActive: entity.props.isActive,
     };
   }
 }

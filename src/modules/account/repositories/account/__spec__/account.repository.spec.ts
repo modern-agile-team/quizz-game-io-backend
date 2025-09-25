@@ -61,6 +61,36 @@ describe(AccountRepository, () => {
     });
   });
 
+  describe(AccountRepository.prototype.findAllBy, () => {
+    let accounts: Account[];
+
+    beforeEach(async () => {
+      accounts = await Promise.all(
+        AccountFactory.buildList(3).map((account) =>
+          repository.insert(account),
+        ),
+      );
+    });
+
+    describe('액티브 유저를 조회하면', () => {
+      it('액티브 유저 목록을 반환돼야하다.', async () => {
+        await expect(
+          repository.findAllBy({ filter: { isActive: true } }),
+        ).resolves.toSatisfyAll<Account>(
+          (account) => account.isActive === true,
+        );
+      });
+    });
+
+    describe('모든 유저를 조회하면', () => {
+      it('모든 유저 목록을 반환돼야하다.', async () => {
+        await expect(repository.findAllBy({ filter: {} })).resolves.toEqual(
+          expect.arrayContaining(accounts),
+        );
+      });
+    });
+  });
+
   describe(AccountRepository.prototype.findOneByUsername, () => {
     let username: string;
 

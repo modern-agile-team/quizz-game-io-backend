@@ -36,6 +36,8 @@ model Account {
   password       String?
   nickname       String    @unique @db.VarChar(20)
   lastEnteredAt  DateTime? @db.Timestamp(3)
+  lastLeftAt     DateTime? @db.Timestamp(3)
+  isActive       Boolean
   lastSignedInAt DateTime? @db.Timestamp(3)
 
   createdAt DateTime @default(now()) @db.Timestamp(3)

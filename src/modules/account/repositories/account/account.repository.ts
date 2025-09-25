@@ -1,5 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 
+import { Prisma } from '@prisma/client';
+
 import { Account } from '@module/account/entities/account.entity';
 import { AccountMapper } from '@module/account/mappers/account.mapper';
 import {
@@ -29,6 +31,22 @@ export class AccountRepository
     @Inject(PRISMA_SERVICE) protected readonly prismaService: PrismaService,
   ) {
     super(prismaService, AccountMapper);
+  }
+
+  async findAllBy(options: { filter: AccountFilter }): Promise<Account[]> {
+    const { filter } = options;
+
+    const where: Prisma.AccountWhereInput = {};
+
+    if (filter.isActive !== undefined) {
+      where.isActive = filter.isActive;
+    }
+
+    const accounts = await this.prismaService.account.findMany({
+      where,
+    });
+
+    return accounts.map((account) => this.mapper.toEntity(account));
   }
 
   async findOneByUsername(username: string): Promise<Account | undefined> {

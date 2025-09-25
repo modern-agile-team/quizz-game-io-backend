@@ -8,12 +8,15 @@ export const ACCOUNT_REPOSITORY = Symbol('ACCOUNT_REPOSITORY');
 
 export interface AccountRaw extends AccountModel {}
 
-export interface AccountFilter {}
+export interface AccountFilter {
+  isActive?: boolean;
+}
 
 export interface AccountOrder {}
 
 export interface AccountRepositoryPort
   extends RepositoryPort<Account, AccountFilter, AccountOrder> {
+  findAllBy(options: { filter: AccountFilter }): Promise<Account[]>;
   findOneByUsername(username: string): Promise<Account | undefined>;
   findOneByNickname(nickname: string): Promise<Account | undefined>;
 }
