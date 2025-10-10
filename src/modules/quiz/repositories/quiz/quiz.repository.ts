@@ -1,4 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+
+import {
+  InjectTransactionHost,
+  TransactionHost,
+} from '@nestjs-cls/transactional';
+import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 
 import { Quiz } from '@module/quiz/entities/quiz.entity';
 import { QuizMapper } from '@module/quiz/mappers/quiz.mapper';
@@ -15,9 +21,6 @@ import {
   ICursorPaginatedParams,
 } from '@common/base/base.repository';
 
-import { PRISMA_SERVICE } from '@shared/prisma/prisma.di-token';
-import { PrismaService } from '@shared/prisma/prisma.service';
-
 @Injectable()
 export class QuizRepository
   extends BaseRepository<Quiz, QuizRaw>
@@ -26,13 +29,14 @@ export class QuizRepository
   protected TABLE_NAME = 'quiz';
 
   constructor(
-    @Inject(PRISMA_SERVICE) protected readonly prismaService: PrismaService,
+    @InjectTransactionHost()
+    protected readonly txHost: TransactionHost<TransactionalAdapterPrisma>,
   ) {
-    super(prismaService, QuizMapper);
+    super(txHost, QuizMapper);
   }
 
   async findAll(): Promise<Quiz[]> {
-    const quizzes = await this.prismaService.quiz.findMany();
+    const quizzes = await this.txHost.tx.quiz.findMany();
 
     return quizzes.map((quiz) => this.mapper.toEntity(quiz));
   }

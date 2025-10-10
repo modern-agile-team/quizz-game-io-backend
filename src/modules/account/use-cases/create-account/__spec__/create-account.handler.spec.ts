@@ -12,6 +12,8 @@ import { CreateAccountCommandFactory } from '@module/account/use-cases/create-ac
 import { CreateAccountCommand } from '@module/account/use-cases/create-account/create-account.command';
 import { CreateAccountHandler } from '@module/account/use-cases/create-account/create-account.handler';
 
+import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+
 import { EventStoreModule } from '@core/event-sourcing/event-store.module';
 
 describe(CreateAccountHandler.name, () => {
@@ -22,7 +24,7 @@ describe(CreateAccountHandler.name, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [AccountRepositoryModule, EventStoreModule],
+      imports: [ClaModuleFactory(), AccountRepositoryModule, EventStoreModule],
       providers: [CreateAccountHandler],
     }).compile();
 

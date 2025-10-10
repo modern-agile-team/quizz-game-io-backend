@@ -15,6 +15,8 @@ import {
   GameRoomRepositoryPort,
 } from '@module/game-room/repositories/game-room/game-room.repository.port';
 
+import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+
 import { MockSocketEventPublisherModule } from '@core/socket/event-publisher/__mock__/socket-event.publisher.mock';
 import {
   ISocketEventPublisher,
@@ -32,7 +34,11 @@ describe(GameRoomStartingHandler, () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [GameRoomRepositoryModule, MockSocketEventPublisherModule],
+      imports: [
+        ClaModuleFactory(),
+        GameRoomRepositoryModule,
+        MockSocketEventPublisherModule,
+      ],
       providers: [GameRoomStartingHandler],
     }).compile();
 

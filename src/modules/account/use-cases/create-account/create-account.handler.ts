@@ -1,6 +1,8 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
+import { Transactional } from '@nestjs-cls/transactional';
+
 import { Account } from '@module/account/entities/account.entity';
 import { AccountNicknameAlreadyOccupiedError } from '@module/account/errors/account-nickname-already-occupied.error';
 import { AccountUsernameAlreadyOccupiedError } from '@module/account/errors/account-username-already-occupied.error';
@@ -25,6 +27,7 @@ export class CreateAccountHandler
     @Inject(EVENT_STORE) private readonly eventStore: IEventStore,
   ) {}
 
+  @Transactional()
   async execute(command: CreateAccountCommand): Promise<Account> {
     const existingAccountByUsername =
       await this.accountRepository.findOneByUsername(command.username);

@@ -12,6 +12,8 @@ import { GetAccountByUsernameQueryFactory } from '@module/account/use-cases/get-
 import { GetAccountByUsernameHandler } from '@module/account/use-cases/get-account-by-username/get-account-by-username.handler';
 import { GetAccountByUsernameQuery } from '@module/account/use-cases/get-account-by-username/get-account-by-username.query';
 
+import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+
 describe(GetAccountByUsernameHandler, () => {
   let handler: GetAccountByUsernameHandler;
 
@@ -21,7 +23,7 @@ describe(GetAccountByUsernameHandler, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [AccountRepositoryModule],
+      imports: [ClaModuleFactory(), AccountRepositoryModule],
       providers: [GetAccountByUsernameHandler],
     }).compile();
 

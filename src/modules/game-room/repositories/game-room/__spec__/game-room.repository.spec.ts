@@ -9,20 +9,15 @@ import {
 } from '@module/game-room/repositories/game-room/game-room.repository.port';
 
 import { generateEntityId } from '@common/base/base.entity';
-
-import { PRISMA_SERVICE } from '@shared/prisma/prisma.di-token';
-import { PrismaService } from '@shared/prisma/prisma.service';
+import { ClaModuleFactory } from '@common/factories/cls-module.factory';
 
 describe(GameRoomRepository, () => {
   let repository: GameRoomRepositoryPort;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ClaModuleFactory()],
       providers: [
-        {
-          provide: PRISMA_SERVICE,
-          useClass: PrismaService,
-        },
         {
           provide: GAME_ROOM_REPOSITORY,
           useClass: GameRoomRepository,

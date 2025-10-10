@@ -1,18 +1,22 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+
+import {
+  InjectTransactionHost,
+  TransactionHost,
+} from '@nestjs-cls/transactional';
+import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 
 import { DomainEvent } from '@common/base/base.domain-event';
 import { AggregateRoot, generateEntityId } from '@common/base/base.entity';
-
-import { PRISMA_SERVICE } from '@shared/prisma/prisma.di-token';
-import { PrismaService } from '@shared/prisma/prisma.service';
 
 import { IEventStore } from '@core/event-sourcing/event-store.interface';
 
 @Injectable()
 export class EventStore implements IEventStore {
   constructor(
-    @Inject(PRISMA_SERVICE) private readonly prismaService: PrismaService,
+    @InjectTransactionHost()
+    private readonly txHost: TransactionHost<TransactionalAdapterPrisma>,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -68,10 +72,10 @@ export class EventStore implements IEventStore {
 
   private getRepository(aggregate: DomainEvent['aggregate']) {
     if (aggregate === 'Account') {
-      return this.prismaService.accountEventStore;
+      return this.txHost.tx.accountEventStore;
     }
     if (aggregate === 'GameRoom') {
-      return this.prismaService.gameRoomEventStore;
+      return this.txHost.tx.gameRoomEventStore;
     }
   }
 }

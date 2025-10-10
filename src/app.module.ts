@@ -11,6 +11,7 @@ import { GameRoomModule } from '@module/game-room/game-room.module';
 import { QuizModule } from '@module/quiz/quiz.module';
 
 import { AppConfigModule } from '@common/app-config/app-config.module';
+import { ClaModuleFactory } from '@common/factories/cls-module.factory';
 
 import { LoggerModule } from '@shared/logger/logger.module';
 import { PrismaModule } from '@shared/prisma/prisma.module';
@@ -25,6 +26,7 @@ import { AccountSocketIndexStoreModule } from '@core/socket/index-store/account-
     LoggerModule,
     PrismaModule,
     AccountSocketIndexStoreModule,
+    ClaModuleFactory(),
 
     AccountModule,
     AuthModule,

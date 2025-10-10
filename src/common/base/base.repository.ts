@@ -1,7 +1,8 @@
+import { TransactionHost } from '@nestjs-cls/transactional';
+import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
+
 import { EntityId, TBaseEntity } from '@common/base/base.entity';
 import { IBaseMapper } from '@common/base/base.mapper';
-
-import { PrismaService } from '@shared/prisma/prisma.service';
 
 export interface ISort<Field extends string = string> {
   field: Field;
@@ -49,14 +50,14 @@ export abstract class BaseRepository<
   protected abstract TABLE_NAME: string;
 
   constructor(
-    protected readonly prismaService: PrismaService,
+    protected readonly txHost: TransactionHost<TransactionalAdapterPrisma>,
     protected readonly mapper: IBaseMapper<Entity, Raw>,
   ) {}
 
   async insert(entity: Entity): Promise<Entity> {
     const raw = this.mapper.toPersistence(entity);
 
-    await this.prismaService[this.TABLE_NAME].create({
+    await this.txHost.tx[this.TABLE_NAME].create({
       data: raw,
     });
 
@@ -68,7 +69,7 @@ export abstract class BaseRepository<
       return;
     }
 
-    const raw = await this.prismaService[this.TABLE_NAME].findUnique({
+    const raw = await this.txHost.tx[this.TABLE_NAME].findUnique({
       where: {
         id: this.mapper.toPrimaryKey(id),
       },
@@ -84,7 +85,7 @@ export abstract class BaseRepository<
   async update(entity: Entity): Promise<Entity> {
     const raw = this.mapper.toPersistence(entity);
 
-    await this.prismaService[this.TABLE_NAME].update({
+    await this.txHost.tx[this.TABLE_NAME].update({
       where: {
         id: raw.id,
       },
@@ -95,7 +96,7 @@ export abstract class BaseRepository<
   }
 
   async delete(entity: Entity): Promise<void> {
-    await this.prismaService[this.TABLE_NAME].delete({
+    await this.txHost.tx[this.TABLE_NAME].delete({
       where: {
         id: this.mapper.toPrimaryKey(entity.id),
       },

@@ -1,5 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
+import {
+  InjectTransactionHost,
+  TransactionHost,
+} from '@nestjs-cls/transactional';
+import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { Prisma } from '@prisma/client';
 
 import { Account } from '@module/account/entities/account.entity';
@@ -17,9 +22,6 @@ import {
   ICursorPaginatedParams,
 } from '@common/base/base.repository';
 
-import { PRISMA_SERVICE } from '@shared/prisma/prisma.di-token';
-import { PrismaService } from '@shared/prisma/prisma.service';
-
 @Injectable()
 export class AccountRepository
   extends BaseRepository<Account, AccountRaw>
@@ -28,9 +30,10 @@ export class AccountRepository
   protected TABLE_NAME = 'account';
 
   constructor(
-    @Inject(PRISMA_SERVICE) protected readonly prismaService: PrismaService,
+    @InjectTransactionHost()
+    protected readonly txHost: TransactionHost<TransactionalAdapterPrisma>,
   ) {
-    super(prismaService, AccountMapper);
+    super(txHost, AccountMapper);
   }
 
   async findAllBy(options: { filter: AccountFilter }): Promise<Account[]> {
@@ -42,7 +45,7 @@ export class AccountRepository
       where.isActive = filter.isActive;
     }
 
-    const accounts = await this.prismaService.account.findMany({
+    const accounts = await this.txHost.tx.account.findMany({
       where,
     });
 
@@ -50,7 +53,7 @@ export class AccountRepository
   }
 
   async findOneByUsername(username: string): Promise<Account | undefined> {
-    const account = await this.prismaService.account.findFirst({
+    const account = await this.txHost.tx.account.findFirst({
       where: {
         username,
       },
@@ -64,7 +67,7 @@ export class AccountRepository
   }
 
   async findOneByNickname(nickname: string): Promise<Account | undefined> {
-    const account = await this.prismaService.account.findFirst({
+    const account = await this.txHost.tx.account.findFirst({
       where: {
         nickname,
       },

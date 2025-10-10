@@ -11,6 +11,8 @@ import { ListAccountsQueryFactory } from '@module/account/use-cases/list-account
 import { ListAccountsHandler } from '@module/account/use-cases/list-accounts/list-accounts.handler';
 import { ListAccountsQuery } from '@module/account/use-cases/list-accounts/list-accounts.query';
 
+import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+
 describe(ListAccountsHandler.name, () => {
   let handler: ListAccountsHandler;
 
@@ -20,7 +22,7 @@ describe(ListAccountsHandler.name, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [AccountRepositoryModule],
+      imports: [ClaModuleFactory(), AccountRepositoryModule],
       providers: [ListAccountsHandler],
     }).compile();
 
@@ -50,9 +52,7 @@ describe(ListAccountsHandler.name, () => {
 
   describe('활성 상태로 필터링된 계정 목록을 조회하면', () => {
     it('활성 상태로 필터링된 계정 목록이 조회돼야한다.', () => {
-      expect(
-        handler.execute({ isActive: false }),
-      ).resolves.toSatisfyAll<Account>(
+      expect(handler.execute(query)).resolves.toSatisfyAll<Account>(
         (account) => account.isActive === query.isActive,
       );
     });
