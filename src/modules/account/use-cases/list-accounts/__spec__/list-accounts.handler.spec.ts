@@ -52,9 +52,7 @@ describe(ListAccountsHandler.name, () => {
 
   describe('활성 상태로 필터링된 계정 목록을 조회하면', () => {
     it('활성 상태로 필터링된 계정 목록이 조회돼야한다.', () => {
-      expect(
-        handler.execute({ isActive: false }),
-      ).resolves.toSatisfyAll<Account>(
+      expect(handler.execute(query)).resolves.toSatisfyAll<Account>(
         (account) => account.isActive === query.isActive,
       );
     });
