@@ -76,3 +76,7 @@ jobs:
             --network quizzes_game_io_backend_default \
             -p 127.0.0.1:8080:8080 \
             "${{ steps.resolve.outputs.image }}"
+
+      - name: Prune dangling images (safe)
+        run: |
+          docker image prune -f
