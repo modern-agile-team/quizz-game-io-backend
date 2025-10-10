@@ -18,6 +18,7 @@ import {
 import { ActiveAccountStoreModule } from '@module/account/stores/active-account/active-account.store.module';
 
 import { AppConfigModule } from '@common/app-config/app-config.module';
+import { ClaModuleFactory } from '@common/factories/cls-module.factory';
 
 import { SocketEventPublisherModule } from '@core/socket/event-publisher/socket-event-publisher.module';
 import {
@@ -37,6 +38,7 @@ describe(AccountEnteredHandler, () => {
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
+        ClaModuleFactory(),
         AccountRepositoryModule,
         AppConfigModule,
         ActiveAccountStoreModule,

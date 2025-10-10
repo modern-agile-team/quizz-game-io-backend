@@ -12,6 +12,8 @@ import { EnterAccountCommandFactory } from '@module/account/use-cases/enter-acco
 import { EnterAccountCommand } from '@module/account/use-cases/enter-account/enter-account.command';
 import { EnterAccountHandler } from '@module/account/use-cases/enter-account/enter-account.handler';
 
+import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+
 import {
   EVENT_STORE,
   IEventStore,
@@ -28,7 +30,7 @@ describe(EnterAccountHandler.name, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [AccountRepositoryModule, EventStoreModule],
+      imports: [ClaModuleFactory(), AccountRepositoryModule, EventStoreModule],
       providers: [EnterAccountHandler],
     }).compile();
 

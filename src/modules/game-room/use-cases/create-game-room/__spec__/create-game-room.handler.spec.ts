@@ -16,6 +16,8 @@ import { CreateGameRoomCommandFactory } from '@module/game-room/use-cases/create
 import { CreateGameRoomCommand } from '@module/game-room/use-cases/create-game-room/create-game-room.command';
 import { CreateGameRoomHandler } from '@module/game-room/use-cases/create-game-room/create-game-room.handler';
 
+import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+
 import {
   EVENT_STORE,
   IEventStore,
@@ -35,6 +37,7 @@ describe(CreateGameRoomHandler.name, () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
+        ClaModuleFactory(),
         GameRoomRepositoryModule,
         AccountRepositoryModule,
         EventStoreModule,

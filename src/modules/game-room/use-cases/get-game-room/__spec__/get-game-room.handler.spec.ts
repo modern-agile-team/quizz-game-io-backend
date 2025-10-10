@@ -12,6 +12,8 @@ import { GetGameRoomQueryFactory } from '@module/game-room/use-cases/get-game-ro
 import { GetGameRoomHandler } from '@module/game-room/use-cases/get-game-room/get-game-room.handler';
 import { GetGameRoomQuery } from '@module/game-room/use-cases/get-game-room/get-game-room.query';
 
+import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+
 describe(GetGameRoomHandler.name, () => {
   let handler: GetGameRoomHandler;
 
@@ -21,7 +23,7 @@ describe(GetGameRoomHandler.name, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [GameRoomRepositoryModule],
+      imports: [ClaModuleFactory(), GameRoomRepositoryModule],
       providers: [GetGameRoomHandler],
     }).compile();
 
