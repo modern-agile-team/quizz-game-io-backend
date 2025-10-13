@@ -24,6 +24,18 @@ export interface ICursorPaginatedParams<
   filter?: Filter;
 }
 
+export interface IOffsetPaginated<T> {
+  offset: number;
+  limit: number;
+  totalCount: number;
+  data: T[];
+}
+
+export interface IOffsetPaginatedParams {
+  offset?: number;
+  limit?: number;
+}
+
 export interface RepositoryPort<
   E,
   ListFilter = Record<string, unknown>,

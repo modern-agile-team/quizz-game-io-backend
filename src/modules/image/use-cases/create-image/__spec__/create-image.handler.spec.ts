@@ -26,9 +26,12 @@ import { EventStoreModule } from '@core/event-sourcing/event-store.module';
 describe(CreateImageHandler.name, () => {
   let handler: CreateImageHandler;
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let imageRepository: ImageRepositoryPort;
   let awsS3Adapter: AwsS3Port;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let eventStore: IEventStore;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let appConfigService: AppConfigService;
 
   let command: CreateImageCommand;
