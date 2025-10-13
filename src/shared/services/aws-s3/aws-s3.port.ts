@@ -9,4 +9,5 @@ export interface UploadFileProps {
 
 export interface AwsS3Port {
   uploadFile(props: UploadFileProps): Promise<void>;
+  deleteFile(key: string): Promise<void>;
 }
