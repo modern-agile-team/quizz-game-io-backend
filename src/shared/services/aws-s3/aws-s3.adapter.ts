@@ -1,6 +1,10 @@
 import { Inject } from '@nestjs/common';
 
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  DeleteObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 
 import { ENV_KEY } from '@common/app-config/app-config.constant';
 import { AppConfigService } from '@common/app-config/app-config.service';
@@ -30,6 +34,15 @@ export class AwsS3Adapter implements AwsS3Port {
       Body: props.file,
       ContentType: props.contentType,
       ACL: 'public-read',
+    });
+
+    await this.s3Client.send(command);
+  }
+
+  async deleteFile(key: string): Promise<void> {
+    const command = new DeleteObjectCommand({
+      Bucket: this.BUCKET_NAME,
+      Key: key,
     });
 
     await this.s3Client.send(command);

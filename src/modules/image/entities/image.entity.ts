@@ -1,6 +1,7 @@
 import { TSID } from 'tsid-ts';
 
 import { ImageCreatedEvent } from '@module/image/events/image-created.event';
+import { ImageDeletedEvent } from '@module/image/events/image-deleted.event';
 
 import {
   AggregateRoot,
@@ -104,6 +105,10 @@ export class Image extends AggregateRoot<ImageProps> {
 
   get height(): number {
     return this.props.height;
+  }
+
+  delete() {
+    this.apply(new ImageDeletedEvent(this.id, { imageId: this.id }));
   }
 
   public validate(): void {}
