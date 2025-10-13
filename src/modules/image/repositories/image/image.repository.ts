@@ -37,6 +37,18 @@ export class ImageRepository
     super(txHost, ImageMapper);
   }
 
+  async findByFileNames(fileNames: string[]): Promise<Image[]> {
+    const images = await this.txHost.tx.image.findMany({
+      where: {
+        fileName: {
+          in: fileNames,
+        },
+      },
+    });
+
+    return images.map((image) => ImageMapper.toEntity(image));
+  }
+
   async findAllOffsetPaginated(
     params: FindAllImagesOffsetPaginatedParams,
   ): Promise<IOffsetPaginated<Image>> {

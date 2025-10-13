@@ -48,6 +48,27 @@ describe(QuizRepository, () => {
     });
   });
 
+  describe(QuizRepository.prototype.insertMany, () => {
+    let quizzes: Quiz[];
+
+    beforeEach(() => {
+      quizzes = QuizFactory.buildList(3);
+    });
+
+    describe('여러 퀴즈를 삽입하면', () => {
+      it('퀴즈들이 삽입돼야 한다.', async () => {
+        await repository.insertMany(quizzes);
+        await Promise.all(
+          quizzes.map(async (quiz) => {
+            await expect(repository.findOneById(quiz.id)).resolves.toEqual(
+              quiz,
+            );
+          }),
+        );
+      });
+    });
+  });
+
   describe(QuizRepository.prototype.findAll, () => {
     let quizzes: Quiz[];
 

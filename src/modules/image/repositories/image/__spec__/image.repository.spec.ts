@@ -1,5 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { faker } from '@faker-js/faker';
+
 import { ImageFactory } from '@module/image/entities/__spec__/image.factory';
 import { Image } from '@module/image/entities/image.entity';
 import { ImageRepository } from '@module/image/repositories/image/image.repository';
@@ -46,6 +48,30 @@ describe(ImageRepository, () => {
         it('리소스가 반환돼야한다.', async () => {
           await expect(repository.findOneById(imageId)).resolves.toEqual(image);
         });
+      });
+    });
+  });
+
+  describe(ImageRepository.prototype.findByFileNames, () => {
+    let images: Image[];
+
+    beforeEach(async () => {
+      images = await Promise.all(
+        [
+          ImageFactory.build({ fileName: faker.string.nanoid() }),
+          ImageFactory.build({ fileName: faker.string.nanoid() }),
+        ].map((image) => repository.insert(image)),
+      );
+    });
+
+    describe('파일명 목록과 일치하는 리소스가 존재하는 경우', () => {
+      it('리소스들이 반환돼야한다.', async () => {
+        await expect(
+          repository.findByFileNames(images.map((image) => image.fileName)),
+        ).resolves.toEqual([
+          expect.objectContaining({ fileName: images[0].fileName }),
+          expect.objectContaining({ fileName: images[1].fileName }),
+        ]);
       });
     });
   });
