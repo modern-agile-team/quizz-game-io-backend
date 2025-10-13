@@ -32,6 +32,13 @@ import { AppConfigService } from '@common/app-config/app-config.service';
         [ENV_KEY.LOGGER_LEVEL]: Joi.string()
           .valid('fatal', 'error', 'warn', 'info', 'debug', 'trace')
           .default('trace'),
+
+        [ENV_KEY.AWS_S3_REGION]: Joi.string().required(),
+        [ENV_KEY.AWS_S3_BUCKET_NAME]: Joi.string().required(),
+        [ENV_KEY.AWS_S3_URL]: Joi.string().required(),
+        [ENV_KEY.AWS_S3_ACCESS_KEY]: Joi.string().required(),
+        [ENV_KEY.AWS_S3_SECRET_KEY]: Joi.string().required(),
+        [ENV_KEY.AWS_S3_IMAGE_FILE_PATH]: Joi.string().required(),
       }),
     }),
   ],

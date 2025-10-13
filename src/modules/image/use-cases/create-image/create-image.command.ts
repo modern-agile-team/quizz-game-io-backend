@@ -1,0 +1,31 @@
+import { ICommand } from '@nestjs/cqrs';
+
+export interface ICreateImageCommandProps {
+  category: string;
+  buffer: Buffer;
+  originalFileName: string;
+  extension: string;
+  contentLength: string;
+  width: number;
+  height: number;
+}
+
+export class CreateImageCommand implements ICommand {
+  readonly category: string;
+  readonly buffer: Buffer;
+  readonly originalFileName: string;
+  readonly extension: string;
+  readonly contentLength: string;
+  readonly width: number;
+  readonly height: number;
+
+  constructor(props: ICreateImageCommandProps) {
+    this.category = props.category;
+    this.buffer = props.buffer;
+    this.originalFileName = props.originalFileName;
+    this.extension = props.extension;
+    this.contentLength = props.contentLength;
+    this.width = props.width;
+    this.height = props.height;
+  }
+}
