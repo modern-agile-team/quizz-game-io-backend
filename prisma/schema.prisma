@@ -136,3 +136,33 @@ model QuizEventStore {
   @@unique([aggregateId, version])
   @@map("quiz_event_store")
 }
+
+model Image {
+  id BigInt @id
+
+  originalFileName String
+  fileName         String
+  category         String
+  extension        String
+  contentLength    String
+  width            Int
+  height           Int
+
+  createdAt DateTime @default(now()) @db.Timestamp(3)
+  updatedAt DateTime @updatedAt @db.Timestamp(3)
+
+  @@map("image")
+}
+
+model ImageEventStore {
+  id           BigInt   @id
+  actorId      BigInt?
+  aggregateId  BigInt
+  eventName    String
+  eventPayload Json
+  version      Int
+  storedAt     DateTime @default(now()) @db.Timestamp(3)
+
+  @@unique([aggregateId, version])
+  @@map("image_event_store")
+}

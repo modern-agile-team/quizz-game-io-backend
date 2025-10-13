@@ -77,5 +77,8 @@ export class EventStore implements IEventStore {
     if (aggregate === 'GameRoom') {
       return this.txHost.tx.gameRoomEventStore;
     }
+    if (aggregate === 'Image') {
+      return this.txHost.tx.imageEventStore;
+    }
   }
 }
