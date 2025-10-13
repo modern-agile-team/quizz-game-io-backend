@@ -33,3 +33,19 @@ export abstract class BaseCursorPaginationResponseDto<T> {
 
   abstract data: T[];
 }
+
+export abstract class BaseOffsetPaginationResponseDto<T> {
+  abstract data: T[];
+
+  @ApiProperty()
+  currentPage: number;
+
+  @ApiProperty()
+  perPage: number;
+
+  @ApiProperty()
+  totalCount: number;
+
+  @ApiProperty()
+  totalPages: number;
+}

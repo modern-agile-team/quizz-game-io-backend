@@ -9,6 +9,7 @@ import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-pr
 import { Image } from '@module/image/entities/image.entity';
 import { ImageMapper } from '@module/image/mappers/image.mapper';
 import {
+  FindAllImagesOffsetPaginatedParams,
   ImageFilter,
   ImageOrder,
   ImageRaw,
@@ -19,6 +20,7 @@ import {
   BaseRepository,
   ICursorPaginated,
   ICursorPaginatedParams,
+  IOffsetPaginated,
 } from '@common/base/base.repository';
 
 @Injectable()
@@ -33,6 +35,33 @@ export class ImageRepository
     protected readonly txHost: TransactionHost<TransactionalAdapterPrisma>,
   ) {
     super(txHost, ImageMapper);
+  }
+
+  async findAllOffsetPaginated(
+    params: FindAllImagesOffsetPaginatedParams,
+  ): Promise<IOffsetPaginated<Image>> {
+    const { pageInfo, filter } = params;
+
+    const where = {};
+
+    if (filter?.category) {
+      Object.assign(where, { category: filter.category });
+    }
+
+    const images = await this.txHost.tx.image.findMany({
+      skip: pageInfo.offset,
+      take: pageInfo.limit,
+      where,
+      orderBy: this.toOrderBy([{ field: 'id', direction: 'asc' }]),
+    });
+    const totalCount = await this.txHost.tx.image.count({ where });
+
+    return {
+      offset: pageInfo.offset,
+      limit: pageInfo.limit,
+      totalCount: totalCount,
+      data: images.map((image) => ImageMapper.toEntity(image)),
+    };
   }
 
   findAllCursorPaginated(
