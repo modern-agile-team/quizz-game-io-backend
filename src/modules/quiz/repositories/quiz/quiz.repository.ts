@@ -35,6 +35,12 @@ export class QuizRepository
     super(txHost, QuizMapper);
   }
 
+  async insertMany(quizzes: Quiz[]): Promise<void> {
+    await this.txHost.tx.quiz.createMany({
+      data: quizzes.map((quiz) => QuizMapper.toPersistence(quiz)),
+    });
+  }
+
   async findAll(): Promise<Quiz[]> {
     const quizzes = await this.txHost.tx.quiz.findMany();
 

@@ -14,5 +14,6 @@ export interface QuizOrder extends ISort<'createdAt'> {}
 
 export interface QuizRepositoryPort
   extends RepositoryPort<Quiz, QuizFilter, QuizOrder> {
+  insertMany(quizzes: Quiz[]): Promise<void>;
   findAll(): Promise<Quiz[]>;
 }

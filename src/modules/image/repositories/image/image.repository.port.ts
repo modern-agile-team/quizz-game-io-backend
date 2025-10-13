@@ -24,6 +24,7 @@ export interface FindAllImagesOffsetPaginatedParams {
 
 export interface ImageRepositoryPort
   extends RepositoryPort<Image, ImageFilter, ImageOrder> {
+  findByFileNames(fileNames: string[]): Promise<Image[]>;
   findAllOffsetPaginated(
     params: FindAllImagesOffsetPaginatedParams,
   ): Promise<IOffsetPaginated<Image>>;
