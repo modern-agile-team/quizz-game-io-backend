@@ -9,7 +9,7 @@ import {
 
 import { JwtAuthGuard } from '@module/auth/jwt/jwt-auth.guard';
 import { ImageCollectionDtoAssembler } from '@module/image/assemblers/image-collection-dto.assembler';
-import { ImageDto } from '@module/image/dto/image.dto';
+import { ImageCollectionDto } from '@module/image/dto/image.collection.dto';
 import { Image } from '@module/image/entities/image.entity';
 import { ListImagesDto } from '@module/image/use-cases/list-images/list-images.dto';
 import { ListImagesQuery } from '@module/image/use-cases/list-images/list-images.query';
@@ -38,7 +38,7 @@ export class ListImagesController {
     [HttpStatus.UNAUTHORIZED]: [UnauthorizedError],
     [HttpStatus.FORBIDDEN]: [PermissionDeniedError],
   })
-  @ApiOkResponse({ type: ImageDto })
+  @ApiOkResponse({ type: ImageCollectionDto })
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Get('admin/images')
   async listImagesAdmin(@Query() dto: ListImagesDto) {
