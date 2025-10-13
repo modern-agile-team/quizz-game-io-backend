@@ -202,12 +202,12 @@ export const DomainNameFactory = Factory.define<DomainName & DomainNameProps>(
 const generateMapper = async (rootDir: string, dir: string, domain: string) => {
   const PRESET = `
 import { DomainName } from '@module/dir-name/entities/domain-name.entity';
-import { DomainNameOrmEntity } from '@module/dir-name/repositories/domain-name/domain-name.orm-entity';
+import { DomainNameRaw } from '@module/dir-name/repositories/domain-name/domain-name.repository.port';
 
 import { BaseMapper } from '@common/base/base.mapper';
 
 export class DomainNameMapper extends BaseMapper {
-  static toEntity(raw: DomainNameOrmEntity): DomainName {
+  static toEntity(raw: DomainNameRaw): DomainName {
     return new DomainName({
       id: this.toEntityId(raw.id),
       createdAt: raw.createdAt,
@@ -216,7 +216,7 @@ export class DomainNameMapper extends BaseMapper {
     });
   }
 
-  static toPersistence(entity: DomainName): DomainNameOrmEntity {
+  static toPersistence(entity: DomainName): DomainNameRaw {
     return {
       id: this.toPrimaryKey(entity.id),
       createdAt: entity.createdAt,
@@ -240,10 +240,7 @@ import { Module } from '@nestjs/common';
 import { DomainNameRepository } from '@module/dir-name/repositories/domain-name/domain-name.repository';
 import { DOMAIN_NAME_REPOSITORY } from '@module/dir-name/repositories/domain-name/domain-name.repository.port';
 
-import { PrismaModule } from '@shared/prisma/prisma.module';
-
 @Module({
-  imports: [PrismaModule],
   providers: [
     {
       provide: DOMAIN_NAME_REPOSITORY,
@@ -280,13 +277,20 @@ export interface DomainNameRepositoryPort
 `;
 
   const REPOSITORY_PRESET = `
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+
+import {
+  InjectTransactionHost,
+  TransactionHost,
+} from '@nestjs-cls/transactional';
+import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 
 import { DomainName } from '@module/dir-name/entities/domain-name.entity';
 import { DomainNameMapper } from '@module/dir-name/mappers/domain-name.mapper';
 import {
   DomainNameFilter,
   DomainNameOrder,
+  DomainNameRaw,
   DomainNameRepositoryPort,
 } from '@module/dir-name/repositories/domain-name/domain-name.repository.port';
 
@@ -296,20 +300,18 @@ import {
   ICursorPaginatedParams,
 } from '@common/base/base.repository';
 
-import { PRISMA_SERVICE } from '@shared/prisma/prisma.di-token';
-import { PrismaService } from '@shared/prisma/prisma.service';
-
 @Injectable()
 export class DomainNameRepository
-  extends BaseRepository<DomainName, DomainNameOrmEntity>
+  extends BaseRepository<DomainName, DomainNameRaw>
   implements DomainNameRepositoryPort
 {
   protected TABLE_NAME = 'domainName';
 
   constructor(
-    @Inject(PRISMA_SERVICE) protected readonly prismaService: PrismaService,
+    @InjectTransactionHost()
+    protected readonly txHost: TransactionHost<TransactionalAdapterPrisma>,
   ) {
-    super(prismaService, DomainNameMapper);
+    super(txHost, DomainNameMapper);
   }
 
   findAllCursorPaginated(
@@ -333,20 +335,15 @@ import {
 } from '@module/dir-name/repositories/domain-name/domain-name.repository.port';
 
 import { generateEntityId } from '@common/base/base.entity';
-
-import { PRISMA_SERVICE } from '@shared/prisma/prisma.di-token';
-import { PrismaService } from '@shared/prisma/prisma.service';
+import { ClaModuleFactory } from '@common/factories/cls-module.factory';
 
 describe(DomainNameRepository, () => {
   let repository: DomainNameRepositoryPort;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ClaModuleFactory()],
       providers: [
-        {
-          provide: PRISMA_SERVICE,
-          useClass: PrismaService,
-        },
         {
           provide: DOMAIN_NAME_REPOSITORY,
           useClass: DomainNameRepository,
