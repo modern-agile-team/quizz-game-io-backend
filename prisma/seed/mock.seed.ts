@@ -7,6 +7,9 @@ const prisma = new PrismaClient();
 const mockQuizzes = JSON.parse(
   readFileSync(`${__dirname}/contents/quiz-mock.json`, 'utf-8'),
 );
+const mockNicknameSources = JSON.parse(
+  readFileSync(`${__dirname}/contents/nickname-source-mock.json`, 'utf-8'),
+);
 
 async function main() {
   await prisma.quiz.createMany({
@@ -20,11 +23,21 @@ async function main() {
       };
     }),
   });
+  await prisma.nicknameSource.createMany({
+    data: mockNicknameSources.map((nicknameSource) => {
+      return {
+        id: TSID.create().number.toString(),
+        name: nicknameSource,
+        sequence: 0,
+      };
+    }),
+  });
 }
 
 main()
   .then(() => {
     console.log(`${mockQuizzes.length}개의 Mock Quiz 생성 완료`);
+    console.log(`${mockNicknameSources.length}개의 Mock 닉네임 소스 생성 완료`);
   })
   .catch(async (e) => {
     console.error(e);
