@@ -1,4 +1,5 @@
 import { NicknameSourceCreatedEvent } from '@module/nickname-source/events/nickname-source-created.event';
+import { NicknameSourceDeletedEvent } from '@module/nickname-source/events/nickname-source-deleted.event';
 import { NicknameSourceUpdatedEvent } from '@module/nickname-source/events/nickname-source-updated.event';
 
 import {
@@ -71,6 +72,14 @@ export class NicknameSource extends AggregateRoot<NicknameSourceProps> {
       new NicknameSourceUpdatedEvent(this.id, {
         nicknameSourceId: this.id,
         name: props.name,
+      }),
+    );
+  }
+
+  delete() {
+    this.apply(
+      new NicknameSourceDeletedEvent(this.id, {
+        nicknameSourceId: this.id,
       }),
     );
   }
