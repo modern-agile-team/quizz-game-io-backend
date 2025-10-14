@@ -2,8 +2,8 @@ import {
   Body,
   Controller,
   HttpStatus,
+  Param,
   Patch,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
@@ -49,7 +49,7 @@ export class UpdateQuizController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Patch('admin/quizzes/:quizId')
   async updateQuizAdmin(
-    @Query('quizId') quizId: string,
+    @Param('quizId') quizId: string,
     @Body() body: UpdateQuizDto,
   ): Promise<QuizDto> {
     try {
