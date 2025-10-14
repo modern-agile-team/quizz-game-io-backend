@@ -9,6 +9,7 @@ import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-pr
 import { NicknameSource } from '@module/nickname-source/entities/nickname-source.entity';
 import { NicknameSourceMapper } from '@module/nickname-source/mappers/nickname-source.mapper';
 import {
+  FindAllNicknameSourcesOffsetPaginatedParams,
   NicknameSourceFilter,
   NicknameSourceOrder,
   NicknameSourceRaw,
@@ -19,6 +20,7 @@ import {
   BaseRepository,
   ICursorPaginated,
   ICursorPaginatedParams,
+  IOffsetPaginated,
 } from '@common/base/base.repository';
 
 @Injectable()
@@ -47,6 +49,28 @@ export class NicknameSourceRepository
     }
 
     return this.mapper.toEntity(nicknameSource);
+  }
+
+  async findAllOffsetPaginated(
+    params: FindAllNicknameSourcesOffsetPaginatedParams,
+  ): Promise<IOffsetPaginated<NicknameSource>> {
+    const { pageInfo } = params;
+
+    const nicknameSources = await this.txHost.tx.nicknameSource.findMany({
+      skip: pageInfo.offset,
+      take: pageInfo.limit,
+      orderBy: this.toOrderBy([{ field: 'id', direction: 'asc' }]),
+    });
+    const totalCount = await this.txHost.tx.nicknameSource.count({});
+
+    return {
+      offset: pageInfo.offset,
+      limit: pageInfo.limit,
+      totalCount: totalCount,
+      data: nicknameSources.map((nicknameSource) =>
+        this.mapper.toEntity(nicknameSource),
+      ),
+    };
   }
 
   findAllCursorPaginated(

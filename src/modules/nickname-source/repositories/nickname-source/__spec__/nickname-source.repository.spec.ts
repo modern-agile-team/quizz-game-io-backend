@@ -83,4 +83,35 @@ describe(NicknameSourceRepository, () => {
       });
     });
   });
+
+  describe(NicknameSourceRepository.prototype.findAllOffsetPaginated, () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    let nicknameSources: NicknameSource[];
+
+    beforeEach(async () => {
+      nicknameSources = await Promise.all(
+        NicknameSourceFactory.buildList(5).map((nicknameSource) =>
+          repository.insert(nicknameSource),
+        ),
+      );
+    });
+
+    describe('페이지를 조회하면', () => {
+      it('페이지가 반환되어야한다.', async () => {
+        await expect(
+          repository.findAllOffsetPaginated({
+            pageInfo: { offset: 0, limit: 2 },
+          }),
+        ).resolves.toEqual({
+          data: expect.toSatisfyAll(
+            (nicknameSource: unknown) =>
+              nicknameSource instanceof NicknameSource,
+          ),
+          limit: expect.any(Number),
+          offset: expect.any(Number),
+          totalCount: expect.any(Number),
+        });
+      });
+    });
+  });
 });
