@@ -16,6 +16,7 @@ export class UpdateQuizDto {
   @ApiProperty({
     type: String,
     required: false,
+    nullable: true,
   })
   @IsString()
   @IsOptional()
@@ -24,6 +25,7 @@ export class UpdateQuizDto {
   @ApiProperty({
     type: String,
     required: false,
+    nullable: true,
   })
   @IsString()
   @IsOptional()
