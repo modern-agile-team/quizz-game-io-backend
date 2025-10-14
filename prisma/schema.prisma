@@ -17,6 +17,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model NicknameSource {
+  id BigInt @id
+
+  name     String
+  sequence Int
+
+  createdAt DateTime @default(now()) @db.Timestamp(3)
+  updatedAt DateTime @updatedAt @db.Timestamp(3)
+
+  @@map("nickname_source")
+}
+
+model NicknameSourceEventStore {
+  id           BigInt   @id
+  actorId      BigInt?
+  aggregateId  BigInt
+  eventName    String
+  eventPayload Json
+  version      Int
+  storedAt     DateTime @default(now()) @db.Timestamp(3)
+
+  @@unique([aggregateId, version])
+  @@map("nickname_source_event_store")
+}
+
 enum SignInType {
   username
 }
