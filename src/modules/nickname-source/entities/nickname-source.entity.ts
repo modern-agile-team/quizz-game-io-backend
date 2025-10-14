@@ -1,4 +1,5 @@
 import { NicknameSourceCreatedEvent } from '@module/nickname-source/events/nickname-source-created.event';
+import { NicknameSourceUpdatedEvent } from '@module/nickname-source/events/nickname-source-updated.event';
 
 import {
   AggregateRoot,
@@ -13,6 +14,10 @@ export interface NicknameSourceProps {
 
 interface CreateNicknameSourceProps {
   name: string;
+}
+
+interface UpdateNicknameSourceProps {
+  name?: string;
 }
 
 export class NicknameSource extends AggregateRoot<NicknameSourceProps> {
@@ -55,6 +60,19 @@ export class NicknameSource extends AggregateRoot<NicknameSourceProps> {
 
   get fullname(): string {
     return `${this.name}${this.sequence}`;
+  }
+
+  update(props: UpdateNicknameSourceProps) {
+    if (props.name !== undefined) {
+      this.props.name = props.name;
+    }
+
+    this.apply(
+      new NicknameSourceUpdatedEvent(this.id, {
+        nicknameSourceId: this.id,
+        name: props.name,
+      }),
+    );
   }
 
   public validate(): void {}

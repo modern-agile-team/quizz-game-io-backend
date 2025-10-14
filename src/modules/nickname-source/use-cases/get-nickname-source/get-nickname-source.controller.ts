@@ -12,7 +12,7 @@ import { NicknameSourceDtoAssembler } from '@module/nickname-source/assemblers/n
 import { NicknameSourceDto } from '@module/nickname-source/dto/nickname-source.dto';
 import { NicknameSource } from '@module/nickname-source/entities/nickname-source.entity';
 import { NicknameSourceNotFoundError } from '@module/nickname-source/errors/nickname-source-not-found.error';
-import { GetNicknameSourceQuery } from '@module/nickname-source/use-cases/get-source/get-source.query';
+import { GetNicknameSourceQuery } from '@module/nickname-source/use-cases/get-nickname-source/get-nickname-source.query';
 
 import { BaseHttpException } from '@common/base/base-http-exception';
 import {
@@ -34,6 +34,7 @@ export class GetNicknameSourceController {
     [HttpStatus.BAD_REQUEST]: [RequestValidationError],
     [HttpStatus.UNAUTHORIZED]: [UnauthorizedError],
     [HttpStatus.FORBIDDEN]: [PermissionDeniedError],
+    [HttpStatus.NOT_FOUND]: [NicknameSourceNotFoundError],
   })
   @ApiOkResponse({ type: NicknameSourceDto })
   @UseGuards(JwtAuthGuard, AdminGuard)

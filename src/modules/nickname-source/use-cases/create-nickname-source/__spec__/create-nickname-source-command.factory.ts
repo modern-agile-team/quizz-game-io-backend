@@ -8,5 +8,5 @@ export const CreateNicknameSourceCommandFactory =
     CreateNicknameSourceCommand.name,
     CreateNicknameSourceCommand,
   ).attrs({
-    name: () => faker.string.nanoid(0),
+    name: () => faker.string.nanoid(1),
   });

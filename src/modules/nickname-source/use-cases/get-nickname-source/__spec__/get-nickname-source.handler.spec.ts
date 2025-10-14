@@ -7,9 +7,9 @@ import {
   NICKNAME_SOURCE_REPOSITORY,
   NicknameSourceRepositoryPort,
 } from '@module/nickname-source/repositories/nickname-source/nickname-source.repository.port';
-import { GetNicknameSourceQueryFactory } from '@module/nickname-source/use-cases/get-source/__spec__/get-source-query.factory';
-import { GetNicknameSourceHandler } from '@module/nickname-source/use-cases/get-source/get-source.handler';
-import { GetNicknameSourceQuery } from '@module/nickname-source/use-cases/get-source/get-source.query';
+import { GetNicknameSourceQueryFactory } from '@module/nickname-source/use-cases/get-nickname-source/__spec__/get-nickname-source-query.factory';
+import { GetNicknameSourceHandler } from '@module/nickname-source/use-cases/get-nickname-source/get-nickname-source.handler';
+import { GetNicknameSourceQuery } from '@module/nickname-source/use-cases/get-nickname-source/get-nickname-source.query';
 
 import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
