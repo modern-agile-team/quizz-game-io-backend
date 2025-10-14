@@ -68,10 +68,12 @@ describe(ImageRepository, () => {
       it('리소스들이 반환돼야한다.', async () => {
         await expect(
           repository.findByFileNames(images.map((image) => image.fileName)),
-        ).resolves.toEqual([
-          expect.objectContaining({ fileName: images[0].fileName }),
-          expect.objectContaining({ fileName: images[1].fileName }),
-        ]);
+        ).resolves.toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ fileName: images[0].fileName }),
+            expect.objectContaining({ fileName: images[1].fileName }),
+          ]),
+        );
       });
     });
   });

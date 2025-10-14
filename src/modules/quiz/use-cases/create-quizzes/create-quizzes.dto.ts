@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { IsOptional, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
+
+import { IsNullable } from '@common/validators/is-nullable.validator';
 
 export class CreateQuizzesDto {
   @ApiProperty()
@@ -11,13 +13,19 @@ export class CreateQuizzesDto {
   @IsString()
   answer: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({
+    type: String,
+    nullable: true,
+  })
   @IsString()
-  @IsOptional()
-  question?: string;
+  @IsNullable()
+  question: string | null;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({
+    type: String,
+    nullable: true,
+  })
   @IsString()
-  @IsOptional()
-  imageUrl?: string;
+  @IsNullable()
+  imageUrl: string | null;
 }
