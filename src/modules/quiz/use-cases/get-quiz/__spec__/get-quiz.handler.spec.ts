@@ -7,32 +7,32 @@ import {
   QUIZ_REPOSITORY,
   QuizRepositoryPort,
 } from '@module/quiz/repositories/quiz/quiz.repository.port';
-import { GetQuizzesQueryFactory } from '@module/quiz/use-cases/get-quizzes/__spec__/get-quizzes-query.factory';
-import { GetQuizzesHandler } from '@module/quiz/use-cases/get-quizzes/get-quizzes.handler';
-import { GetQuizzesQuery } from '@module/quiz/use-cases/get-quizzes/get-quizzes.query';
+import { GetQuizQueryFactory } from '@module/quiz/use-cases/get-quiz/__spec__/get-quiz-query.factory';
+import { GetQuizHandler } from '@module/quiz/use-cases/get-quiz/get-quiz.handler';
+import { GetQuizQuery } from '@module/quiz/use-cases/get-quiz/get-quiz.query';
 
 import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
-describe(GetQuizzesHandler.name, () => {
-  let handler: GetQuizzesHandler;
+describe(GetQuizHandler.name, () => {
+  let handler: GetQuizHandler;
 
   let quizRepository: QuizRepositoryPort;
 
-  let query: GetQuizzesQuery;
+  let query: GetQuizQuery;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [ClsModuleFactory(), QuizRepositoryModule],
-      providers: [GetQuizzesHandler],
+      providers: [GetQuizHandler],
     }).compile();
 
-    handler = module.get<GetQuizzesHandler>(GetQuizzesHandler);
+    handler = module.get<GetQuizHandler>(GetQuizHandler);
 
     quizRepository = module.get<QuizRepositoryPort>(QUIZ_REPOSITORY);
   });
 
   beforeEach(() => {
-    query = GetQuizzesQueryFactory.build();
+    query = GetQuizQueryFactory.build();
   });
 
   describe('퀴즈를 조회하면', () => {

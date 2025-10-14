@@ -1,12 +1,5 @@
-import {
-  Body,
-  Controller,
-  HttpStatus,
-  Param,
-  Patch,
-  UseGuards,
-} from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
+import { Controller, Get, HttpStatus, Param, UseGuards } from '@nestjs/common';
+import { QueryBus } from '@nestjs/cqrs';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -18,10 +11,8 @@ import { JwtAuthGuard } from '@module/auth/jwt/jwt-auth.guard';
 import { QuizDtoAssembler } from '@module/quiz/assemblers/quiz-dto.assembler';
 import { QuizDto } from '@module/quiz/dto/quiz.dto';
 import { Quiz } from '@module/quiz/entities/quiz.entity';
-import { QuizImageNotFoundError } from '@module/quiz/errors/quiz-image-not-found.error';
 import { QuizNotFoundError } from '@module/quiz/errors/quiz-not-found.error';
-import { UpdateQuizCommand } from '@module/quiz/use-cases/update-quiz/update-quiz.command';
-import { UpdateQuizDto } from '@module/quiz/use-cases/update-quiz/update-quiz.dto';
+import { GetQuizQuery } from '@module/quiz/use-cases/get-quiz/get-quiz.query';
 
 import { BaseHttpException } from '@common/base/base-http-exception';
 import {
@@ -34,44 +25,31 @@ import { AdminGuard } from '@common/guards/admin.guard';
 
 @ApiTags('quiz')
 @Controller()
-export class UpdateQuizController {
-  constructor(private readonly commandBus: CommandBus) {}
+export class GetQuizController {
+  constructor(private readonly queryBus: QueryBus) {}
 
-  @ApiOperation({ summary: '퀴즈 수정' })
+  @ApiOperation({ summary: '퀴즈 단일 조회' })
   @ApiBearerAuth()
   @ApiErrorResponse({
-    [HttpStatus.BAD_REQUEST]: [RequestValidationError, QuizImageNotFoundError],
+    [HttpStatus.BAD_REQUEST]: [RequestValidationError],
     [HttpStatus.UNAUTHORIZED]: [UnauthorizedError],
     [HttpStatus.FORBIDDEN]: [PermissionDeniedError],
-    [HttpStatus.NOT_FOUND]: [QuizNotFoundError],
   })
   @ApiOkResponse({ type: QuizDto })
   @UseGuards(JwtAuthGuard, AdminGuard)
-  @Patch('admin/quizzes/:quizId')
-  async updateQuizAdmin(
-    @Param('quizId') quizId: string,
-    @Body() body: UpdateQuizDto,
-  ): Promise<QuizDto> {
+  @Get('admin/quizzes/:quizId')
+  async getQuizzesAdmin(@Param('quizId') quizId: string): Promise<QuizDto> {
     try {
-      const command = new UpdateQuizCommand({
+      const query = new GetQuizQuery({
         quizId,
-        type: body.type,
-        answer: body.answer,
-        question: body.question,
-        imageUrl: body.imageUrl,
       });
 
-      const quiz = await this.commandBus.execute<UpdateQuizCommand, Quiz>(
-        command,
-      );
+      const quiz = await this.queryBus.execute<GetQuizQuery, Quiz>(query);
 
       return QuizDtoAssembler.convertToDto(quiz);
     } catch (error) {
       if (error instanceof QuizNotFoundError) {
         throw new BaseHttpException(HttpStatus.NOT_FOUND, error);
-      }
-      if (error instanceof QuizImageNotFoundError) {
-        throw new BaseHttpException(HttpStatus.BAD_REQUEST, error);
       }
 
       throw error;

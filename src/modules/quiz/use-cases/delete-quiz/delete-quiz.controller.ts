@@ -1,18 +1,21 @@
-import { Controller, Get, HttpStatus, Param, UseGuards } from '@nestjs/common';
-import { QueryBus } from '@nestjs/cqrs';
+import {
+  Controller,
+  Delete,
+  HttpStatus,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
 import {
   ApiBearerAuth,
-  ApiOkResponse,
+  ApiNoContentResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '@module/auth/jwt/jwt-auth.guard';
-import { QuizDtoAssembler } from '@module/quiz/assemblers/quiz-dto.assembler';
-import { QuizDto } from '@module/quiz/dto/quiz.dto';
-import { Quiz } from '@module/quiz/entities/quiz.entity';
 import { QuizNotFoundError } from '@module/quiz/errors/quiz-not-found.error';
-import { GetQuizzesQuery } from '@module/quiz/use-cases/get-quizzes/get-quizzes.query';
+import { DeleteQuizCommand } from '@module/quiz/use-cases/delete-quiz/delete-quiz.command';
 
 import { BaseHttpException } from '@common/base/base-http-exception';
 import {
@@ -25,28 +28,27 @@ import { AdminGuard } from '@common/guards/admin.guard';
 
 @ApiTags('quiz')
 @Controller()
-export class GetQuizzesController {
-  constructor(private readonly queryBus: QueryBus) {}
+export class DeleteQuizController {
+  constructor(private readonly commandBus: CommandBus) {}
 
-  @ApiOperation({ summary: '퀴즈 단일 조회' })
+  @ApiOperation({ summary: '퀴즈 삭제' })
   @ApiBearerAuth()
   @ApiErrorResponse({
     [HttpStatus.BAD_REQUEST]: [RequestValidationError],
     [HttpStatus.UNAUTHORIZED]: [UnauthorizedError],
     [HttpStatus.FORBIDDEN]: [PermissionDeniedError],
+    [HttpStatus.NOT_FOUND]: [QuizNotFoundError],
   })
-  @ApiOkResponse({ type: QuizDto })
+  @ApiNoContentResponse()
   @UseGuards(JwtAuthGuard, AdminGuard)
-  @Get('admin/quizzes/:quizId')
-  async getQuizzesAdmin(@Param('quizId') quizId: string): Promise<QuizDto> {
+  @Delete('admin/quizzes/:quizId')
+  async deleteQuizAdmin(@Param('quizId') quizId: string): Promise<void> {
     try {
-      const query = new GetQuizzesQuery({
+      const command = new DeleteQuizCommand({
         quizId,
       });
 
-      const quiz = await this.queryBus.execute<GetQuizzesQuery, Quiz>(query);
-
-      return QuizDtoAssembler.convertToDto(quiz);
+      await this.commandBus.execute<DeleteQuizCommand, unknown>(command);
     } catch (error) {
       if (error instanceof QuizNotFoundError) {
         throw new BaseHttpException(HttpStatus.NOT_FOUND, error);

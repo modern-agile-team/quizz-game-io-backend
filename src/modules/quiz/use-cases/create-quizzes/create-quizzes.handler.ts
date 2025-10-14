@@ -41,7 +41,7 @@ export class CreateQuizzesHandler
 
     const imageFileNames = props
       .map((item) => item.imageUrl)
-      .filter((url): url is string => url !== undefined)
+      .filter((url): url is string => url !== null)
       .filter((url) =>
         url.startsWith(`${this.appConfigService.get('AWS_S3_URL')}/images`),
       )
@@ -54,7 +54,7 @@ export class CreateQuizzesHandler
 
     const quizzes = props
       .filter((item) => {
-        if (item.imageUrl === undefined) {
+        if (item.imageUrl === null) {
           return true;
         }
 
