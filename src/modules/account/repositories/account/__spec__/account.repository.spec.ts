@@ -11,14 +11,14 @@ import {
 } from '@module/account/repositories/account/account.repository.port';
 
 import { generateEntityId } from '@common/base/base.entity';
-import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 describe(AccountRepository, () => {
   let repository: AccountRepositoryPort;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ClaModuleFactory()],
+      imports: [ClsModuleFactory()],
       providers: [
         {
           provide: ACCOUNT_REPOSITORY,

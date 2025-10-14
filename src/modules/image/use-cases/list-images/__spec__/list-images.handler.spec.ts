@@ -11,7 +11,7 @@ import { ListImagesQueryFactory } from '@module/image/use-cases/list-images/__sp
 import { ListImagesHandler } from '@module/image/use-cases/list-images/list-images.handler';
 import { ListImagesQuery } from '@module/image/use-cases/list-images/list-images.query';
 
-import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 describe(ListImagesHandler.name, () => {
   let handler: ListImagesHandler;
@@ -22,7 +22,7 @@ describe(ListImagesHandler.name, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ClaModuleFactory(), ImageRepositoryModule],
+      imports: [ClsModuleFactory(), ImageRepositoryModule],
       providers: [ListImagesHandler],
     }).compile();
 

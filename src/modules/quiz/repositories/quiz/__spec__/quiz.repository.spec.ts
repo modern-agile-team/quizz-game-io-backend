@@ -9,14 +9,14 @@ import {
 } from '@module/quiz/repositories/quiz/quiz.repository.port';
 
 import { generateEntityId } from '@common/base/base.entity';
-import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 describe(QuizRepository, () => {
   let repository: QuizRepositoryPort;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ClaModuleFactory()],
+      imports: [ClsModuleFactory()],
       providers: [
         {
           provide: QUIZ_REPOSITORY,

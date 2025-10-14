@@ -15,7 +15,7 @@ import { StartGameCommandFactory } from '@module/game-room/use-cases/start-game/
 import { StartGameCommand } from '@module/game-room/use-cases/start-game/start-game.command';
 import { StartGameHandler } from '@module/game-room/use-cases/start-game/start-game.handler';
 
-import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 import {
   EVENT_STORE,
@@ -34,7 +34,7 @@ describe(StartGameHandler.name, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ClaModuleFactory(), GameRoomRepositoryModule, EventStoreModule],
+      imports: [ClsModuleFactory(), GameRoomRepositoryModule, EventStoreModule],
       providers: [StartGameHandler],
     }).compile();
 

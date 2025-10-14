@@ -11,7 +11,7 @@ import { ListQuizzesQueryFactory } from '@module/quiz/use-cases/list-quizzes/__s
 import { ListQuizzesHandler } from '@module/quiz/use-cases/list-quizzes/list-quizzes.handler';
 import { ListQuizzesQuery } from '@module/quiz/use-cases/list-quizzes/list-quizzes.query';
 
-import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 describe(ListQuizzesHandler.name, () => {
   let handler: ListQuizzesHandler;
@@ -22,7 +22,7 @@ describe(ListQuizzesHandler.name, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ClaModuleFactory(), QuizRepositoryModule],
+      imports: [ClsModuleFactory(), QuizRepositoryModule],
       providers: [ListQuizzesHandler],
     }).compile();
 

@@ -13,7 +13,7 @@ import { SignInWithUsernameCommandFactory } from '@module/auth/use-cases/sign-in
 import { SignInWithUsernameCommand } from '@module/auth/use-cases/sign-in-with-username/sign-in-with-username.command';
 import { SignInWithUsernameHandler } from '@module/auth/use-cases/sign-in-with-username/sign-in-with-username.handler';
 
-import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 import { EventStoreModule } from '@core/event-sourcing/event-store.module';
 
@@ -27,7 +27,7 @@ describe(SignInWithUsernameHandler, () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        ClaModuleFactory(),
+        ClsModuleFactory(),
         CqrsModule,
         AuthTokenModule,
         EventStoreModule,

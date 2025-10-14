@@ -13,7 +13,7 @@ import { ListGameRoomMembersQueryFactory } from '@module/game-room/use-cases/lis
 import { ListGameRoomMembersHandler } from '@module/game-room/use-cases/list-game-room-members/list-game-room-members.handler';
 import { ListGameRoomMembersQuery } from '@module/game-room/use-cases/list-game-room-members/list-game-room-members.query';
 
-import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 describe(ListGameRoomMembersHandler.name, () => {
   let handler: ListGameRoomMembersHandler;
@@ -24,7 +24,7 @@ describe(ListGameRoomMembersHandler.name, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ClaModuleFactory(), GameRoomRepositoryModule],
+      imports: [ClsModuleFactory(), GameRoomRepositoryModule],
       providers: [ListGameRoomMembersHandler],
     }).compile();
 

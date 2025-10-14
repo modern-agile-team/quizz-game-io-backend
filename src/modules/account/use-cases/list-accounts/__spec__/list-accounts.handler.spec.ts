@@ -11,7 +11,7 @@ import { ListAccountsQueryFactory } from '@module/account/use-cases/list-account
 import { ListAccountsHandler } from '@module/account/use-cases/list-accounts/list-accounts.handler';
 import { ListAccountsQuery } from '@module/account/use-cases/list-accounts/list-accounts.query';
 
-import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 describe(ListAccountsHandler.name, () => {
   let handler: ListAccountsHandler;
@@ -22,7 +22,7 @@ describe(ListAccountsHandler.name, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ClaModuleFactory(), AccountRepositoryModule],
+      imports: [ClsModuleFactory(), AccountRepositoryModule],
       providers: [ListAccountsHandler],
     }).compile();
 

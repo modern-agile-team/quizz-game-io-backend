@@ -18,7 +18,7 @@ import {
 } from '@module/game-room/services/game-room-access-control/game-room-access-control.service.interface';
 
 import { generateEntityId } from '@common/base/base.entity';
-import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 describe(GameRoomAccessControlService, () => {
   let service: IGameRoomAccessControlService;
@@ -27,7 +27,7 @@ describe(GameRoomAccessControlService, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ClaModuleFactory(), GameRoomRepositoryModule],
+      imports: [ClsModuleFactory(), GameRoomRepositoryModule],
       providers: [
         {
           provide: GAME_ROOM_ACCESS_CONTROL_SERVICE,

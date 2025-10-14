@@ -21,7 +21,7 @@ import { JoinGameRoomCommand } from '@module/game-room/use-cases/join-game-room/
 import { JoinGameRoomHandler } from '@module/game-room/use-cases/join-game-room/join-game-room.handler';
 
 import { generateEntityId } from '@common/base/base.entity';
-import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 import {
   EVENT_STORE,
@@ -41,7 +41,7 @@ describe(JoinGameRoomHandler.name, () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        ClaModuleFactory(),
+        ClsModuleFactory(),
         GameRoomRepositoryModule,
         AccountRepositoryModule,
         EventStoreModule,

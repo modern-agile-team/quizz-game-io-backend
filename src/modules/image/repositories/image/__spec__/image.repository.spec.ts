@@ -11,14 +11,14 @@ import {
 } from '@module/image/repositories/image/image.repository.port';
 
 import { generateEntityId } from '@common/base/base.entity';
-import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 describe(ImageRepository, () => {
   let repository: ImageRepositoryPort;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ClaModuleFactory()],
+      imports: [ClsModuleFactory()],
       providers: [
         {
           provide: IMAGE_REPOSITORY,
