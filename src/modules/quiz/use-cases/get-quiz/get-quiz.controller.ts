@@ -12,7 +12,7 @@ import { QuizDtoAssembler } from '@module/quiz/assemblers/quiz-dto.assembler';
 import { QuizDto } from '@module/quiz/dto/quiz.dto';
 import { Quiz } from '@module/quiz/entities/quiz.entity';
 import { QuizNotFoundError } from '@module/quiz/errors/quiz-not-found.error';
-import { GetQuizzesQuery } from '@module/quiz/use-cases/get-quizzes/get-quizzes.query';
+import { GetQuizQuery } from '@module/quiz/use-cases/get-quiz/get-quiz.query';
 
 import { BaseHttpException } from '@common/base/base-http-exception';
 import {
@@ -25,7 +25,7 @@ import { AdminGuard } from '@common/guards/admin.guard';
 
 @ApiTags('quiz')
 @Controller()
-export class GetQuizzesController {
+export class GetQuizController {
   constructor(private readonly queryBus: QueryBus) {}
 
   @ApiOperation({ summary: '퀴즈 단일 조회' })
@@ -40,11 +40,11 @@ export class GetQuizzesController {
   @Get('admin/quizzes/:quizId')
   async getQuizzesAdmin(@Param('quizId') quizId: string): Promise<QuizDto> {
     try {
-      const query = new GetQuizzesQuery({
+      const query = new GetQuizQuery({
         quizId,
       });
 
-      const quiz = await this.queryBus.execute<GetQuizzesQuery, Quiz>(query);
+      const quiz = await this.queryBus.execute<GetQuizQuery, Quiz>(query);
 
       return QuizDtoAssembler.convertToDto(quiz);
     } catch (error) {
