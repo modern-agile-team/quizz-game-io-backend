@@ -1,3 +1,4 @@
+import { QuizCreatedEvent } from '@module/quiz/events/quiz-created.event';
 import { QuizUpdatedEvent } from '@module/quiz/events/quiz-updated.event';
 
 import {
@@ -15,9 +16,9 @@ export interface QuizProps {
 
 interface CreateQuizProps {
   type: string;
-  question?: string;
+  question?: string | null;
   answer: string;
-  imageUrl?: string;
+  imageUrl?: string | null;
 }
 
 interface UpdateQuizProps {
@@ -39,7 +40,7 @@ export class Quiz extends AggregateRoot<QuizProps> {
     const id = generateEntityId();
     const now = new Date();
 
-    return new Quiz({
+    const quiz = new Quiz({
       id,
       createdAt: now,
       updatedAt: now,
@@ -50,6 +51,18 @@ export class Quiz extends AggregateRoot<QuizProps> {
         imageUrl: props.imageUrl,
       },
     });
+
+    quiz.apply(
+      new QuizCreatedEvent(id, {
+        id,
+        type: props.type,
+        question: props.question,
+        answer: props.answer,
+        imageUrl: props.imageUrl,
+      }),
+    );
+
+    return quiz;
   }
 
   get type(): string {
