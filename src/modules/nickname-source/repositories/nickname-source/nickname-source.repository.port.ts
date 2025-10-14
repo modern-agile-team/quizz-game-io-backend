@@ -2,7 +2,11 @@ import { NicknameSource as NicknameSourceModel } from '@prisma/client';
 
 import { NicknameSource } from '@module/nickname-source/entities/nickname-source.entity';
 
-import { IOffsetPaginated, RepositoryPort } from '@common/base/base.repository';
+import {
+  IOffsetPaginated,
+  ISort,
+  RepositoryPort,
+} from '@common/base/base.repository';
 
 export const NICKNAME_SOURCE_REPOSITORY = Symbol('NICKNAME_SOURCE_REPOSITORY');
 
@@ -17,6 +21,7 @@ export interface FindAllNicknameSourcesOffsetPaginatedParams {
     offset: number;
     limit: number;
   };
+  order?: ISort<'createdAt' | 'sequence'>[];
 }
 
 export interface NicknameSourceRepositoryPort
@@ -25,6 +30,7 @@ export interface NicknameSourceRepositoryPort
     NicknameSourceFilter,
     NicknameSourceOrder
   > {
+  incrementSequence(id: string): Promise<number>;
   findOneByName(name: string): Promise<NicknameSource | undefined>;
   findAllOffsetPaginated(
     params: FindAllNicknameSourcesOffsetPaginatedParams,

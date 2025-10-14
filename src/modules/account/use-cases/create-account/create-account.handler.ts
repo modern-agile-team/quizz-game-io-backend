@@ -4,13 +4,16 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Transactional } from '@nestjs-cls/transactional';
 
 import { Account } from '@module/account/entities/account.entity';
-import { AccountNicknameAlreadyOccupiedError } from '@module/account/errors/account-nickname-already-occupied.error';
 import { AccountUsernameAlreadyOccupiedError } from '@module/account/errors/account-username-already-occupied.error';
 import {
   ACCOUNT_REPOSITORY,
   AccountRepositoryPort,
 } from '@module/account/repositories/account/account.repository.port';
 import { CreateAccountCommand } from '@module/account/use-cases/create-account/create-account.command';
+import {
+  INicknameSourceService,
+  NICKNAME_SOURCE_SERVICE,
+} from '@module/nickname-source/services/nickname-source-service/nickname-source.service.interface';
 
 import {
   EVENT_STORE,
@@ -24,6 +27,8 @@ export class CreateAccountHandler
   constructor(
     @Inject(ACCOUNT_REPOSITORY)
     private readonly accountRepository: AccountRepositoryPort,
+    @Inject(NICKNAME_SOURCE_SERVICE)
+    private readonly nicknameSourceService: INicknameSourceService,
     @Inject(EVENT_STORE) private readonly eventStore: IEventStore,
   ) {}
 
@@ -36,26 +41,20 @@ export class CreateAccountHandler
       throw new AccountUsernameAlreadyOccupiedError();
     }
 
-    if (command.nickname !== undefined) {
-      const existingAccountByNickname =
-        await this.accountRepository.findOneByNickname(command.nickname);
-
-      if (existingAccountByNickname !== undefined) {
-        throw new AccountNicknameAlreadyOccupiedError();
-      }
-    }
+    const nicknameSource = await this.nicknameSourceService.issueNickname();
 
     const account = Account.create({
       role: command.role,
       signInType: command.signInType,
       username: command.username,
       password: command.password,
-      nickname: command.nickname,
+      nickname: nicknameSource.fullname,
     });
 
     await this.accountRepository.insert(account);
 
     await this.eventStore.storeAggregateEvents(account);
+    await this.eventStore.storeAggregateEvents(nicknameSource);
 
     return account;
   }

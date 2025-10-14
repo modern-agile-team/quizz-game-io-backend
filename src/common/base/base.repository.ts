@@ -120,16 +120,10 @@ export abstract class BaseRepository<
       return;
     }
 
-    return sort.reduce((acc, cur) => {
-      const { field, direction } = cur;
-
-      if (field === 'createdAt') {
-        acc['id'] = direction;
-      } else {
-        acc[field] = direction;
-      }
-
-      return acc;
-    }, {});
+    return sort.map(({ field, direction }) => {
+      return {
+        [field]: direction,
+      };
+    });
   }
 }

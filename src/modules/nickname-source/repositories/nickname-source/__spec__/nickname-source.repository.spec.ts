@@ -11,6 +11,7 @@ import {
 } from '@module/nickname-source/repositories/nickname-source/nickname-source.repository.port';
 
 import { generateEntityId } from '@common/base/base.entity';
+import { RecordNotFoundError } from '@common/base/base.error';
 import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 describe(NicknameSourceRepository, () => {
@@ -30,6 +31,30 @@ describe(NicknameSourceRepository, () => {
     repository = module.get<NicknameSourceRepositoryPort>(
       NICKNAME_SOURCE_REPOSITORY,
     );
+  });
+
+  describe(NicknameSourceRepository.prototype.incrementSequence, () => {
+    describe('닉네임 소스의 시퀀스를 증가시키면', () => {
+      let nicknameSource: NicknameSource;
+
+      beforeEach(async () => {
+        nicknameSource = await repository.insert(NicknameSourceFactory.build());
+      });
+
+      it('시퀀스가 증가해야한다.', async () => {
+        await expect(
+          repository.incrementSequence(nicknameSource.id),
+        ).resolves.toBe(nicknameSource.sequence + 1);
+      });
+    });
+
+    describe('닉네임 소스가 존재하지 않는경우', () => {
+      it('닉네임 소스가 존재하지 않는다는 에러가 발생해야한다.', async () => {
+        await expect(
+          repository.incrementSequence(generateEntityId()),
+        ).rejects.toThrow(RecordNotFoundError);
+      });
+    });
   });
 
   describe(NicknameSourceRepository.prototype.findOneById, () => {
