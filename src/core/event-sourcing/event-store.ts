@@ -83,5 +83,8 @@ export class EventStore implements IEventStore {
     if (aggregate === 'Quiz') {
       return this.txHost.tx.quizEventStore;
     }
+    if (aggregate === 'NicknameSource') {
+      return this.txHost.tx.nicknameSourceEventStore;
+    }
   }
 }
