@@ -1,4 +1,5 @@
 import { QuizCreatedEvent } from '@module/quiz/events/quiz-created.event';
+import { QuizDeletedEvent } from '@module/quiz/events/quiz-deleted.event';
 import { QuizUpdatedEvent } from '@module/quiz/events/quiz-updated.event';
 
 import {
@@ -107,6 +108,10 @@ export class Quiz extends AggregateRoot<QuizProps> {
         imageUrl: this.props.imageUrl,
       }),
     );
+  }
+
+  delete() {
+    this.apply(new QuizDeletedEvent(this.id, {}));
   }
 
   public validate(): void {}
