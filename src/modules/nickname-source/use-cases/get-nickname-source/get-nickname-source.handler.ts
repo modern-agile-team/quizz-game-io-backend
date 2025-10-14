@@ -6,7 +6,7 @@ import {
   NICKNAME_SOURCE_REPOSITORY,
   NicknameSourceRepositoryPort,
 } from '@module/nickname-source/repositories/nickname-source/nickname-source.repository.port';
-import { GetNicknameSourceQuery } from '@module/nickname-source/use-cases/get-source/get-source.query';
+import { GetNicknameSourceQuery } from '@module/nickname-source/use-cases/get-nickname-source/get-nickname-source.query';
 
 @QueryHandler(GetNicknameSourceQuery)
 export class GetNicknameSourceHandler
