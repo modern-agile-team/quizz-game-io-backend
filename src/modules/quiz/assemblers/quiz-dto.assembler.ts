@@ -10,9 +10,9 @@ export class QuizDtoAssembler {
     });
 
     dto.type = quiz.type;
-    dto.question = quiz.question;
+    dto.question = quiz.question ?? null;
     dto.answer = quiz.answer;
-    dto.imageUrl = quiz.imageUrl;
+    dto.imageUrl = quiz.imageUrl ?? null;
 
     return dto;
   }

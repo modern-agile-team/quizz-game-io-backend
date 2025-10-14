@@ -14,12 +14,12 @@ export class QuizDto extends BaseResponseDto {
   type: string;
 
   @ApiProperty({
+    type: String,
     description: '퀴즈 질문',
-    required: false,
     nullable: true,
     example: '다음 중 옳은 것은?',
   })
-  question?: string | null;
+  question: string | null;
 
   @ApiProperty({
     description: '퀴즈 정답',
@@ -28,10 +28,10 @@ export class QuizDto extends BaseResponseDto {
   answer: string;
 
   @ApiProperty({
+    type: String,
     description: '퀴즈 이미지 URL',
-    required: false,
     nullable: true,
     example: 'https://example.com/quiz.png',
   })
-  imageUrl?: string | null;
+  imageUrl: string | null;
 }
