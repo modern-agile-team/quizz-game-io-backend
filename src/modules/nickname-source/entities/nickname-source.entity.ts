@@ -1,5 +1,6 @@
 import { NicknameSourceCreatedEvent } from '@module/nickname-source/events/nickname-source-created.event';
 import { NicknameSourceDeletedEvent } from '@module/nickname-source/events/nickname-source-deleted.event';
+import { NicknameSourceIssuedEvent } from '@module/nickname-source/events/nickname-source-issued.event';
 import { NicknameSourceUpdatedEvent } from '@module/nickname-source/events/nickname-source-updated.event';
 
 import {
@@ -58,6 +59,9 @@ export class NicknameSource extends AggregateRoot<NicknameSourceProps> {
   get sequence(): number {
     return this.props.sequence;
   }
+  set sequence(value: number) {
+    this.props.sequence = value;
+  }
 
   get fullname(): string {
     return `${this.name}${this.sequence}`;
@@ -80,6 +84,16 @@ export class NicknameSource extends AggregateRoot<NicknameSourceProps> {
     this.apply(
       new NicknameSourceDeletedEvent(this.id, {
         nicknameSourceId: this.id,
+      }),
+    );
+  }
+
+  issue() {
+    this.apply(
+      new NicknameSourceIssuedEvent(this.id, {
+        nicknameSourceId: this.id,
+        name: this.props.name,
+        sequence: this.props.sequence,
       }),
     );
   }

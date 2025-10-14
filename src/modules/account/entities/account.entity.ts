@@ -32,7 +32,7 @@ export interface AccountProps {
 interface CreateAccountProps {
   role: AccountRole;
   signInType: SignInType;
-  nickname?: string;
+  nickname: string;
   username?: string;
   password?: string;
 }
@@ -53,7 +53,7 @@ export class Account extends AggregateRoot<AccountProps> {
         signInType: props.signInType,
         username: props.username,
         password: props.password,
-        nickname: props.nickname ?? generateEntityId(),
+        nickname: props.nickname,
         isActive: false,
       },
       createdAt: date,

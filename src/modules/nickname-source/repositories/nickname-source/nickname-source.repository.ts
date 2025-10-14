@@ -5,6 +5,7 @@ import {
   TransactionHost,
 } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
+import { Prisma } from '@prisma/client';
 
 import { NicknameSource } from '@module/nickname-source/entities/nickname-source.entity';
 import { NicknameSourceMapper } from '@module/nickname-source/mappers/nickname-source.mapper';
@@ -16,6 +17,7 @@ import {
   NicknameSourceRepositoryPort,
 } from '@module/nickname-source/repositories/nickname-source/nickname-source.repository.port';
 
+import { RecordNotFoundError } from '@common/base/base.error';
 import {
   BaseRepository,
   ICursorPaginated,
@@ -35,6 +37,31 @@ export class NicknameSourceRepository
     protected readonly txHost: TransactionHost<TransactionalAdapterPrisma>,
   ) {
     super(txHost, NicknameSourceMapper);
+  }
+
+  async incrementSequence(id: string): Promise<number> {
+    try {
+      const nicknameSource = await this.txHost.tx.nicknameSource.update({
+        where: {
+          id: this.mapper.toPrimaryKey(id),
+        },
+        data: {
+          sequence: {
+            increment: 1,
+          },
+        },
+      });
+
+      return nicknameSource.sequence;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new RecordNotFoundError();
+        }
+      }
+
+      throw error;
+    }
   }
 
   async findOneByName(name: string): Promise<NicknameSource | undefined> {
@@ -59,7 +86,9 @@ export class NicknameSourceRepository
     const nicknameSources = await this.txHost.tx.nicknameSource.findMany({
       skip: pageInfo.offset,
       take: pageInfo.limit,
-      orderBy: this.toOrderBy([{ field: 'id', direction: 'asc' }]),
+      orderBy: this.toOrderBy(
+        params.order ?? [{ field: 'id', direction: 'asc' }],
+      ),
     });
     const totalCount = await this.txHost.tx.nicknameSource.count({});
 
