@@ -12,7 +12,7 @@ import { CreateImageHandler } from '@module/image/use-cases/create-image/create-
 
 import { AppConfigModule } from '@common/app-config/app-config.module';
 import { AppConfigService } from '@common/app-config/app-config.service';
-import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 import { AwsS3Module } from '@shared/services/aws-s3/aws-s3.module';
 import { AWS_S3_PORT, AwsS3Port } from '@shared/services/aws-s3/aws-s3.port';
@@ -43,7 +43,7 @@ describe(CreateImageHandler.name, () => {
         AwsS3Module,
         EventStoreModule,
         AppConfigModule,
-        ClaModuleFactory(),
+        ClsModuleFactory(),
       ],
       providers: [CreateImageHandler],
     }).compile();

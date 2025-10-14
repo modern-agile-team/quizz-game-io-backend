@@ -19,7 +19,7 @@ import { LeaveGameRoomCommand } from '@module/game-room/use-cases/leave-game-roo
 import { LeaveGameRoomHandler } from '@module/game-room/use-cases/leave-game-room/leave-game-room.handler';
 
 import { generateEntityId } from '@common/base/base.entity';
-import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 import {
   EVENT_STORE,
@@ -38,7 +38,7 @@ describe(LeaveGameRoomHandler.name, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ClaModuleFactory(), GameRoomRepositoryModule, EventStoreModule],
+      imports: [ClsModuleFactory(), GameRoomRepositoryModule, EventStoreModule],
       providers: [LeaveGameRoomHandler],
     }).compile();
 

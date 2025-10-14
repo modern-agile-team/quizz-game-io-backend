@@ -7,7 +7,7 @@ import { ClsModule } from 'nestjs-cls';
 import { PRISMA_SERVICE } from '@shared/prisma/prisma.di-token';
 import { PrismaModule } from '@shared/prisma/prisma.module';
 
-export const ClaModuleFactory = (): DynamicModule => {
+export const ClsModuleFactory = (): DynamicModule => {
   return ClsModule.forRoot({
     plugins: [
       new ClsPluginTransactional({

@@ -18,7 +18,7 @@ import { CreateQuizzesCommand } from '@module/quiz/use-cases/create-quizzes/crea
 import { CreateQuizzesHandler } from '@module/quiz/use-cases/create-quizzes/create-quizzes.handler';
 
 import { AppConfigModule } from '@common/app-config/app-config.module';
-import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 import {
   EVENT_STORE,
@@ -41,7 +41,7 @@ describe(CreateQuizzesHandler.name, () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         AppConfigModule,
-        ClaModuleFactory(),
+        ClsModuleFactory(),
         QuizRepositoryModule,
         ImageRepositoryModule,
         EventStoreModule,

@@ -9,14 +9,14 @@ import {
 } from '@module/game-room/repositories/game-room/game-room.repository.port';
 
 import { generateEntityId } from '@common/base/base.entity';
-import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 describe(GameRoomRepository, () => {
   let repository: GameRoomRepositoryPort;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ClaModuleFactory()],
+      imports: [ClsModuleFactory()],
       providers: [
         {
           provide: GAME_ROOM_REPOSITORY,

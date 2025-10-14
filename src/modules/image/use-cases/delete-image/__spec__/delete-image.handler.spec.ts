@@ -13,7 +13,7 @@ import { DeleteImageCommand } from '@module/image/use-cases/delete-image/delete-
 import { DeleteImageHandler } from '@module/image/use-cases/delete-image/delete-image.handler';
 
 import { AppConfigModule } from '@common/app-config/app-config.module';
-import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 import { AwsS3Module } from '@shared/services/aws-s3/aws-s3.module';
 import { AWS_S3_PORT, AwsS3Port } from '@shared/services/aws-s3/aws-s3.port';
@@ -38,7 +38,7 @@ describe(DeleteImageHandler.name, () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        ClaModuleFactory(),
+        ClsModuleFactory(),
         AppConfigModule,
         ImageRepositoryModule,
         AwsS3Module,

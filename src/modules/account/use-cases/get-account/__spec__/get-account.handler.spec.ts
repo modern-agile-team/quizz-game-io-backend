@@ -12,7 +12,7 @@ import { GetAccountQueryFactory } from '@module/account/use-cases/get-account/__
 import { GetAccountHandler } from '@module/account/use-cases/get-account/get-account.handler';
 import { GetAccountQuery } from '@module/account/use-cases/get-account/get-account.query';
 
-import { ClaModuleFactory } from '@common/factories/cls-module.factory';
+import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 describe(GetAccountHandler.name, () => {
   let handler: GetAccountHandler;
@@ -23,7 +23,7 @@ describe(GetAccountHandler.name, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ClaModuleFactory(), AccountRepositoryModule],
+      imports: [ClsModuleFactory(), AccountRepositoryModule],
       providers: [GetAccountHandler],
     }).compile();
 
