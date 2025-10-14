@@ -34,6 +34,7 @@ export class GetNicknameSourceController {
     [HttpStatus.BAD_REQUEST]: [RequestValidationError],
     [HttpStatus.UNAUTHORIZED]: [UnauthorizedError],
     [HttpStatus.FORBIDDEN]: [PermissionDeniedError],
+    [HttpStatus.NOT_FOUND]: [NicknameSourceNotFoundError],
   })
   @ApiOkResponse({ type: NicknameSourceDto })
   @UseGuards(JwtAuthGuard, AdminGuard)
