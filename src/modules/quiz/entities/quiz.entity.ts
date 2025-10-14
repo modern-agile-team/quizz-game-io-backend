@@ -1,3 +1,5 @@
+import { QuizUpdatedEvent } from '@module/quiz/events/quiz-updated.event';
+
 import {
   AggregateRoot,
   CreateEntityProps,
@@ -6,9 +8,9 @@ import {
 
 export interface QuizProps {
   type: string;
-  question?: string;
+  question?: string | null;
   answer: string;
-  imageUrl?: string;
+  imageUrl?: string | null;
 }
 
 interface CreateQuizProps {
@@ -16,6 +18,13 @@ interface CreateQuizProps {
   question?: string;
   answer: string;
   imageUrl?: string;
+}
+
+interface UpdateQuizProps {
+  type?: string;
+  question?: string | null;
+  answer?: string;
+  imageUrl?: string | null;
 }
 
 export class Quiz extends AggregateRoot<QuizProps> {
@@ -47,7 +56,7 @@ export class Quiz extends AggregateRoot<QuizProps> {
     return this.props.type;
   }
 
-  get question(): string | undefined {
+  get question(): string | undefined | null {
     return this.props.question;
   }
 
@@ -55,8 +64,36 @@ export class Quiz extends AggregateRoot<QuizProps> {
     return this.props.answer;
   }
 
-  get imageUrl(): string | undefined {
+  get imageUrl(): string | undefined | null {
     return this.props.imageUrl;
+  }
+
+  update(props: UpdateQuizProps) {
+    if (props.type !== undefined) {
+      this.props.type = props.type;
+    }
+
+    if (props.question !== undefined) {
+      this.props.question = props.question;
+    }
+
+    if (props.answer !== undefined) {
+      this.props.answer = props.answer;
+    }
+
+    if (props.imageUrl !== undefined) {
+      this.props.imageUrl = props.imageUrl;
+    }
+
+    this.apply(
+      new QuizUpdatedEvent(this.id, {
+        quizId: this.id,
+        type: this.props.type,
+        question: this.props.question,
+        answer: this.props.answer,
+        imageUrl: this.props.imageUrl,
+      }),
+    );
   }
 
   public validate(): void {}
