@@ -2,7 +2,7 @@ name: backend-dev
 
 on:
   push:
-    branches: ['main']
+    branches: ['test/deploy']
 
 jobs:
   build-and-push:

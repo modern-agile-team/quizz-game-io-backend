@@ -44,3 +44,5 @@ export class SignUpWithUsernameHandler
     return authToken;
   }
 }
+
+console.log('test deploy');
