@@ -1,6 +1,8 @@
-import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+
+import { Response } from 'express';
 
 import { AuthTokenDtoAssembler } from '@module/auth/assemblers/auth-token-dto.assembler';
 import { AuthTokenDto } from '@module/auth/dto/auth-token.dto';
@@ -18,8 +20,21 @@ import { ApiErrorResponse } from '@common/decorator/api-fail-response.decorator'
 export class SignInWithUsernameController {
   constructor(private readonly commandBus: CommandBus) {}
 
+  /**
+   * @todo 프론트엔드에서 작업 완려되면 json 응답 제거
+   */
   @ApiOperation({ summary: 'username 기반 로그인' })
-  @ApiCreatedResponse({ type: AuthTokenDto })
+  @ApiCreatedResponse({
+    type: AuthTokenDto,
+    headers: {
+      'Set-Cookie': {
+        description: 'access_token=token; Path=/; HttpOnly',
+        schema: {
+          type: 'string',
+        },
+      },
+    },
+  })
   @ApiErrorResponse({
     [HttpStatus.BAD_REQUEST]: [RequestValidationError],
     [HttpStatus.UNAUTHORIZED]: [SignInInfoNotMatchedError],
@@ -27,6 +42,7 @@ export class SignInWithUsernameController {
   @Post('sign-in/username')
   async signInWithUsername(
     @Body() body: SignInWithUsernameDto,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<AuthTokenDto> {
     try {
       const command = new SignInWithUsernameCommand({
@@ -34,12 +50,16 @@ export class SignInWithUsernameController {
         password: body.password,
       });
 
-      const result = await this.commandBus.execute<
+      const authToken = await this.commandBus.execute<
         SignInWithUsernameCommand,
         AuthToken
       >(command);
 
-      return AuthTokenDtoAssembler.convertToDto(result);
+      res.cookie('access_token', authToken.accessToken, {
+        httpOnly: true,
+      });
+
+      return AuthTokenDtoAssembler.convertToDto(authToken);
     } catch (error) {
       if (error instanceof SignInInfoNotMatchedError) {
         throw new BaseHttpException(HttpStatus.UNAUTHORIZED, error);

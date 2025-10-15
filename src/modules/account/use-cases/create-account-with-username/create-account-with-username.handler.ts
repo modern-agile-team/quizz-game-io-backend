@@ -9,7 +9,7 @@ import {
   ACCOUNT_REPOSITORY,
   AccountRepositoryPort,
 } from '@module/account/repositories/account/account.repository.port';
-import { CreateAccountCommand } from '@module/account/use-cases/create-account/create-account.command';
+import { CreateAccountWithUsernameCommand } from '@module/account/use-cases/create-account-with-username/create-account-with-username.command';
 import {
   INicknameSourceService,
   NICKNAME_SOURCE_SERVICE,
@@ -20,9 +20,9 @@ import {
   IEventStore,
 } from '@core/event-sourcing/event-store.interface';
 
-@CommandHandler(CreateAccountCommand)
-export class CreateAccountHandler
-  implements ICommandHandler<CreateAccountCommand, Account>
+@CommandHandler(CreateAccountWithUsernameCommand)
+export class CreateAccountWithUsernameHandler
+  implements ICommandHandler<CreateAccountWithUsernameCommand, Account>
 {
   constructor(
     @Inject(ACCOUNT_REPOSITORY)
@@ -33,7 +33,7 @@ export class CreateAccountHandler
   ) {}
 
   @Transactional()
-  async execute(command: CreateAccountCommand): Promise<Account> {
+  async execute(command: CreateAccountWithUsernameCommand): Promise<Account> {
     const existingAccountByUsername =
       await this.accountRepository.findOneByUsername(command.username);
 
@@ -43,7 +43,7 @@ export class CreateAccountHandler
 
     const nicknameSource = await this.nicknameSourceService.issueNickname();
 
-    const account = Account.create({
+    const account = Account.createWithUsername({
       role: command.role,
       signInType: command.signInType,
       username: command.username,

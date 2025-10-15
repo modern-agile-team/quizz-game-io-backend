@@ -3,7 +3,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { faker } from '@faker-js/faker';
 
 import { AccountFactory } from '@module/account/entities/__spec__/account.factory';
-import { Account } from '@module/account/entities/account.entity';
+import {
+  Account,
+  SocialProvider,
+} from '@module/account/entities/account.entity';
 import { AccountRepository } from '@module/account/repositories/account/account.repository';
 import {
   ACCOUNT_REPOSITORY,
@@ -143,6 +146,43 @@ describe(AccountRepository, () => {
       it('undefined가 반환돼야한다.', async () => {
         await expect(
           repository.findOneByNickname(nickname),
+        ).resolves.toBeUndefined();
+      });
+    });
+  });
+
+  describe(AccountRepository.prototype.findOneBySocialId, () => {
+    let provider: SocialProvider;
+    let providerUid: string;
+
+    beforeEach(() => {
+      provider = faker.helpers.enumValue(SocialProvider);
+      providerUid = faker.string.nanoid();
+    });
+
+    describe('소셜 계정과 일치하는 계정이 존재하면', () => {
+      let account: Account;
+
+      beforeEach(async () => {
+        account = await repository.insert(
+          AccountFactory.build({
+            socialProvider: provider,
+            socialProviderUid: providerUid,
+          }),
+        );
+      });
+
+      it('계정이 반환돼야한다.', async () => {
+        await expect(
+          repository.findOneBySocialId(provider, providerUid),
+        ).resolves.toEqual(account);
+      });
+    });
+
+    describe('소셜 계정과 일치하는 계정이 존재하지 않으면', () => {
+      it('undefined가 반환돼야한다.', async () => {
+        await expect(
+          repository.findOneBySocialId(provider, providerUid),
         ).resolves.toBeUndefined();
       });
     });

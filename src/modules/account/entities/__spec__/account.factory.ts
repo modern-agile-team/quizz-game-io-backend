@@ -6,6 +6,7 @@ import {
   AccountProps,
   AccountRole,
   SignInType,
+  SocialProvider,
 } from '@module/account/entities/account.entity';
 
 import { generateEntityId } from '@common/base/base.entity';
@@ -17,6 +18,8 @@ export const AccountFactory = Factory.define<Account & AccountProps>(
     id: () => generateEntityId(),
     role: () => faker.helpers.arrayElement(Object.values(AccountRole)),
     signInType: () => faker.helpers.arrayElement(Object.values(SignInType)),
+    socialProvider: () => faker.helpers.enumValue(SocialProvider),
+    socialProviderUid: () => faker.string.nanoid(),
     username: () => generateEntityId(),
     password: () => faker.internet.password(),
     nickname: () => generateEntityId(),

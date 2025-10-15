@@ -2,7 +2,7 @@ import { CommandBus, CqrsModule } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { AccountFactory } from '@module/account/entities/__spec__/account.factory';
-import { CreateAccountCommand } from '@module/account/use-cases/create-account/create-account.command';
+import { CreateAccountWithUsernameCommand } from '@module/account/use-cases/create-account-with-username/create-account-with-username.command';
 import { AuthToken } from '@module/auth/entities/auth-token.vo';
 import { AuthTokenModule } from '@module/auth/services/auth-token/auth-token.module';
 import { SignUpWithUsernameCommandFactory } from '@module/auth/use-cases/sign-up-with-username/__spec__/sign-up-with-username.command.factory';
@@ -40,7 +40,7 @@ describe(SignUpWithUsernameHandler, () => {
       await expect(handler.execute(command)).resolves.toBeInstanceOf(AuthToken);
 
       expect(commandBus.execute).toHaveBeenCalledWith(
-        expect.any(CreateAccountCommand),
+        expect.any(CreateAccountWithUsernameCommand),
       );
     });
   });

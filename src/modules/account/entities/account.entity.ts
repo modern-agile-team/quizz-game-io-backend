@@ -15,11 +15,18 @@ export enum AccountRole {
 
 export enum SignInType {
   username = 'username',
+  google = 'google',
+}
+
+export enum SocialProvider {
+  google = 'google',
 }
 
 export interface AccountProps {
   role: AccountRole;
   signInType: SignInType;
+  socialProvider?: SocialProvider;
+  socialProviderUid?: string;
   username?: string;
   password?: string;
   nickname: string;
@@ -29,7 +36,7 @@ export interface AccountProps {
   lastSignedInAt?: Date;
 }
 
-interface CreateAccountProps {
+interface CreateAccountWithUsernameProps {
   role: AccountRole;
   signInType: SignInType;
   nickname: string;
@@ -37,12 +44,18 @@ interface CreateAccountProps {
   password?: string;
 }
 
+interface CreateAccountWithGoogleProps {
+  role: AccountRole;
+  socialProviderUid?: string;
+  nickname: string;
+}
+
 export class Account extends AggregateRoot<AccountProps> {
   constructor(props: CreateEntityProps<AccountProps>) {
     super(props);
   }
 
-  static create(props: CreateAccountProps) {
+  static createWithUsername(props: CreateAccountWithUsernameProps) {
     const id = generateEntityId();
     const date = new Date();
 
@@ -73,6 +86,37 @@ export class Account extends AggregateRoot<AccountProps> {
     return account;
   }
 
+  static createAccountWithGoogle(props: CreateAccountWithGoogleProps) {
+    const id = generateEntityId();
+    const date = new Date();
+
+    const account = new Account({
+      id,
+      props: {
+        role: props.role,
+        signInType: SignInType.google,
+        socialProvider: SocialProvider.google,
+        socialProviderUid: props.socialProviderUid,
+        nickname: props.nickname,
+        isActive: false,
+      },
+      createdAt: date,
+      updatedAt: date,
+    });
+
+    account.apply(
+      new AccountCreatedEvent(account.id, {
+        role: AccountRole.user,
+        signInType: SignInType.google,
+        socialProvider: SocialProvider.google,
+        socialProviderUid: props.socialProviderUid,
+        nickname: account.props.nickname,
+      }),
+    );
+
+    return account;
+  }
+
   public validate(): void {}
 
   get role(): AccountRole {
@@ -81,6 +125,14 @@ export class Account extends AggregateRoot<AccountProps> {
 
   get signInType(): SignInType {
     return this.props.signInType;
+  }
+
+  get socialProvider(): SocialProvider | undefined {
+    return this.props.socialProvider;
+  }
+
+  get socialProviderUid(): string | undefined {
+    return this.props.socialProviderUid;
   }
 
   get username(): string | undefined {

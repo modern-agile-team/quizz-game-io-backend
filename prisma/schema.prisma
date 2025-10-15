@@ -44,6 +44,11 @@ model NicknameSourceEventStore {
 
 enum SignInType {
   username
+  google
+}
+
+enum SocialProvider {
+  google
 }
 
 enum AccountRole {
@@ -54,8 +59,10 @@ enum AccountRole {
 model Account {
   id BigInt @id
 
-  role       AccountRole
-  signInType SignInType
+  role              AccountRole
+  signInType        SignInType
+  socialProvider    SocialProvider?
+  socialProviderUid String?
 
   username       String?   @unique @db.VarChar(20)
   password       String?
@@ -70,6 +77,7 @@ model Account {
 
   gameRooms GameRoom[]
 
+  @@index([socialProvider, socialProviderUid])
   @@map("account")
 }
 
