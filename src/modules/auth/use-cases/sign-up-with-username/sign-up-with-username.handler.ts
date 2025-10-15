@@ -8,7 +8,7 @@ import {
   AccountRole,
   SignInType,
 } from '@module/account/entities/account.entity';
-import { CreateAccountCommand } from '@module/account/use-cases/create-account/create-account.command';
+import { CreateAccountWithUsernameCommand } from '@module/account/use-cases/create-account-with-username/create-account-with-username.command';
 import { AuthToken } from '@module/auth/entities/auth-token.vo';
 import {
   AUTH_TOKEN_SERVICE,
@@ -27,7 +27,7 @@ export class SignUpWithUsernameHandler
   ) {}
 
   async execute(command: SignUpWithUsernameCommand): Promise<AuthToken> {
-    const createAccountCommand = new CreateAccountCommand({
+    const createAccountCommand = new CreateAccountWithUsernameCommand({
       role: AccountRole.user,
       signInType: SignInType.username,
       username: command.username,
@@ -35,7 +35,7 @@ export class SignUpWithUsernameHandler
     });
 
     const account = await this.commandBus.execute<
-      CreateAccountCommand,
+      CreateAccountWithUsernameCommand,
       Account
     >(createAccountCommand);
 

@@ -5,20 +5,20 @@ import {
   SignInType,
 } from '@module/account/entities/account.entity';
 
-export interface ICreateAccountCommandProps {
+export interface ICreateAccountWithUsernameCommandProps {
   role: AccountRole;
   signInType: SignInType;
   username: string;
   password: string;
 }
 
-export class CreateAccountCommand implements ICommand {
+export class CreateAccountWithUsernameCommand implements ICommand {
   readonly role: AccountRole;
   readonly signInType: SignInType;
   readonly username: string;
   readonly password: string;
 
-  constructor(props: ICreateAccountCommandProps) {
+  constructor(props: ICreateAccountWithUsernameCommandProps) {
     this.role = props.role;
     this.signInType = props.signInType;
     this.username = props.username;

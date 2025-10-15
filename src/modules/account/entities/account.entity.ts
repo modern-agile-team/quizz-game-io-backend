@@ -36,11 +36,9 @@ export interface AccountProps {
   lastSignedInAt?: Date;
 }
 
-interface CreateAccountProps {
+interface CreateAccountWithUsernameProps {
   role: AccountRole;
   signInType: SignInType;
-  socialProvider?: SocialProvider;
-  socialProviderUid?: string;
   nickname: string;
   username?: string;
   password?: string;
@@ -57,7 +55,7 @@ export class Account extends AggregateRoot<AccountProps> {
     super(props);
   }
 
-  static create(props: CreateAccountProps) {
+  static createWithUsername(props: CreateAccountWithUsernameProps) {
     const id = generateEntityId();
     const date = new Date();
 
@@ -66,8 +64,6 @@ export class Account extends AggregateRoot<AccountProps> {
       props: {
         role: props.role,
         signInType: props.signInType,
-        socialProvider: props.socialProvider,
-        socialProviderUid: props.socialProviderUid,
         username: props.username,
         password: props.password,
         nickname: props.nickname,
@@ -81,8 +77,6 @@ export class Account extends AggregateRoot<AccountProps> {
       new AccountCreatedEvent(account.id, {
         role: props.role,
         signInType: props.signInType,
-        socialProvider: props.socialProvider,
-        socialProviderUid: props.socialProviderUid,
         username: props.username,
         password: props.password,
         nickname: account.props.nickname,

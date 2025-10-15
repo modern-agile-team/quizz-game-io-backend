@@ -7,9 +7,9 @@ import {
   ACCOUNT_REPOSITORY,
   AccountRepositoryPort,
 } from '@module/account/repositories/account/account.repository.port';
-import { CreateAccountCommandFactory } from '@module/account/use-cases/create-account/__spec__/create-account-command.factory';
-import { CreateAccountCommand } from '@module/account/use-cases/create-account/create-account.command';
-import { CreateAccountHandler } from '@module/account/use-cases/create-account/create-account.handler';
+import { CreateAccountWithUsernameCommandFactory } from '@module/account/use-cases/create-account-with-username/__spec__/create-account-with-username-command.factory';
+import { CreateAccountWithUsernameCommand } from '@module/account/use-cases/create-account-with-username/create-account-with-username.command';
+import { CreateAccountWithUsernameHandler } from '@module/account/use-cases/create-account-with-username/create-account-with-username.handler';
 import { NicknameSourceFactory } from '@module/nickname-source/entities/__spec__/nickname-source.factory';
 import { NicknameSource } from '@module/nickname-source/entities/nickname-source.entity';
 import {
@@ -22,13 +22,13 @@ import { ClsModuleFactory } from '@common/factories/cls-module.factory';
 
 import { EventStoreModule } from '@core/event-sourcing/event-store.module';
 
-describe(CreateAccountHandler.name, () => {
-  let handler: CreateAccountHandler;
+describe(CreateAccountWithUsernameHandler.name, () => {
+  let handler: CreateAccountWithUsernameHandler;
 
   let accountRepository: AccountRepositoryPort;
   let nicknameSourceService: INicknameSourceService;
 
-  let command: CreateAccountCommand;
+  let command: CreateAccountWithUsernameCommand;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -38,10 +38,12 @@ describe(CreateAccountHandler.name, () => {
         AccountRepositoryModule,
         EventStoreModule,
       ],
-      providers: [CreateAccountHandler],
+      providers: [CreateAccountWithUsernameHandler],
     }).compile();
 
-    handler = module.get<CreateAccountHandler>(CreateAccountHandler);
+    handler = module.get<CreateAccountWithUsernameHandler>(
+      CreateAccountWithUsernameHandler,
+    );
 
     accountRepository = module.get<AccountRepositoryPort>(ACCOUNT_REPOSITORY);
     nicknameSourceService = module.get<INicknameSourceService>(
@@ -50,7 +52,7 @@ describe(CreateAccountHandler.name, () => {
   });
 
   beforeEach(() => {
-    command = CreateAccountCommandFactory.build();
+    command = CreateAccountWithUsernameCommandFactory.build();
   });
 
   let nicknameSource: NicknameSource;

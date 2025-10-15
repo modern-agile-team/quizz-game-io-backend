@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { AccountEnteredModule } from '@module/account/events/account-entered-event/account-entered.module';
 import { ActiveAccountStoreModule } from '@module/account/stores/active-account/active-account.store.module';
 import { CreateAccountWithGoogleModule } from '@module/account/use-cases/create-account-with-google/create-account-with-google.module';
-import { CreateAccountModule } from '@module/account/use-cases/create-account/create-account.module';
+import { CreateAccountWithUsernameModule } from '@module/account/use-cases/create-account-with-username/create-account-with-username.module';
 import { EnterAccountModule } from '@module/account/use-cases/enter-account/enter-account.module';
 import { GetAccountBySocialIdModule } from '@module/account/use-cases/get-account-by-social-id/get-account-by-social-id.module';
 import { GetAccountByUsernameModule } from '@module/account/use-cases/get-account-by-username/get-account-by-username.module';
@@ -14,7 +14,7 @@ import { ListAccountsModule } from '@module/account/use-cases/list-accounts/list
   imports: [
     ActiveAccountStoreModule,
 
-    CreateAccountModule,
+    CreateAccountWithUsernameModule,
     CreateAccountWithGoogleModule,
     EnterAccountModule,
     GetAccountModule,
