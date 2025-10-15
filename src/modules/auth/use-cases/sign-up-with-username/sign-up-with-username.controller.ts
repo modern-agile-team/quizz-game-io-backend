@@ -1,6 +1,8 @@
-import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+
+import { Response } from 'express';
 
 import { AccountUsernameAlreadyOccupiedError } from '@module/account/errors/account-username-already-occupied.error';
 import { AuthTokenDtoAssembler } from '@module/auth/assemblers/auth-token-dto.assembler';
@@ -18,8 +20,21 @@ import { ApiErrorResponse } from '@common/decorator/api-fail-response.decorator'
 export class SignUpWithUsernameController {
   constructor(private readonly commandBus: CommandBus) {}
 
+  /**
+   * @todo 프론트엔드에서 작업 완려되면 json 응답 제거
+   */
   @ApiOperation({ summary: 'username 기반 회원가입' })
-  @ApiCreatedResponse({ type: AuthTokenDto })
+  @ApiCreatedResponse({
+    type: AuthTokenDto,
+    headers: {
+      'Set-Cookie': {
+        description: 'access_token=token; Path=/; HttpOnly',
+        schema: {
+          type: 'string',
+        },
+      },
+    },
+  })
   @ApiErrorResponse({
     [HttpStatus.BAD_REQUEST]: [RequestValidationError],
     [HttpStatus.CONFLICT]: [AccountUsernameAlreadyOccupiedError],
@@ -27,6 +42,7 @@ export class SignUpWithUsernameController {
   @Post('sign-up/username')
   async signUpWithUsername(
     @Body() body: SignUpWithUsernameDto,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<AuthTokenDto> {
     try {
       const command = new SignUpWithUsernameCommand({
@@ -34,12 +50,16 @@ export class SignUpWithUsernameController {
         password: body.password,
       });
 
-      const result = await this.commandBus.execute<
+      const authToken = await this.commandBus.execute<
         SignUpWithUsernameCommand,
         AuthToken
       >(command);
 
-      return AuthTokenDtoAssembler.convertToDto(result);
+      res.cookie('access_token', authToken.accessToken, {
+        httpOnly: true,
+      });
+
+      return AuthTokenDtoAssembler.convertToDto(authToken);
     } catch (error) {
       if (error instanceof AccountUsernameAlreadyOccupiedError) {
         throw new BaseHttpException(HttpStatus.CONFLICT, error);
