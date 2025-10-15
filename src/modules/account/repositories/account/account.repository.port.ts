@@ -1,6 +1,9 @@
 import { Account as AccountModel } from '@prisma/client';
 
-import { Account } from '@module/account/entities/account.entity';
+import {
+  Account,
+  SocialProvider,
+} from '@module/account/entities/account.entity';
 
 import { RepositoryPort } from '@common/base/base.repository';
 
@@ -19,4 +22,8 @@ export interface AccountRepositoryPort
   findAllBy(options: { filter: AccountFilter }): Promise<Account[]>;
   findOneByUsername(username: string): Promise<Account | undefined>;
   findOneByNickname(nickname: string): Promise<Account | undefined>;
+  findOneBySocialId(
+    socialProvider: SocialProvider,
+    socialProviderUid: string,
+  ): Promise<Account | undefined>;
 }

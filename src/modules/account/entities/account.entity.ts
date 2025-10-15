@@ -15,11 +15,18 @@ export enum AccountRole {
 
 export enum SignInType {
   username = 'username',
+  google = 'google',
+}
+
+export enum SocialProvider {
+  google = 'google',
 }
 
 export interface AccountProps {
   role: AccountRole;
   signInType: SignInType;
+  socialProvider?: SocialProvider;
+  socialProviderUid?: string;
   username?: string;
   password?: string;
   nickname: string;
@@ -32,9 +39,17 @@ export interface AccountProps {
 interface CreateAccountProps {
   role: AccountRole;
   signInType: SignInType;
+  socialProvider?: SocialProvider;
+  socialProviderUid?: string;
   nickname: string;
   username?: string;
   password?: string;
+}
+
+interface CreateAccountWithGoogleProps {
+  role: AccountRole;
+  socialProviderUid?: string;
+  nickname: string;
 }
 
 export class Account extends AggregateRoot<AccountProps> {
@@ -51,6 +66,8 @@ export class Account extends AggregateRoot<AccountProps> {
       props: {
         role: props.role,
         signInType: props.signInType,
+        socialProvider: props.socialProvider,
+        socialProviderUid: props.socialProviderUid,
         username: props.username,
         password: props.password,
         nickname: props.nickname,
@@ -64,8 +81,41 @@ export class Account extends AggregateRoot<AccountProps> {
       new AccountCreatedEvent(account.id, {
         role: props.role,
         signInType: props.signInType,
+        socialProvider: props.socialProvider,
+        socialProviderUid: props.socialProviderUid,
         username: props.username,
         password: props.password,
+        nickname: account.props.nickname,
+      }),
+    );
+
+    return account;
+  }
+
+  static createAccountWithGoogle(props: CreateAccountWithGoogleProps) {
+    const id = generateEntityId();
+    const date = new Date();
+
+    const account = new Account({
+      id,
+      props: {
+        role: props.role,
+        signInType: SignInType.google,
+        socialProvider: SocialProvider.google,
+        socialProviderUid: props.socialProviderUid,
+        nickname: props.nickname,
+        isActive: false,
+      },
+      createdAt: date,
+      updatedAt: date,
+    });
+
+    account.apply(
+      new AccountCreatedEvent(account.id, {
+        role: AccountRole.user,
+        signInType: SignInType.google,
+        socialProvider: SocialProvider.google,
+        socialProviderUid: props.socialProviderUid,
         nickname: account.props.nickname,
       }),
     );
@@ -81,6 +131,14 @@ export class Account extends AggregateRoot<AccountProps> {
 
   get signInType(): SignInType {
     return this.props.signInType;
+  }
+
+  get socialProvider(): SocialProvider | undefined {
+    return this.props.socialProvider;
+  }
+
+  get socialProviderUid(): string | undefined {
+    return this.props.socialProviderUid;
   }
 
   get username(): string | undefined {

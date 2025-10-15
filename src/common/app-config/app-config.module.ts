@@ -39,6 +39,11 @@ import { AppConfigService } from '@common/app-config/app-config.service';
         [ENV_KEY.AWS_S3_ACCESS_KEY]: Joi.string().required(),
         [ENV_KEY.AWS_S3_SECRET_KEY]: Joi.string().required(),
         [ENV_KEY.AWS_S3_IMAGE_FILE_PATH]: Joi.string().required(),
+
+        [ENV_KEY.GOOGLE_OAUTH_CLIENT_ID]: Joi.string().required(),
+        [ENV_KEY.GOOGLE_OAUTH_CLIENT_SECRET]: Joi.string().required(),
+        [ENV_KEY.GOOGLE_OAUTH_CALLBACK_URL]: Joi.string().required(),
+        [ENV_KEY.GOOGLE_OAUTH_SCOPE]: Joi.string().required(),
       }),
     }),
   ],

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Google OAuth 테스트</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          'Noto Sans KR',
+          Arial,
+          sans-serif;
+        margin: 24px;
+      }
+      .row {
+        margin: 12px 0;
+      }
+      input[type='text'] {
+        width: 480px;
+        max-width: 100%;
+        padding: 8px;
+      }
+      button {
+        padding: 10px 14px;
+        margin-right: 8px;
+        cursor: pointer;
+      }
+      small {
+        color: #666;
+      }
+      code {
+        background: #f5f5f5;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Google OAuth 테스트 페이지</h1>
+
+    <div class="row">
+      <label>API Base URL: </label>
+      <input
+        id="apiBase"
+        type="text"
+        placeholder="예: https://api.example.com"
+      />
+      <small>비우면 현재 호스트 기준으로 요청합니다.</small>
+    </div>
+
+    <div class="row">
+      <label>Redirect After Auth (프론트로 돌아올 경로): </label>
+      <input
+        id="redirectTo"
+        type="text"
+        placeholder="예: https://app.example.com/post-auth"
+      />
+    </div>
+
+    <div class="row">
+      <label>Intent: </label>
+      <label
+        ><input type="radio" name="intent" value="auto" checked /> auto(백엔드가
+        존재 여부로 로그인/가입 판단)</label
+      >
+      <label><input type="radio" name="intent" value="login" /> login</label>
+      <label><input type="radio" name="intent" value="signup" /> signup</label>
+    </div>
+
+    <div class="row">
+      <label
+        ><input id="forcePrompt" type="checkbox" /> prompt=login 강제 (계정 선택
+        매번 표시)</label
+      >
+    </div>
+
+    <div class="row">
+      <button onclick="startOAuth()">/auth/google로 이동</button>
+      <button onclick="startOAuthRaw()">
+        /auth/google (state 없이 단순 이동)
+      </button>
+    </div>
+
+    <hr />
+
+    <p><strong>참고</strong></p>
+    <ul>
+      <li>
+        <code>state</code>엔 <code>intent</code>, <code>redirectTo</code>,
+        <code>csrf</code> 등을 담아 백엔드 콜백에서 분기/검증하세요.
+      </li>
+      <li>
+        백엔드는 <code>req.query.state</code>를 복호화/파싱해 정책 적용 후, 토큰
+        설정/리다이렉트 하도록 구현합니다.
+      </li>
+    </ul>
+
+    <script>
+      function base64urlEncode(str) {
+        return btoa(unescape(encodeURIComponent(str)))
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_')
+          .replace(/=+$/, '');
+      }
+
+      function currentOrigin() {
+        return window.location.origin;
+      }
+
+      function readIntent() {
+        const checked = document.querySelector(
+          'input[name="intent"]:checked',
+        ).value;
+        return checked === 'auto' ? undefined : checked;
+      }
+
+      function buildState() {
+        const intent = readIntent();
+        const redirectTo =
+          document.getElementById('redirectTo').value ||
+          currentOrigin() + '/post-auth';
+        const csrf = crypto.getRandomValues(new Uint32Array(1))[0].toString(16);
+        const payload = { redirectTo, csrf };
+        if (intent) payload.intent = intent;
+        return base64urlEncode(JSON.stringify(payload));
+      }
+
+      function buildAuthUrl(withState = true) {
+        const apiBase = (document.getElementById('apiBase').value || '').trim();
+        const base = apiBase || currentOrigin();
+        const u = new URL(base.replace(/\/$/, '') + '/auth/google');
+
+        if (withState) {
+          u.searchParams.set('state', buildState());
+        }
+        if (document.getElementById('forcePrompt').checked) {
+          // passport-google-oauth20에서 추가 파라미터로 전달 가능
+          u.searchParams.set('prompt', 'login');
+        }
+        return u.toString();
+      }
+
+      function startOAuth() {
+        window.location.href = buildAuthUrl(true);
+      }
+      function startOAuthRaw() {
+        window.location.href = buildAuthUrl(false);
+      }
+    </script>
+  </body>
+</html>

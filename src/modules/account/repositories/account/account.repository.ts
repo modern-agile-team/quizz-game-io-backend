@@ -7,7 +7,10 @@ import {
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { Prisma } from '@prisma/client';
 
-import { Account } from '@module/account/entities/account.entity';
+import {
+  Account,
+  SocialProvider,
+} from '@module/account/entities/account.entity';
 import { AccountMapper } from '@module/account/mappers/account.mapper';
 import {
   AccountFilter,
@@ -70,6 +73,24 @@ export class AccountRepository
     const account = await this.txHost.tx.account.findFirst({
       where: {
         nickname,
+      },
+    });
+
+    if (account === null) {
+      return;
+    }
+
+    return this.mapper.toEntity(account);
+  }
+
+  async findOneBySocialId(
+    socialProvider: SocialProvider,
+    socialProviderUid: string,
+  ): Promise<Account | undefined> {
+    const account = await this.txHost.tx.account.findFirst({
+      where: {
+        socialProvider: socialProvider,
+        socialProviderUid: socialProviderUid,
       },
     });
 
