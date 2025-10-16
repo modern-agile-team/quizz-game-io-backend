@@ -8,6 +8,7 @@ import { EnterAccountModule } from '@module/account/use-cases/enter-account/ente
 import { GetAccountBySocialIdModule } from '@module/account/use-cases/get-account-by-social-id/get-account-by-social-id.module';
 import { GetAccountByUsernameModule } from '@module/account/use-cases/get-account-by-username/get-account-by-username.module';
 import { GetAccountModule } from '@module/account/use-cases/get-account/get-account.module';
+import { GetActiveAccountCountModule } from '@module/account/use-cases/get-active-account-count/get-active-account-count.module';
 import { ListAccountsModule } from '@module/account/use-cases/list-accounts/list-accounts.module';
 
 @Module({
@@ -20,6 +21,7 @@ import { ListAccountsModule } from '@module/account/use-cases/list-accounts/list
     GetAccountModule,
     GetAccountBySocialIdModule,
     GetAccountByUsernameModule,
+    GetActiveAccountCountModule,
     ListAccountsModule,
 
     AccountEnteredModule,
