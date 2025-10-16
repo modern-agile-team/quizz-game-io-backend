@@ -1,4 +1,4 @@
-import { Inject } from '@nestjs/common';
+import { Inject, OnApplicationBootstrap } from '@nestjs/common';
 
 import {
   DeleteObjectCommand,
@@ -15,7 +15,7 @@ import {
   UploadFileProps,
 } from '@shared/services/aws-s3/aws-s3.port';
 
-export class AwsS3Adapter implements AwsS3Port {
+export class AwsS3Adapter implements AwsS3Port, OnApplicationBootstrap {
   private readonly BUCKET_NAME: string;
 
   constructor(
@@ -25,6 +25,15 @@ export class AwsS3Adapter implements AwsS3Port {
     this.BUCKET_NAME = this.appConfigService.get<string>(
       ENV_KEY.AWS_S3_BUCKET_NAME,
     );
+  }
+
+  onApplicationBootstrap() {
+    console.log('AWS_S3_BUCKET_NAME', this.BUCKET_NAME);
+    console.log('----------------------------');
+    Object.values(ENV_KEY).forEach((envKey) => {
+      console.log(envKey, this.appConfigService.get(envKey as any));
+    });
+    console.log('----------------------------');
   }
 
   async uploadFile(props: UploadFileProps): Promise<void> {
