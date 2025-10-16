@@ -5,6 +5,7 @@ import {
   ApiExcludeEndpoint,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 
@@ -14,12 +15,28 @@ import { AuthToken } from '@module/auth/entities/auth-token.vo';
 import { GoogleAuthGuard } from '@module/auth/guards/google-auth.guard';
 import { SignInWithGoogleCommand } from '@module/auth/use-cases/sign-in-with-google/sign-in-with-google.command';
 
+import { ENV_KEY } from '@common/app-config/app-config.constant';
+import { AppConfigService } from '@common/app-config/app-config.service';
 import { ApiErrorResponse } from '@common/decorator/api-fail-response.decorator';
 
 @ApiTags('auth')
 @Controller()
 export class SignInWithGoogleController {
-  constructor(private readonly commandBus: CommandBus) {}
+  private readonly ALLOW_REDIRECT_URLS: string[];
+  private readonly DEFAULT_REDIRECT_URL: string;
+
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly appConfigService: AppConfigService,
+  ) {
+    this.ALLOW_REDIRECT_URLS = this.appConfigService.get<string[]>(
+      ENV_KEY.OAUTH_ALLOW_REDIRECT_URLS,
+    );
+
+    this.DEFAULT_REDIRECT_URL = this.appConfigService.get<string>(
+      ENV_KEY.OAUTH_DEFAULT_REDIRECT_URL,
+    );
+  }
 
   @ApiErrorResponse({})
   @ApiOperation({
@@ -35,6 +52,11 @@ export class SignInWithGoogleController {
         },
       },
     },
+  })
+  @ApiQuery({
+    name: 'redirectUrl',
+    required: false,
+    type: String,
   })
   @UseGuards(GoogleAuthGuard)
   @Get('/auth/google')
@@ -61,5 +83,13 @@ export class SignInWithGoogleController {
     res.cookie('access_token', authToken.accessToken, {
       httpOnly: true,
     });
+
+    const state = JSON.parse(req.query.state);
+
+    const redirectUrl = this.ALLOW_REDIRECT_URLS.includes(state.redirectUrl)
+      ? state.redirectUrl
+      : this.DEFAULT_REDIRECT_URL;
+
+    res.redirect(redirectUrl);
   }
 }
