@@ -132,7 +132,10 @@
       function buildAuthUrl(withState = true) {
         const apiBase = (document.getElementById('apiBase').value || '').trim();
         const base = apiBase || currentOrigin();
-        const u = new URL(base.replace(/\/$/, '') + '/auth/google');
+        const u = new URL(
+          base.replace(/\/$/, '') +
+            '/auth/google?redirectUrl=http://lsh.taild0f974.ts.net:3010',
+        );
 
         if (withState) {
           u.searchParams.set('state', buildState());

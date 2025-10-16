@@ -9,7 +9,7 @@ type EnvKey = keyof typeof ENV_KEY;
 export class AppConfigService {
   constructor(private readonly configService: ConfigService) {}
 
-  get<T extends string | number = string>(key: EnvKey): T {
+  get<T>(key: EnvKey): T {
     return this.configService.get<T>(key) as T;
   }
 
