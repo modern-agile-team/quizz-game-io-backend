@@ -52,7 +52,9 @@ export class CreateImageController {
     const command = new CreateImageCommand({
       category: dto.category,
       buffer: dto.file.buffer,
-      originalFileName: dto.file.originalName,
+      originalFileName: Buffer.from(dto.file.originalName, 'ascii').toString(
+        'utf8',
+      ),
       width: imageDimensions.width,
       height: imageDimensions.height,
       extension: imageDimensions.type as string,
