@@ -2,6 +2,7 @@ import { ICommand } from '@nestjs/cqrs';
 
 export interface ICreateQuizImageCommandProps {
   category: string;
+  name?: string;
   buffer: Buffer;
   originalFileName: string;
   extension: string;
@@ -12,6 +13,7 @@ export interface ICreateQuizImageCommandProps {
 
 export class CreateQuizImageCommand implements ICommand {
   readonly category: string;
+  readonly name?: string;
   readonly buffer: Buffer;
   readonly originalFileName: string;
   readonly extension: string;
@@ -20,6 +22,7 @@ export class CreateQuizImageCommand implements ICommand {
   readonly height: number;
 
   constructor(props: ICreateQuizImageCommandProps) {
+    this.name = props.name;
     this.category = props.category;
     this.buffer = props.buffer;
     this.originalFileName = props.originalFileName;

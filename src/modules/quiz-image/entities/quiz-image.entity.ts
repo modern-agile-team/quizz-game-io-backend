@@ -58,6 +58,7 @@ export class QuizImage extends AggregateRoot<QuizImageProps> {
     quizImage.apply(
       new QuizImageCreatedEvent(quizImage.id, {
         category: quizImage.props.category,
+        name: quizImage.props.name,
         originalFileName: quizImage.props.originalFileName,
         fileName: quizImage.props.fileName,
         extension: quizImage.props.extension,

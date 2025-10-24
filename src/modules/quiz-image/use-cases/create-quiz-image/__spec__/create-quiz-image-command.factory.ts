@@ -9,6 +9,7 @@ export const CreateQuizImageCommandFactory =
     CreateQuizImageCommand,
   ).attrs({
     category: () => faker.word.verb(),
+    name: () => faker.word.verb(),
     buffer: () => Buffer.from(faker.string.nanoid()),
     originalFileName: () => faker.string.nanoid(),
     extension: () => faker.word.verb(),
