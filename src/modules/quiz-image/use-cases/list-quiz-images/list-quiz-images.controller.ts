@@ -44,6 +44,7 @@ export class ListQuizImagesController {
   async listQuizImagesAdmin(@Query() dto: ListQuizImagesDto) {
     const query = new ListQuizImagesQuery({
       category: dto.category,
+      sort: dto.sort,
       page: dto.page,
       perPage: dto.perPage,
     });

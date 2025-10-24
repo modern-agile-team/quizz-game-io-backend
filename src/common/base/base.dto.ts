@@ -2,8 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { ISort } from '@common/base/base.repository';
 
-export class SortDto implements ISort {
-  field: string;
+export class SortDto<Field extends string = string> implements ISort<Field> {
+  field: Field;
 
   direction: 'desc' | 'asc';
 }

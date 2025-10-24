@@ -31,6 +31,7 @@ export class ListQuizImagesHandler
       filter: {
         category: query.category,
       },
+      order: query.sort,
     });
 
     return new OffsetPage(result.data, page, perPage, result.totalCount);
