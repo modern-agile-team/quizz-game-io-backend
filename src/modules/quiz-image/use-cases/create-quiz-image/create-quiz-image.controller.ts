@@ -51,6 +51,7 @@ export class CreateQuizImageController {
 
     const command = new CreateQuizImageCommand({
       category: dto.category,
+      name: dto.name,
       buffer: dto.file.buffer,
       originalFileName: Buffer.from(dto.file.originalName, 'ascii').toString(
         'utf8',

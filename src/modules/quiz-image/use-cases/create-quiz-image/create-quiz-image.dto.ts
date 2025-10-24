@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { IsFile, MaxFileSize, MemoryStoredFile } from 'nestjs-form-data';
 
 export class CreateQuizImageDto {
@@ -21,4 +21,14 @@ export class CreateQuizImageDto {
   })
   @IsNotEmpty()
   category: string;
+
+  @ApiProperty({
+    default: 'originalFIleName의 확장자를 제외함',
+    required: false,
+    minLength: 1,
+  })
+  @IsNotEmpty()
+  @IsString()
+  @IsOptional()
+  name?: string;
 }

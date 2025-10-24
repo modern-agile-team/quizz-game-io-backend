@@ -11,6 +11,7 @@ export class QuizImageMapper extends BaseMapper {
       updatedAt: raw.updatedAt,
       props: {
         category: raw.category,
+        name: raw.name,
         originalFileName: raw.originalFileName,
         fileName: raw.fileName,
         extension: raw.extension,
@@ -27,6 +28,7 @@ export class QuizImageMapper extends BaseMapper {
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       category: entity.category,
+      name: entity.name,
       originalFileName: entity.originalFileName,
       fileName: entity.fileName,
       extension: entity.extension,

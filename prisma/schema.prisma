@@ -173,6 +173,7 @@ model QuizEventStore {
 model QuizImage {
   id BigInt @id
 
+  name             String
   originalFileName String
   fileName         String
   category         String

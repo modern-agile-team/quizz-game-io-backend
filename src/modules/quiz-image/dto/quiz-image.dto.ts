@@ -7,6 +7,9 @@ export class QuizImageDto extends BaseResponseDto {
   category: string;
 
   @ApiProperty()
+  name: string;
+
+  @ApiProperty()
   originalFileName: string;
 
   @ApiProperty()

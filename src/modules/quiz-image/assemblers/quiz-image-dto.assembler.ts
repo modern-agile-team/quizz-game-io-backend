@@ -10,6 +10,7 @@ export class QuizImageDtoAssembler {
     });
 
     dto.category = quizImage.category;
+    dto.name = quizImage.name;
     dto.originalFileName = quizImage.originalFileName;
     dto.quizImageUrl = quizImage.quizImageUrl;
     dto.extension = quizImage.extension;

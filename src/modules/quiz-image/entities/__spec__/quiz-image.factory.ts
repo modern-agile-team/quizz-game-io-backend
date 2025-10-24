@@ -14,6 +14,7 @@ export const QuizImageFactory = Factory.define<QuizImage & QuizImageProps>(
   .attrs({
     id: () => generateEntityId(),
     category: () => faker.word.verb(),
+    name: () => faker.string.nanoid(),
     originalFileName: () => faker.string.nanoid(),
     fileName: () => faker.string.nanoid(),
     extension: () => faker.word.verb(),
