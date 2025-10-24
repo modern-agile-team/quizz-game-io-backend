@@ -79,6 +79,9 @@ export class Quiz extends AggregateRoot<QuizProps> {
     return this.props.imageUrl;
   }
 
+  /**
+   * @todo updatedAt 갱신
+   */
   update(props: UpdateQuizProps) {
     if (props.type !== undefined) {
       this.props.type = props.type;

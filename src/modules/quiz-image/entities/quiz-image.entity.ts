@@ -2,6 +2,7 @@ import { TSID } from 'tsid-ts';
 
 import { QuizImageCreatedEvent } from '@module/quiz-image/events/quiz-image-created.event';
 import { QuizImageDeletedEvent } from '@module/quiz-image/events/quiz-image-deleted.event';
+import { QuizImageUpdatedEvent } from '@module/quiz-image/events/quiz-image-updated.event';
 
 import {
   AggregateRoot,
@@ -28,6 +29,11 @@ interface CreateQuizImageProps {
   contentLength: string;
   width: number;
   height: number;
+}
+
+interface UpdateQuizImageProps {
+  name?: string;
+  category?: string;
 }
 
 export class QuizImage extends AggregateRoot<QuizImageProps> {
@@ -113,6 +119,25 @@ export class QuizImage extends AggregateRoot<QuizImageProps> {
 
   get height(): number {
     return this.props.height;
+  }
+
+  update(props: UpdateQuizImageProps) {
+    if (props.name !== undefined) {
+      this.props.name = props.name;
+    }
+
+    if (props.category !== undefined) {
+      this.props.category = props.category;
+    }
+
+    this.updatedAt = new Date();
+
+    this.apply(
+      new QuizImageUpdatedEvent(this.id, {
+        category: this.props.category,
+        name: this.props.name,
+      }),
+    );
   }
 
   delete() {
