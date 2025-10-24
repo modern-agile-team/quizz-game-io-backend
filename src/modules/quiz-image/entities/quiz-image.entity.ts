@@ -80,7 +80,7 @@ export class QuizImage extends AggregateRoot<QuizImageProps> {
   }
 
   get filePath(): string {
-    return process.env.AWS_S3_IMAGE_FILE_PATH + '/' + this.props.fileName;
+    return process.env.AWS_S3_QUIZ_IMAGE_FILE_PATH + '/' + this.props.fileName;
   }
 
   get quizImageUrl(): string {

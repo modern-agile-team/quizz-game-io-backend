@@ -38,7 +38,7 @@ import { AppConfigService } from '@common/app-config/app-config.service';
         [ENV_KEY.AWS_S3_URL]: Joi.string().required(),
         [ENV_KEY.AWS_S3_ACCESS_KEY]: Joi.string().required(),
         [ENV_KEY.AWS_S3_SECRET_KEY]: Joi.string().required(),
-        [ENV_KEY.AWS_S3_IMAGE_FILE_PATH]: Joi.string().required(),
+        [ENV_KEY.AWS_S3_QUIZ_IMAGE_FILE_PATH]: Joi.string().required(),
 
         [ENV_KEY.OAUTH_ALLOW_REDIRECT_URLS]: Joi.string()
           .required()
