@@ -28,7 +28,7 @@ export class QuizImageRepository
   extends BaseRepository<QuizImage, QuizImageRaw>
   implements QuizImageRepositoryPort
 {
-  protected TABLE_NAME = 'image';
+  protected TABLE_NAME = 'quizImage';
 
   constructor(
     @InjectTransactionHost()
@@ -38,7 +38,7 @@ export class QuizImageRepository
   }
 
   async findByFileNames(fileNames: string[]): Promise<QuizImage[]> {
-    const quizImages = await this.txHost.tx.image.findMany({
+    const quizImages = await this.txHost.tx.quizImage.findMany({
       where: {
         fileName: {
           in: fileNames,
@@ -46,7 +46,7 @@ export class QuizImageRepository
       },
     });
 
-    return quizImages.map((image) => QuizImageMapper.toEntity(image));
+    return quizImages.map((quizImage) => QuizImageMapper.toEntity(quizImage));
   }
 
   async findAllOffsetPaginated(
@@ -60,13 +60,13 @@ export class QuizImageRepository
       Object.assign(where, { category: filter.category });
     }
 
-    const quizImages = await this.txHost.tx.image.findMany({
+    const quizImages = await this.txHost.tx.quizImage.findMany({
       skip: pageInfo.offset,
       take: pageInfo.limit,
       where,
       orderBy: this.toOrderBy([{ field: 'id', direction: 'asc' }]),
     });
-    const totalCount = await this.txHost.tx.image.count({ where });
+    const totalCount = await this.txHost.tx.quizImage.count({ where });
 
     return {
       offset: pageInfo.offset,

@@ -1,4 +1,4 @@
-import { Image as QuizImageModel } from '@prisma/client';
+import { QuizImage as QuizImageModel } from '@prisma/client';
 
 import { QuizImage } from '@module/quiz-image/entities/quiz-image.entity';
 
