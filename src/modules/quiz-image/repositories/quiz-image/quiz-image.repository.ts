@@ -59,12 +59,13 @@ export class QuizImageRepository
     if (filter?.category) {
       Object.assign(where, { category: filter.category });
     }
-
     const quizImages = await this.txHost.tx.quizImage.findMany({
       skip: pageInfo.offset,
       take: pageInfo.limit,
       where,
-      orderBy: this.toOrderBy([{ field: 'id', direction: 'asc' }]),
+      orderBy: this.toOrderBy(
+        params.order ?? [{ field: 'id', direction: 'asc' }],
+      ),
     });
     const totalCount = await this.txHost.tx.quizImage.count({ where });
 

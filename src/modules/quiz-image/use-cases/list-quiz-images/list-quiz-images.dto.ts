@@ -10,6 +10,19 @@ import {
   Min,
 } from 'class-validator';
 
+import { SortDto } from '@common/base/base.dto';
+import { ApiSort } from '@common/decorator/api-sort.decorator';
+import { ParseSort } from '@common/transformer/parse-sort.transformer';
+
+type AllowSortFields = 'createdAt' | 'updatedAt' | 'name' | 'category';
+
+const ALLOW_SORT_FIELDS: ReadonlySet<AllowSortFields> = new Set([
+  'createdAt',
+  'updatedAt',
+  'name',
+  'category',
+]);
+
 export class ListQuizImagesDto {
   @ApiProperty({
     description: '카테고리 필터링',
@@ -42,4 +55,11 @@ export class ListQuizImagesDto {
   @IsOptional()
   @Type(() => Number)
   perPage?: number;
+
+  @ApiSort({
+    allowFields: ALLOW_SORT_FIELDS,
+  })
+  @ParseSort(ALLOW_SORT_FIELDS)
+  @IsOptional()
+  sort?: SortDto<AllowSortFields>[];
 }
