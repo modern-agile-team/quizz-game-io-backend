@@ -1,98 +1,143 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Zoop
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Real-time backend for the Quizz Game IO platform. The service is built with NestJS 11, Prisma, and Socket.IO to deliver multiplayer quiz gameplay, OAuth-based authentication, and media management via Amazon S3.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- WebSocket gateway with Redis adapter for scalable real-time gameplay.
+- CQRS-based modular architecture with event sourcing stores per aggregate.
+- Prisma/PostgreSQL persistence with seed scripts for quizzes and nickname sources.
+- JWT authentication with optional Google OAuth 2.0 sign-in.
+- Image upload and metadata management backed by Amazon S3.
+- Structured logging via `nestjs-pino` with environment-aware formatting.
+- Auto-generated API documentation (Swagger + AsyncAPI) segmented for admin and user flows.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Tech Stack
 
-## Project setup
+- Node.js (NestJS 11, Socket.IO, CQRS, Class Validator/Transformer)
+- Prisma ORM (PostgreSQL)
+- Redis (Socket session index + Pub/Sub for WebSockets)
+- Amazon S3 (quiz images)
+- Jest, Testcontainers (unit/e2e testing)
 
-```bash
-$ npm install
-```
+## Prerequisites
 
-## Compile and run the project
+- Node.js ≥ 20.x and npm ≥ 10.x
+- Docker & Docker Compose (for local PostgreSQL/Redis or Testcontainers)
+- Access credentials for PostgreSQL, Redis, JWT signing secret, and optional AWS/Google integrations
+
+## Getting Started
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
+Create your environment file (never commit secrets):
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+cp .env .env.local
 ```
 
-## Deployment
+Update `.env.local` (or `.env`) with your values. Key variables are grouped below:
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+| Group                   | Keys                                                                                                                         |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| App                     | `PORT`, `NODE_ENV`, `APP_STAGE`                                                                                              |
+| Database                | `DATABASE_URL`                                                                                                               |
+| Redis                   | `REDIS_URL`                                                                                                                  |
+| JWT                     | `JWT_SECRET_KEY`, `JWT_ISSUER`, `JWT_ACCESS_TOKEN_EXPIRES_IN`                                                                |
+| Logging                 | `LOGGER_LEVEL`                                                                                                               |
+| AWS S3 (optional)       | `AWS_S3_REGION`, `AWS_S3_BUCKET_NAME`, `AWS_S3_URL`, `AWS_S3_ACCESS_KEY`, `AWS_S3_SECRET_KEY`, `AWS_S3_QUIZ_IMAGE_FILE_PATH` |
+| OAuth redirect          | `OAUTH_ALLOW_REDIRECT_URLS`, `OAUTH_DEFAULT_REDIRECT_URL`                                                                    |
+| Google OAuth (optional) | `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, `GOOGLE_OAUTH_CALLBACK_URL`, `GOOGLE_OAUTH_SCOPE`                    |
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Local Infrastructure
+
+Bring up PostgreSQL and Redis with Docker:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+docker compose up -d
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Apply existing Prisma migrations:
 
-## Resources
+```bash
+npx prisma migrate deploy
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+Seed local quiz and nickname data (optional):
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+npm run db:seed:mock
+```
 
-## Support
+### Run the Application
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+# Development with hot reload
+npm run start:dev
 
-## Stay in touch
+# Production build and start
+npm run build
+npm run start:prod
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+The HTTP server listens on `PORT` (default `3000`).
+
+### WebSocket Access
+
+- Namespace: `/`
+- Clients supply JWT via Socket.IO handshake auth: `io('/', { auth: { token: 'Bearer <jwt>' } })`.
+- On connection the gateway validates the token, loads account context, and registers socket IDs in Redis.
+
+### API Documentation
+
+- Swagger (full): `http://localhost:3000/swagger`
+- Swagger (admin-only routes): `http://localhost:3000/swagger/admin`
+- Swagger (user-facing routes): `http://localhost:3000/swagger/user`
+- AsyncAPI (WebSocket events): `http://localhost:3000/async-doc`
+
+### Testing
+
+```bash
+npm run test          # unit tests
+npm run test:e2e      # end-to-end (requires Docker for Testcontainers)
+npm run test:cov      # coverage report
+```
+
+### Code Generation Scripts
+
+- `npm run gen:usecase` – scaffolds a CQRS use case preset.
+- `npm run gen:domain` – scaffolds domain-layer boilerplate.
+
+### Project Structure (excerpt)
+
+```
+src/
+  app.module.ts
+  bootstrap.ts
+  common/          # configuration, guards, pipes, base classes
+  core/            # socket adapters, event-sourcing utilities
+  modules/
+    account/       # account aggregates, commands, queries
+    auth/          # JWT + OAuth flows
+    game-room/     # room lifecycle and member management
+    nickname-source/
+    quiz/
+    quiz-image/
+  shared/          # Prisma, logging, other cross-cutting concerns
+prisma/
+  schema.prisma
+  migrations/
+  seed/
+```
+
+## Deployment Notes
+
+- Build with `npm run build`; run `node dist/main.js` or `npm run start:prod`.
+- Ensure `DATABASE_URL`, `REDIS_URL`, and credential secrets are injected via environment variables in your runtime.
+- For horizontal scaling, provide a shared Redis instance so the Socket.IO adapter can distribute events.
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This repository is currently distributed under the `UNLICENSED` license. Refer to `package.json` for details.
