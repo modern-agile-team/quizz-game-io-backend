@@ -4,6 +4,7 @@ import { CreateQuizImageModule } from '@module/quiz-image/use-cases/create-quiz-
 import { DeleteQuizImageModule } from '@module/quiz-image/use-cases/delete-quiz-image/delete-quiz-image.module';
 import { GetQuizImageModule } from '@module/quiz-image/use-cases/get-quiz-image/get-quiz-image.module';
 import { ListQuizImagesModule } from '@module/quiz-image/use-cases/list-quiz-images/list-quiz-images.module';
+import { UpdateQuizImageModule } from '@module/quiz-image/use-cases/update-quiz-image/update-quiz-image.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { ListQuizImagesModule } from '@module/quiz-image/use-cases/list-quiz-ima
     DeleteQuizImageModule,
     GetQuizImageModule,
     ListQuizImagesModule,
+    UpdateQuizImageModule,
   ],
 })
 export class QuizImageModule {}
