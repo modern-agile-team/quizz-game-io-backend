@@ -4,9 +4,9 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Transactional } from '@nestjs-cls/transactional';
 
 import {
-  IMAGE_REPOSITORY,
-  ImageRepositoryPort,
-} from '@module/image/repositories/image/image.repository.port';
+  QUIZ_IMAGE_REPOSITORY,
+  QuizImageRepositoryPort,
+} from '@module/quiz-image/repositories/quiz-image/quiz-image.repository.port';
 import { Quiz } from '@module/quiz/entities/quiz.entity';
 import {
   QUIZ_REPOSITORY,
@@ -28,8 +28,8 @@ export class CreateQuizzesHandler
   constructor(
     @Inject(QUIZ_REPOSITORY)
     private readonly quizRepository: QuizRepositoryPort,
-    @Inject(IMAGE_REPOSITORY)
-    private readonly imageRepository: ImageRepositoryPort,
+    @Inject(QUIZ_IMAGE_REPOSITORY)
+    private readonly quizImageRepository: QuizImageRepositoryPort,
     @Inject(EVENT_STORE)
     private readonly eventStore: IEventStore,
     private readonly appConfigService: AppConfigService,
@@ -39,17 +39,19 @@ export class CreateQuizzesHandler
   async execute(command: CreateQuizzesCommand): Promise<Quiz[]> {
     const { props } = command;
 
-    const imageFileNames = props
+    const quizImageFileNames = props
       .map((item) => item.imageUrl)
       .filter((url): url is string => url !== null)
       .filter((url) =>
-        url.startsWith(`${this.appConfigService.get('AWS_S3_URL')}/images`),
+        url.startsWith(
+          `${this.appConfigService.get('AWS_S3_URL')}/quiz-images`,
+        ),
       )
       .map((url) => this.extractFileNameFromUrl(url));
 
-    const images =
-      imageFileNames.length > 0
-        ? await this.imageRepository.findByFileNames(imageFileNames)
+    const quizImages =
+      quizImageFileNames.length > 0
+        ? await this.quizImageRepository.findByFileNames(quizImageFileNames)
         : [];
 
     const quizzes = props
@@ -58,9 +60,9 @@ export class CreateQuizzesHandler
           return true;
         }
 
-        return images.some(
-          (image) =>
-            image.fileName ===
+        return quizImages.some(
+          (quizImage) =>
+            quizImage.fileName ===
             this.extractFileNameFromUrl(item.imageUrl as string),
         );
       })
@@ -83,7 +85,7 @@ export class CreateQuizzesHandler
   }
 
   /**
-   * @todo image의 url과 filaName에 대한 규칙을 이미지 모듈에서 관리하도록 변경
+   * @todo 퀴즈 이미지의 url과 filaName에 대한 규칙을 퀴즈 이미지 모듈에서 관리하도록 변경
    */
   private extractFileNameFromUrl(url: string): string {
     return url.split('/').pop() as string;

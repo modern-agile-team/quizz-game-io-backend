@@ -170,7 +170,7 @@ model QuizEventStore {
   @@map("quiz_event_store")
 }
 
-model Image {
+model QuizImage {
   id BigInt @id
 
   originalFileName String
@@ -185,10 +185,10 @@ model Image {
   updatedAt DateTime @updatedAt @db.Timestamp(3)
 
   @@index(fileName)
-  @@map("image")
+  @@map("quiz_image")
 }
 
-model ImageEventStore {
+model QuizImageEventStore {
   id           BigInt   @id
   actorId      BigInt?
   aggregateId  BigInt
@@ -198,5 +198,5 @@ model ImageEventStore {
   storedAt     DateTime @default(now()) @db.Timestamp(3)
 
   @@unique([aggregateId, version])
-  @@map("image_event_store")
+  @@map("quiz_image_event_store")
 }
