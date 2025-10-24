@@ -34,6 +34,7 @@ export class CreateQuizImageHandler
   async execute(command: CreateQuizImageCommand): Promise<QuizImage> {
     const quizImage = QuizImage.create({
       category: command.category,
+      name: command.originalFileName,
       originalFileName: command.originalFileName,
       extension: command.extension,
       contentLength: command.contentLength,

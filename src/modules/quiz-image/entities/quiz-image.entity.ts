@@ -11,6 +11,7 @@ import {
 
 export interface QuizImageProps {
   category: string;
+  name: string;
   originalFileName: string;
   fileName: string;
   extension: string;
@@ -21,6 +22,7 @@ export interface QuizImageProps {
 
 interface CreateQuizImageProps {
   category: string;
+  name: string;
   originalFileName: string;
   extension: string;
   contentLength: string;
@@ -41,6 +43,7 @@ export class QuizImage extends AggregateRoot<QuizImageProps> {
       id,
       props: {
         category: props.category,
+        name: props.name,
         originalFileName: props.originalFileName,
         fileName: `${TSID.create().number.toString()}.${props.extension}`,
         extension: props.extension,
@@ -69,6 +72,10 @@ export class QuizImage extends AggregateRoot<QuizImageProps> {
 
   get category(): string {
     return this.props.category;
+  }
+
+  get name(): string {
+    return this.props.name;
   }
 
   get originalFileName(): string {
