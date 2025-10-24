@@ -2,12 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { faker } from '@faker-js/faker';
 
-import { ImageFactory } from '@module/image/entities/__spec__/image.factory';
-import { ImageRepositoryModule } from '@module/image/repositories/image/image.repository.module';
+import { QuizImageFactory } from '@module/quiz-image/entities/__spec__/quiz-image.factory';
+import { QuizImageRepositoryModule } from '@module/quiz-image/repositories/quiz-image/quiz-image.repository.module';
 import {
-  IMAGE_REPOSITORY,
-  ImageRepositoryPort,
-} from '@module/image/repositories/image/image.repository.port';
+  QUIZ_IMAGE_REPOSITORY,
+  QuizImageRepositoryPort,
+} from '@module/quiz-image/repositories/quiz-image/quiz-image.repository.port';
 import { QuizRepositoryModule } from '@module/quiz/repositories/quiz/quiz.repository.module';
 import {
   QUIZ_REPOSITORY,
@@ -31,7 +31,7 @@ describe(CreateQuizzesHandler.name, () => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let quizRepository: QuizRepositoryPort;
-  let imageRepository: ImageRepositoryPort;
+  let quizImageRepository: QuizImageRepositoryPort;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let eventStore: IEventStore;
 
@@ -43,7 +43,7 @@ describe(CreateQuizzesHandler.name, () => {
         AppConfigModule,
         ClsModuleFactory(),
         QuizRepositoryModule,
-        ImageRepositoryModule,
+        QuizImageRepositoryModule,
         EventStoreModule,
       ],
       providers: [CreateQuizzesHandler],
@@ -52,7 +52,9 @@ describe(CreateQuizzesHandler.name, () => {
     handler = module.get<CreateQuizzesHandler>(CreateQuizzesHandler);
 
     quizRepository = module.get<QuizRepositoryPort>(QUIZ_REPOSITORY);
-    imageRepository = module.get<ImageRepositoryPort>(IMAGE_REPOSITORY);
+    quizImageRepository = module.get<QuizImageRepositoryPort>(
+      QUIZ_IMAGE_REPOSITORY,
+    );
     eventStore = module.get<IEventStore>(EVENT_STORE);
   });
 
@@ -62,10 +64,10 @@ describe(CreateQuizzesHandler.name, () => {
 
   describe('퀴즈를 대량 생성하면', () => {
     beforeEach(async () => {
-      const images = await Promise.all(
+      const quizImages = await Promise.all(
         [faker.string.nanoid(), faker.string.nanoid()]
-          .map((filaName) => ImageFactory.build({ fileName: filaName }))
-          .map((image) => imageRepository.insert(image)),
+          .map((filaName) => QuizImageFactory.build({ fileName: filaName }))
+          .map((quizImage) => quizImageRepository.insert(quizImage)),
       );
 
       command = new CreateQuizzesCommand([
@@ -73,13 +75,13 @@ describe(CreateQuizzesHandler.name, () => {
           type: 'text',
           question: 'question with valid image',
           answer: 'answer1',
-          imageUrl: `${process.env.AWS_S3_URL}/images/${images[0].fileName}`,
+          imageUrl: `${process.env.AWS_S3_URL}/quiz-images/${quizImages[0].fileName}`,
         },
         {
           type: 'text',
           question: 'question with another valid image',
           answer: 'answer2',
-          imageUrl: `${process.env.AWS_S3_URL}/images/${images[1].fileName}`,
+          imageUrl: `${process.env.AWS_S3_URL}/quiz-images/${quizImages[1].fileName}`,
         },
         {
           type: 'text',

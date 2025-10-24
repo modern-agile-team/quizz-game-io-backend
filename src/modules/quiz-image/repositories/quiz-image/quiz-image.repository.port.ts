@@ -1,0 +1,31 @@
+import { Image as QuizImageModel } from '@prisma/client';
+
+import { QuizImage } from '@module/quiz-image/entities/quiz-image.entity';
+
+import { IOffsetPaginated, RepositoryPort } from '@common/base/base.repository';
+
+export const QUIZ_IMAGE_REPOSITORY = Symbol('QUIZ_IMAGE_REPOSITORY');
+
+export interface QuizImageRaw extends QuizImageModel {}
+
+export interface QuizImageFilter {
+  category?: string;
+}
+
+export interface QuizImageOrder {}
+
+export interface FindAllQuizImagesOffsetPaginatedParams {
+  pageInfo: {
+    offset: number;
+    limit: number;
+  };
+  filter?: QuizImageFilter;
+}
+
+export interface QuizImageRepositoryPort
+  extends RepositoryPort<QuizImage, QuizImageFilter, QuizImageOrder> {
+  findByFileNames(fileNames: string[]): Promise<QuizImage[]>;
+  findAllOffsetPaginated(
+    params: FindAllQuizImagesOffsetPaginatedParams,
+  ): Promise<IOffsetPaginated<QuizImage>>;
+}

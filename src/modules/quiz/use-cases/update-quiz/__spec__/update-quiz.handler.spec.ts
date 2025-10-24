@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { ImageFactory } from '@module/image/entities/__spec__/image.factory';
-import { ImageRepositoryModule } from '@module/image/repositories/image/image.repository.module';
+import { QuizImageFactory } from '@module/quiz-image/entities/__spec__/quiz-image.factory';
+import { QuizImageRepositoryModule } from '@module/quiz-image/repositories/quiz-image/quiz-image.repository.module';
 import {
-  IMAGE_REPOSITORY,
-  ImageRepositoryPort,
-} from '@module/image/repositories/image/image.repository.port';
+  QUIZ_IMAGE_REPOSITORY,
+  QuizImageRepositoryPort,
+} from '@module/quiz-image/repositories/quiz-image/quiz-image.repository.port';
 import { QuizFactory } from '@module/quiz/entities/__spec__/quiz.factory';
 import { QuizImageNotFoundError } from '@module/quiz/errors/quiz-image-not-found.error';
 import { QuizNotFoundError } from '@module/quiz/errors/quiz-not-found.error';
@@ -32,7 +32,7 @@ describe(UpdateQuizHandler.name, () => {
   let handler: UpdateQuizHandler;
 
   let quizRepository: QuizRepositoryPort;
-  let imageRepository: ImageRepositoryPort;
+  let quizImageRepository: QuizImageRepositoryPort;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let eventStore: IEventStore;
 
@@ -43,7 +43,7 @@ describe(UpdateQuizHandler.name, () => {
       imports: [
         ClsModuleFactory(),
         QuizRepositoryModule,
-        ImageRepositoryModule,
+        QuizImageRepositoryModule,
         EventStoreModule,
         AppConfigModule,
       ],
@@ -53,7 +53,9 @@ describe(UpdateQuizHandler.name, () => {
     handler = module.get<UpdateQuizHandler>(UpdateQuizHandler);
 
     quizRepository = module.get<QuizRepositoryPort>(QUIZ_REPOSITORY);
-    imageRepository = module.get<ImageRepositoryPort>(IMAGE_REPOSITORY);
+    quizImageRepository = module.get<QuizImageRepositoryPort>(
+      QUIZ_IMAGE_REPOSITORY,
+    );
     eventStore = module.get<IEventStore>(EVENT_STORE);
   });
 
@@ -68,8 +70,8 @@ describe(UpdateQuizHandler.name, () => {
           id: command.quizId,
         }),
       ),
-      imageRepository.insert(
-        ImageFactory.build({
+      quizImageRepository.insert(
+        QuizImageFactory.build({
           fileName: (command.imageUrl as string).split('/').pop() as string,
         }),
       ),
@@ -98,7 +100,7 @@ describe(UpdateQuizHandler.name, () => {
     });
   });
 
-  describe('퀴즈 이미지 url에 해당하는 이미지가 존재하지 않는 경우', () => {
+  describe('퀴즈 이미지 url에 해당하는 퀴즈 이미지가 존재하지 않는 경우', () => {
     it('퀴즈 이미지가 존재하지 않는다는 에러가 발생해야 한다.', async () => {
       await expect(
         handler.execute({ ...command, imageUrl: 'invalid url' }),

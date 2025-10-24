@@ -1,7 +1,12 @@
 import { RequestContext } from 'nestjs-request-context';
 import { TSID } from 'tsid-ts';
 
-type Aggregate = 'Account' | 'GameRoom' | 'Image' | 'Quiz' | 'NicknameSource';
+type Aggregate =
+  | 'Account'
+  | 'GameRoom'
+  | 'QuizImage'
+  | 'Quiz'
+  | 'NicknameSource';
 
 /**
  * @todo ws 프로토콜에서도 actor를 감지할 수 있도록 처리

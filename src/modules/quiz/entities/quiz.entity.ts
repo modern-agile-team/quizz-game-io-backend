@@ -34,9 +34,6 @@ export class Quiz extends AggregateRoot<QuizProps> {
     super(props);
   }
 
-  /**
-   * @todo 퀴즈 생성 유즈케이스 작업 시 이벤트 추가
-   */
   static create(props: CreateQuizProps) {
     const id = generateEntityId();
     const now = new Date();
