@@ -72,7 +72,7 @@ export class UpdateQuizHandler
 
     if (
       url.startsWith(
-        `${this.appConfigService.get(ENV_KEY.AWS_S3_URL)}/quiz-images`,
+        `${this.appConfigService.get(ENV_KEY.AWS_S3_URL)}/${this.appConfigService.get(ENV_KEY.AWS_S3_QUIZ_IMAGE_FILE_PATH)}`,
       ) === false
     ) {
       throw new QuizImageNotFoundError();
