@@ -146,10 +146,10 @@ model GameRoomEventStore {
 model Quiz {
   id BigInt @id
 
-  type     String
-  answer   String
-  imageUrl String?
-  question String?
+  type          String
+  answer        String
+  imageFileName String?
+  question      String?
 
   createdAt DateTime @default(now()) @db.Timestamp(3)
   updatedAt DateTime @updatedAt @db.Timestamp(3)

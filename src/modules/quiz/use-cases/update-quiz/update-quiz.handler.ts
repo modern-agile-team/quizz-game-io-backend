@@ -52,7 +52,7 @@ export class UpdateQuizHandler
       type: command.type,
       question: command.question,
       answer: command.answer,
-      imageUrl: command.imageUrl,
+      imageFileName: command.imageUrl?.split('/').pop() as string,
     });
 
     await this.quizRepository.update(quiz);
@@ -72,7 +72,7 @@ export class UpdateQuizHandler
 
     if (
       url.startsWith(
-        `${this.appConfigService.get(ENV_KEY.AWS_S3_URL)}/quiz-images`,
+        `${this.appConfigService.get(ENV_KEY.AWS_S3_URL)}/${this.appConfigService.get(ENV_KEY.AWS_S3_QUIZ_IMAGE_FILE_PATH)}`,
       ) === false
     ) {
       throw new QuizImageNotFoundError();

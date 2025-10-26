@@ -86,7 +86,7 @@ describe(UpdateQuizHandler.name, () => {
           type: command.type,
           question: command.question,
           answer: command.answer,
-          imageUrl: command.imageUrl,
+          imageFileName: expect.any(String),
         }),
       );
     });

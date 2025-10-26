@@ -14,6 +14,7 @@ import {
 } from '@module/quiz/repositories/quiz/quiz.repository.port';
 import { CreateQuizzesCommand } from '@module/quiz/use-cases/create-quizzes/create-quizzes.command';
 
+import { ENV_KEY } from '@common/app-config/app-config.constant';
 import { AppConfigService } from '@common/app-config/app-config.service';
 
 import {
@@ -44,7 +45,7 @@ export class CreateQuizzesHandler
       .filter((url): url is string => url !== null)
       .filter((url) =>
         url.startsWith(
-          `${this.appConfigService.get('AWS_S3_URL')}/quiz-images`,
+          `${this.appConfigService.get(ENV_KEY.AWS_S3_URL)}/${this.appConfigService.get(ENV_KEY.AWS_S3_QUIZ_IMAGE_FILE_PATH)}`,
         ),
       )
       .map((url) => this.extractFileNameFromUrl(url));
@@ -71,7 +72,7 @@ export class CreateQuizzesHandler
           type: item.type,
           answer: item.answer,
           question: item.question,
-          imageUrl: item.imageUrl,
+          imageFileName: this.extractFileNameFromUrl(item.imageUrl as string),
         }),
       );
 

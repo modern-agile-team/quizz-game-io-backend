@@ -13,7 +13,7 @@ export class QuizMapper extends BaseMapper {
         type: raw.type,
         answer: raw.answer,
         question: raw.question ?? undefined,
-        imageUrl: raw.imageUrl ?? undefined,
+        imageFileName: raw.imageFileName ?? undefined,
       },
     });
   }
@@ -26,7 +26,7 @@ export class QuizMapper extends BaseMapper {
       type: entity.type,
       answer: entity.answer,
       question: entity.question ?? null,
-      imageUrl: entity.imageUrl ?? null,
+      imageFileName: entity.imageFileName ?? null,
     };
   }
 }
