@@ -52,7 +52,7 @@ export class UpdateQuizHandler
       type: command.type,
       question: command.question,
       answer: command.answer,
-      imageUrl: command.imageUrl,
+      imageFileName: command.imageUrl?.split('/').pop() as string,
     });
 
     await this.quizRepository.update(quiz);

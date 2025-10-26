@@ -72,7 +72,7 @@ export class CreateQuizzesHandler
           type: item.type,
           answer: item.answer,
           question: item.question,
-          imageUrl: item.imageUrl,
+          imageFileName: this.extractFileNameFromUrl(item.imageUrl as string),
         }),
       );
 

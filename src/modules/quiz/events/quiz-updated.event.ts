@@ -5,7 +5,7 @@ interface QuizUpdatedEventPayload {
   type?: string;
   question?: string | null;
   answer?: string;
-  imageUrl?: string | null;
+  imageFileName?: string | null;
 }
 
 export class QuizUpdatedEvent extends DomainEvent<QuizUpdatedEventPayload> {

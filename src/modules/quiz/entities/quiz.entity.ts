@@ -12,21 +12,21 @@ export interface QuizProps {
   type: string;
   question?: string | null;
   answer: string;
-  imageUrl?: string | null;
+  imageFileName?: string | null;
 }
 
 interface CreateQuizProps {
   type: string;
   question?: string | null;
   answer: string;
-  imageUrl?: string | null;
+  imageFileName?: string | null;
 }
 
 interface UpdateQuizProps {
   type?: string;
   question?: string | null;
   answer?: string;
-  imageUrl?: string | null;
+  imageFileName?: string | null;
 }
 
 export class Quiz extends AggregateRoot<QuizProps> {
@@ -46,7 +46,7 @@ export class Quiz extends AggregateRoot<QuizProps> {
         type: props.type,
         question: props.question,
         answer: props.answer,
-        imageUrl: props.imageUrl,
+        imageFileName: props.imageFileName,
       },
     });
 
@@ -56,7 +56,7 @@ export class Quiz extends AggregateRoot<QuizProps> {
         type: props.type,
         question: props.question,
         answer: props.answer,
-        imageUrl: props.imageUrl,
+        imageFileName: props.imageFileName,
       }),
     );
 
@@ -75,8 +75,18 @@ export class Quiz extends AggregateRoot<QuizProps> {
     return this.props.answer;
   }
 
+  get imageFileName(): string | undefined | null {
+    return this.props.imageFileName;
+  }
+
   get imageUrl(): string | undefined | null {
-    return this.props.imageUrl;
+    return (
+      process.env.AWS_S3_URL +
+      '/' +
+      process.env.AWS_S3_QUIZ_IMAGE_FILE_PATH +
+      '/' +
+      this.props.imageFileName
+    );
   }
 
   /**
@@ -95,8 +105,8 @@ export class Quiz extends AggregateRoot<QuizProps> {
       this.props.answer = props.answer;
     }
 
-    if (props.imageUrl !== undefined) {
-      this.props.imageUrl = props.imageUrl;
+    if (props.imageFileName !== undefined) {
+      this.props.imageFileName = props.imageFileName;
     }
 
     this.apply(
@@ -105,7 +115,7 @@ export class Quiz extends AggregateRoot<QuizProps> {
         type: this.props.type,
         question: this.props.question,
         answer: this.props.answer,
-        imageUrl: this.props.imageUrl,
+        imageFileName: this.props.imageFileName,
       }),
     );
   }
