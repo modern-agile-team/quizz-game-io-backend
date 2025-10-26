@@ -13,5 +13,5 @@ export const UpdateQuizCommandFactory = Factory.define<UpdateQuizCommand>(
   type: () => faker.word.noun(),
   answer: () => faker.word.noun(),
   question: () => faker.lorem.sentence(),
-  imageUrl: () => process.env.AWS_S3_URL + '/quiz-images/' + faker.image.url(),
+  imageFileName: () => faker.string.nanoid(),
 });

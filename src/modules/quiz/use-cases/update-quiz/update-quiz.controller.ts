@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   HttpStatus,
+  Inject,
   Param,
   Patch,
   UseGuards,
@@ -32,10 +33,19 @@ import {
 import { ApiErrorResponse } from '@common/decorator/api-fail-response.decorator';
 import { AdminGuard } from '@common/guards/admin.guard';
 
+import {
+  ASSET_URL_CODEC_PORT,
+  AssetUrlCodecPort,
+} from '@shared/asset/asset-url-codec.port';
+
 @ApiTags('quiz')
 @Controller()
 export class UpdateQuizController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    @Inject(ASSET_URL_CODEC_PORT)
+    private readonly assetUrlCodec: AssetUrlCodecPort,
+  ) {}
 
   @ApiOperation({ summary: '퀴즈 수정' })
   @ApiBearerAuth()
@@ -53,12 +63,20 @@ export class UpdateQuizController {
     @Body() body: UpdateQuizDto,
   ): Promise<QuizDto> {
     try {
+      if (
+        body.imageUrl !== null &&
+        body.imageUrl !== undefined &&
+        !this.assetUrlCodec.isValidUrl(body.imageUrl)
+      ) {
+        throw new QuizImageNotFoundError();
+      }
+
       const command = new UpdateQuizCommand({
         quizId,
         type: body.type,
         answer: body.answer,
         question: body.question,
-        imageUrl: body.imageUrl,
+        imageFileName: this.assetUrlCodec.parseUrl(body.imageUrl as string),
       });
 
       const quiz = await this.commandBus.execute<UpdateQuizCommand, Quiz>(
