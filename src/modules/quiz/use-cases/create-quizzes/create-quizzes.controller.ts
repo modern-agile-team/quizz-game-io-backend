@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   HttpStatus,
+  Inject,
   ParseArrayPipe,
   Put,
   UseGuards,
@@ -30,10 +31,19 @@ import {
 import { ApiErrorResponse } from '@common/decorator/api-fail-response.decorator';
 import { AdminGuard } from '@common/guards/admin.guard';
 
+import {
+  ASSET_URL_CODEC_PORT,
+  AssetUrlCodecPort,
+} from '@shared/asset/asset-url-codec.port';
+
 @ApiTags('quiz')
 @Controller()
 export class CreateQuizzesController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    @Inject(ASSET_URL_CODEC_PORT)
+    private readonly assetUrlCodec: AssetUrlCodecPort,
+  ) {}
 
   @ApiErrorResponse({
     [HttpStatus.BAD_REQUEST]: [RequestValidationError],
@@ -51,14 +61,19 @@ export class CreateQuizzesController {
   @Put('admin/quizzes')
   async createQuizzesAdmin(
     @Body(new ParseArrayPipe({ items: CreateQuizzesDto }))
-    dto: CreateQuizzesDto[],
+    dtos: CreateQuizzesDto[],
   ): Promise<QuizDto[]> {
+    const filteredDtos = dtos.filter(
+      (item): item is CreateQuizzesDto & { imageUrl: string } =>
+        item.imageUrl !== null && this.assetUrlCodec.isValidUrl(item.imageUrl),
+    );
+
     const command = new CreateQuizzesCommand(
-      dto.map((item) => ({
+      filteredDtos.map((item) => ({
         type: item.type,
         answer: item.answer,
         question: item.question,
-        imageUrl: item.imageUrl,
+        imageFileName: this.assetUrlCodec.parseUrl(item.imageUrl),
       })),
     );
 
