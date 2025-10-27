@@ -99,6 +99,8 @@ export class Quiz extends AggregateRoot<QuizProps> {
       this.props.imageFileName = props.imageFileName;
     }
 
+    this.updatedAt = new Date();
+
     this.apply(
       new QuizUpdatedEvent(this.id, {
         quizId: this.id,
