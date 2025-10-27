@@ -5,17 +5,10 @@ import { QuizRepositoryModule } from '@module/quiz/repositories/quiz/quiz.reposi
 import { UpdateQuizController } from '@module/quiz/use-cases/update-quiz/update-quiz.controller';
 import { UpdateQuizHandler } from '@module/quiz/use-cases/update-quiz/update-quiz.handler';
 
-import { AssetModule } from '@shared/asset/asset.module';
-
 import { EventStoreModule } from '@core/event-sourcing/event-store.module';
 
 @Module({
-  imports: [
-    AssetModule.register({ category: 'quizImage' }),
-    QuizRepositoryModule,
-    QuizImageRepositoryModule,
-    EventStoreModule,
-  ],
+  imports: [QuizRepositoryModule, QuizImageRepositoryModule, EventStoreModule],
   controllers: [UpdateQuizController],
   providers: [UpdateQuizHandler],
 })

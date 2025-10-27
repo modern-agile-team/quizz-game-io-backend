@@ -79,16 +79,6 @@ export class Quiz extends AggregateRoot<QuizProps> {
     return this.props.imageFileName;
   }
 
-  get imageUrl(): string | undefined | null {
-    return (
-      process.env.AWS_S3_URL +
-      '/' +
-      process.env.AWS_S3_QUIZ_IMAGE_FILE_PATH +
-      '/' +
-      this.props.imageFileName
-    );
-  }
-
   /**
    * @todo updatedAt 갱신
    */
