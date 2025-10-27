@@ -32,7 +32,7 @@ import {
 import { ApiErrorResponse } from '@common/decorator/api-fail-response.decorator';
 import { AdminGuard } from '@common/guards/admin.guard';
 
-import { AssetUrlCodec } from '@shared/asset/asset-url.codec';
+import { AssetUrlManager } from '@shared/asset/asset-url.manager';
 
 @ApiTags('quiz')
 @Controller()
@@ -58,7 +58,7 @@ export class UpdateQuizController {
       if (
         body.imageUrl !== null &&
         body.imageUrl !== undefined &&
-        !AssetUrlCodec.isValidUrl(body.imageUrl, 'quizImage')
+        !AssetUrlManager.isValidUrl(body.imageUrl, 'quizImage')
       ) {
         throw new QuizImageNotFoundError();
       }
@@ -68,7 +68,7 @@ export class UpdateQuizController {
         type: body.type,
         answer: body.answer,
         question: body.question,
-        imageFileName: AssetUrlCodec.urlToFileName(
+        imageFileName: AssetUrlManager.urlToFileName(
           body.imageUrl as string,
           'quizImage',
         ),

@@ -1,7 +1,7 @@
 import { QuizDto } from '@module/quiz/dto/quiz.dto';
 import { Quiz } from '@module/quiz/entities/quiz.entity';
 
-import { AssetUrlCodec } from '@shared/asset/asset-url.codec';
+import { AssetUrlManager } from '@shared/asset/asset-url.manager';
 
 export class QuizDtoAssembler {
   static convertToDto(quiz: Quiz): QuizDto {
@@ -17,7 +17,7 @@ export class QuizDtoAssembler {
     dto.imageUrl =
       quiz.imageFileName === null || quiz.imageFileName === undefined
         ? null
-        : AssetUrlCodec.fileNameToUrl(quiz.imageFileName, 'quizImage');
+        : AssetUrlManager.fileNameToUrl(quiz.imageFileName, 'quizImage');
 
     return dto;
   }

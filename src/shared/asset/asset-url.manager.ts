@@ -4,7 +4,7 @@ import { InvalidAssetUrlError } from '@shared/asset/errors/invalid-asset-url.err
 
 export type AssetCategory = 'quizImage';
 
-export class AssetUrlCodec {
+export class AssetUrlManager {
   private static readonly BASE_ASSET_URL = process.env[
     ENV_KEY.AWS_S3_URL
   ] as string;
