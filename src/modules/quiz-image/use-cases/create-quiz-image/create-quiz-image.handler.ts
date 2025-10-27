@@ -50,7 +50,8 @@ export class CreateQuizImageHandler
 
     await this.awsS3Adapter.uploadFile({
       file: command.buffer,
-      key: quizImage.filePath,
+      type: 'quizImage',
+      fileName: quizImage.fileName,
       contentType: quizImage.contentType,
     });
 

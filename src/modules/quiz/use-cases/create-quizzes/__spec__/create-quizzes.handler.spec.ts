@@ -75,24 +75,18 @@ describe(CreateQuizzesHandler.name, () => {
           type: 'text',
           question: 'question with valid image',
           answer: 'answer1',
-          imageUrl: `${process.env.AWS_S3_URL}/quiz-images/${quizImages[0].fileName}`,
+          imageFileName: quizImages[0].fileName,
         },
         {
           type: 'text',
           question: 'question with another valid image',
           answer: 'answer2',
-          imageUrl: `${process.env.AWS_S3_URL}/quiz-images/${quizImages[1].fileName}`,
-        },
-        {
-          type: 'text',
-          question: 'question with invalid image',
-          answer: 'answer3',
-          imageUrl: `${process.env.AWS_S3_URL}/invalid.png`,
+          imageFileName: quizImages[1].fileName,
         },
       ]);
     });
 
-    it('유효한 퀴즈만 생성해야한다.', async () => {
+    it('퀴즈 목록을 생성해야한다.', async () => {
       await expect(handler.execute(command)).resolves.toHaveLength(2);
     });
   });

@@ -72,7 +72,7 @@ describe(UpdateQuizHandler.name, () => {
       ),
       quizImageRepository.insert(
         QuizImageFactory.build({
-          fileName: (command.imageUrl as string).split('/').pop() as string,
+          fileName: command.imageFileName as string,
         }),
       ),
     ]);
@@ -103,7 +103,7 @@ describe(UpdateQuizHandler.name, () => {
   describe('퀴즈 이미지 url에 해당하는 퀴즈 이미지가 존재하지 않는 경우', () => {
     it('퀴즈 이미지가 존재하지 않는다는 에러가 발생해야 한다.', async () => {
       await expect(
-        handler.execute({ ...command, imageUrl: 'invalid url' }),
+        handler.execute({ ...command, imageFileName: 'invalid filaName' }),
       ).rejects.toThrow(QuizImageNotFoundError);
     });
   });

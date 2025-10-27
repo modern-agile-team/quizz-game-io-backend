@@ -45,6 +45,9 @@ export class DeleteQuizImageHandler
     await this.quizImageRepository.delete(existingQuizImage);
     await this.eventStore.storeAggregateEvents(existingQuizImage);
 
-    await this.awsS3Adapter.deleteFile(existingQuizImage.filePath);
+    await this.awsS3Adapter.deleteFile({
+      type: 'quizImage',
+      fileName: existingQuizImage.fileName,
+    });
   }
 }

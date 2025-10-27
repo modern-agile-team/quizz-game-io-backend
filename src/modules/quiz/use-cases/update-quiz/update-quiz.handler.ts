@@ -16,9 +16,6 @@ import {
 } from '@module/quiz/repositories/quiz/quiz.repository.port';
 import { UpdateQuizCommand } from '@module/quiz/use-cases/update-quiz/update-quiz.command';
 
-import { ENV_KEY } from '@common/app-config/app-config.constant';
-import { AppConfigService } from '@common/app-config/app-config.service';
-
 import {
   EVENT_STORE,
   IEventStore,
@@ -35,7 +32,6 @@ export class UpdateQuizHandler
     private readonly quizImageRepository: QuizImageRepositoryPort,
     @Inject(EVENT_STORE)
     private readonly eventStore: IEventStore,
-    private readonly appConfigService: AppConfigService,
   ) {}
 
   @Transactional()
@@ -46,13 +42,21 @@ export class UpdateQuizHandler
       throw new QuizNotFoundError();
     }
 
-    await this.validateQuizImageUrl(command.imageUrl);
+    if (command.imageFileName) {
+      const quizImages = await this.quizImageRepository.findByFileNames([
+        command.imageFileName,
+      ]);
+
+      if (quizImages.length === 0) {
+        throw new QuizImageNotFoundError();
+      }
+    }
 
     quiz.update({
       type: command.type,
       question: command.question,
       answer: command.answer,
-      imageFileName: command.imageUrl?.split('/').pop() as string,
+      imageFileName: command.imageFileName,
     });
 
     await this.quizRepository.update(quiz);
@@ -60,30 +64,5 @@ export class UpdateQuizHandler
     await this.eventStore.storeAggregateEvents(quiz);
 
     return quiz;
-  }
-
-  /**
-   * @todo 퀴즈 이미지의 url과 filaName에 대한 규칙을 퀴즈 이미지 모듈에서 관리하도록 변경
-   */
-  private async validateQuizImageUrl(url?: string | null): Promise<void> {
-    if (url === undefined || url === null) {
-      return;
-    }
-
-    if (
-      url.startsWith(
-        `${this.appConfigService.get(ENV_KEY.AWS_S3_URL)}/${this.appConfigService.get(ENV_KEY.AWS_S3_QUIZ_IMAGE_FILE_PATH)}`,
-      ) === false
-    ) {
-      throw new QuizImageNotFoundError();
-    }
-
-    const quizImages = await this.quizImageRepository.findByFileNames([
-      url.split('/').pop() as string,
-    ]);
-
-    if (quizImages.length === 0) {
-      throw new QuizImageNotFoundError();
-    }
   }
 }

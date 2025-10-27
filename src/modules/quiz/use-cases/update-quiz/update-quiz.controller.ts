@@ -32,6 +32,8 @@ import {
 import { ApiErrorResponse } from '@common/decorator/api-fail-response.decorator';
 import { AdminGuard } from '@common/guards/admin.guard';
 
+import { AssetUrlManager } from '@shared/asset/asset-url.manager';
+
 @ApiTags('quiz')
 @Controller()
 export class UpdateQuizController {
@@ -53,12 +55,23 @@ export class UpdateQuizController {
     @Body() body: UpdateQuizDto,
   ): Promise<QuizDto> {
     try {
+      if (
+        body.imageUrl !== null &&
+        body.imageUrl !== undefined &&
+        !AssetUrlManager.isValidUrl(body.imageUrl, 'quizImage')
+      ) {
+        throw new QuizImageNotFoundError();
+      }
+
       const command = new UpdateQuizCommand({
         quizId,
         type: body.type,
         answer: body.answer,
         question: body.question,
-        imageUrl: body.imageUrl,
+        imageFileName: AssetUrlManager.urlToFileName(
+          body.imageUrl as string,
+          'quizImage',
+        ),
       });
 
       const quiz = await this.commandBus.execute<UpdateQuizCommand, Quiz>(

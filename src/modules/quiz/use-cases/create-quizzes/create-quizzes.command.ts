@@ -4,7 +4,7 @@ export interface ICreateQuizzesCommandProps {
   type: string;
   answer: string;
   question: string | null;
-  imageUrl: string | null;
+  imageFileName: string | null;
 }
 
 export class CreateQuizzesCommand implements ICommand {

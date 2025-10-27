@@ -5,7 +5,7 @@ export interface IUpdateQuizCommandProps {
   type?: string;
   answer?: string;
   question?: string | null;
-  imageUrl?: string | null;
+  imageFileName?: string | null;
 }
 
 export class UpdateQuizCommand implements ICommand {
@@ -13,13 +13,13 @@ export class UpdateQuizCommand implements ICommand {
   readonly type?: string;
   readonly answer?: string;
   readonly question?: string | null;
-  readonly imageUrl?: string | null;
+  readonly imageFileName?: string | null;
 
   constructor(props: IUpdateQuizCommandProps) {
     this.quizId = props.quizId;
     this.type = props.type;
     this.answer = props.answer;
     this.question = props.question;
-    this.imageUrl = props.imageUrl;
+    this.imageFileName = props.imageFileName;
   }
 }

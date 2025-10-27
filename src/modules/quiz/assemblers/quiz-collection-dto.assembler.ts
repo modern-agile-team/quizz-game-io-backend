@@ -6,7 +6,7 @@ export class QuizCollectionDtoAssembler {
   static convertToDto(quizzes: Quiz[]): QuizCollectionDto {
     const dto = new QuizCollectionDto();
 
-    dto.data = quizzes.map(QuizDtoAssembler.convertToDto);
+    dto.data = quizzes.map((quiz) => QuizDtoAssembler.convertToDto(quiz));
 
     return dto;
   }
