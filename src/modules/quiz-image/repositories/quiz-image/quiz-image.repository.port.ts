@@ -31,6 +31,9 @@ export interface FindAllQuizImagesOffsetPaginatedParams {
 
 export interface QuizImageRepositoryPort
   extends RepositoryPort<QuizImage, QuizImageFilter, QuizImageOrder> {
+  /**
+   * @todo set 자료형으로 인풋변경
+   */
   findByFileNames(fileNames: string[]): Promise<QuizImage[]>;
   findAllOffsetPaginated(
     params: FindAllQuizImagesOffsetPaginatedParams,

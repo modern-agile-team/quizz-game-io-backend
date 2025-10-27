@@ -86,4 +86,27 @@ describe(QuizRepository, () => {
       });
     });
   });
+
+  describe(QuizRepository.prototype.findManyByFileNames, () => {
+    let fileNames: Set<string>;
+    let quizzes: Quiz[];
+
+    beforeEach(async () => {
+      fileNames = new Set<string>();
+      quizzes = await Promise.all(
+        QuizFactory.buildList(3).map((quiz) => {
+          fileNames.add(quiz.imageFileName as string);
+          return repository.insert(quiz);
+        }),
+      );
+    });
+
+    describe('이미지 파일명 리스트를 주면', () => {
+      it('이미지 파일명에 맞는 퀴즈 목록을 반환해야 한다.', async () => {
+        await expect(
+          repository.findManyByFileNames(fileNames),
+        ).resolves.toEqual(expect.arrayContaining(quizzes));
+      });
+    });
+  });
 });

@@ -11,7 +11,7 @@ export const QuizFactory = Factory.define<Quiz & QuizProps>(Quiz.name)
     type: () => faker.string.nanoid(),
     question: () => faker.lorem.sentence(),
     answer: () => faker.lorem.word(),
-    imageFileName: () => faker.internet.url(),
+    imageFileName: () => faker.string.nanoid(),
     createdAt: () => new Date(),
     updatedAt: () => new Date(),
   })
