@@ -15,6 +15,7 @@ import {
 } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '@module/auth/jwt/jwt-auth.guard';
+import { QuizImageInUsedError } from '@module/quiz-image/errors/quiz-image-in-used.error';
 import { QuizImageNotFoundError } from '@module/quiz-image/errors/quiz-image-not-found.error';
 import { DeleteQuizImageCommand } from '@module/quiz-image/use-cases/delete-quiz-image/delete-quiz-image.command';
 
@@ -39,6 +40,7 @@ export class DeleteQuizImageController {
     [HttpStatus.UNAUTHORIZED]: [UnauthorizedError],
     [HttpStatus.FORBIDDEN]: [PermissionDeniedError],
     [HttpStatus.NOT_FOUND]: [QuizImageNotFoundError],
+    [HttpStatus.CONFLICT]: [QuizImageInUsedError],
   })
   @ApiNoContentResponse()
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -54,6 +56,10 @@ export class DeleteQuizImageController {
     } catch (error) {
       if (error instanceof QuizImageNotFoundError) {
         throw new BaseHttpException(HttpStatus.NOT_FOUND, error);
+      }
+
+      if (error instanceof QuizImageInUsedError) {
+        throw new BaseHttpException(HttpStatus.CONFLICT, error);
       }
 
       throw error;
