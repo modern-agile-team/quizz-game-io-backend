@@ -16,4 +16,5 @@ export interface QuizRepositoryPort
   extends RepositoryPort<Quiz, QuizFilter, QuizOrder> {
   insertMany(quizzes: Quiz[]): Promise<void>;
   findAll(): Promise<Quiz[]>;
+  findManyByFileNames(fileNames: Set<string>): Promise<Quiz[]>;
 }

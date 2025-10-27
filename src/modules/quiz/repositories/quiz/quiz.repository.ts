@@ -47,6 +47,18 @@ export class QuizRepository
     return quizzes.map((quiz) => this.mapper.toEntity(quiz));
   }
 
+  async findManyByFileNames(fileNames: Set<string>): Promise<Quiz[]> {
+    const quizzes = await this.txHost.tx.quiz.findMany({
+      where: {
+        imageFileName: {
+          in: Array.from(fileNames),
+        },
+      },
+    });
+
+    return quizzes.map((quiz) => this.mapper.toEntity(quiz));
+  }
+
   findAllCursorPaginated(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     params: ICursorPaginatedParams<QuizOrder, QuizFilter>,
