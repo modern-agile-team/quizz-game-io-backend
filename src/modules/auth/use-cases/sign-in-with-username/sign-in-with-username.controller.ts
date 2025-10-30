@@ -28,7 +28,7 @@ export class SignInWithUsernameController {
     type: AuthTokenDto,
     headers: {
       'Set-Cookie': {
-        description: 'access_token=token; Path=/; HttpOnly',
+        description: 'access_token=token;',
         schema: {
           type: 'string',
         },
@@ -55,9 +55,7 @@ export class SignInWithUsernameController {
         AuthToken
       >(command);
 
-      res.cookie('access_token', authToken.accessToken, {
-        httpOnly: true,
-      });
+      res.cookie('access_token', authToken.accessToken, {});
 
       return AuthTokenDtoAssembler.convertToDto(authToken);
     } catch (error) {

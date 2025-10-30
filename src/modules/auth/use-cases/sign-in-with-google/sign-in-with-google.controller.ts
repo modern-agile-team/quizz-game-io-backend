@@ -46,7 +46,7 @@ export class SignInWithGoogleController {
   @ApiOkResponse({
     headers: {
       'Set-Cookie': {
-        description: 'access_token=token; Path=/; HttpOnly',
+        description: 'access_token=token;',
         schema: {
           type: 'string',
         },
@@ -80,9 +80,7 @@ export class SignInWithGoogleController {
       AuthToken
     >(command);
 
-    res.cookie('access_token', authToken.accessToken, {
-      httpOnly: true,
-    });
+    res.cookie('access_token', authToken.accessToken, {});
 
     const state = JSON.parse(req.query.state);
 
